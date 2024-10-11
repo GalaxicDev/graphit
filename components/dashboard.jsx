@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Sidebar } from './Sidebar'
-import { Navbar } from './Navbar'
+import { Sidebar } from '@/components/sidebar'
+import { Navbar } from '@/components/navbar'
 import { ProjectSelection } from './project-selection'
 import { ProjectView } from './project-view'
 
@@ -23,7 +23,7 @@ export function DashboardComponent() {
   const toggleDarkMode = () => setDarkMode(!darkMode)
 
   const projects = [
-    { id: 1, name: "E-commerce Platform", description: "Online shopping system", collections: 5, lastUpdated: "2023-04-15" },
+    { id: 1, name: "E-commerce Platform2", description: "Online shopping system", collections: 5, lastUpdated: "2023-04-15" },
     { id: 2, name: "Blog CMS", description: "Content management for blogs", collections: 3, lastUpdated: "2023-04-10" },
     { id: 3, name: "Task Manager", description: "Project and task tracking app", collections: 4, lastUpdated: "2023-04-05" },
   ]
