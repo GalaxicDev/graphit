@@ -14,15 +14,17 @@ import {
 
 export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode }) {
   return (
-      <header className="flex items-center justify-between h-16 px-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <header className={`flex items-center justify-between h-16 px-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700`}>
         <div className="flex items-center">
-          <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleSidebar}
-              className="mr-4 lg:hidden text-gray-800 dark:text-white">
-            <Menu className="h-6 w-6" />
-          </Button>
+          {!sidebarOpen && (
+              <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleSidebar}
+                  className="mr-4 lg:block hidden text-gray-800 dark:text-white">
+                <Menu className="h-6 w-6" />
+              </Button>
+          )}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <Input

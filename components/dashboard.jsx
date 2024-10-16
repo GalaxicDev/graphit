@@ -3,30 +3,43 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '@/components/sidebar'
 import { Navbar } from '@/components/navbar'
-import { ProjectSelection } from './project-selection'
+import { ProjectSelection } from './projectSelection'
 import { ProjectView } from './project-view'
+import ChartCardComponent from './chartCardComponent'
 
 export function DashboardComponent() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
   const [selectedProject, setSelectedProject] = useState(null)
   const [isClient, setIsClient] = useState(false)
+  const [projects, setProjects] = useState([])
 
-  // Ensure dark mode is set correctly on the client side
   useEffect(() => {
     const darkModePreference = window.matchMedia('(prefers-color-scheme: dark)').matches
     setDarkMode(darkModePreference)
     setIsClient(true)
   }, [])
 
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const res = await fetch('http://localhost:5000/api/projects', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        })
+        const data = await res.json()
+        setProjects(data)
+      } catch (error) {
+        console.error('Failed to fetch projects:', error)
+      }
+    }
+
+    fetchProjects()
+  }, [])
+
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
   const toggleDarkMode = () => setDarkMode(!darkMode)
-
-  const projects = [
-    { id: 1, name: "E-commerce Platform2", description: "Online shopping system", collections: 5, lastUpdated: "2023-04-15" },
-    { id: 2, name: "Blog CMS", description: "Content management for blogs", collections: 3, lastUpdated: "2023-04-10" },
-    { id: 3, name: "Task Manager", description: "Project and task tracking app", collections: 4, lastUpdated: "2023-04-05" },
-  ]
 
   if (!isClient) {
     return null
@@ -35,7 +48,7 @@ export function DashboardComponent() {
   return (
       <div className={`flex h-screen ${darkMode ? 'dark' : ''}`}>
         <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-        <div className="flex-1 flex flex-col">
+        <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-64' : ''}`}>
           <Navbar
               sidebarOpen={sidebarOpen}
               toggleSidebar={toggleSidebar}
@@ -45,10 +58,13 @@ export function DashboardComponent() {
             {selectedProject ? (
                 <ProjectView project={selectedProject} setSelectedProject={setSelectedProject} />
             ) : (
-                <ProjectSelection projects={projects} setSelectedProject={setSelectedProject} />
+                <>
+                  <ProjectSelection projects={projects} setSelectedProject={setSelectedProject} />
+                  <ChartCardComponent />
+                </>
             )}
           </main>
         </div>
       </div>
-  );
+  )
 }
