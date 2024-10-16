@@ -12,7 +12,7 @@ router.post('/signup', async (req, res, next) => {
     const { email, password, name } = req.body;
 
     try {
-        const db = await getDB('noxello');
+        const db = await getDB('data');
         const User = createUserModel(db);
 
         const userExists = await User.findOne({ email });
@@ -45,7 +45,7 @@ router.post('/login', async (req, res, next) => {
     const { email, password } = req.body;
 
     try {
-        const db = await getDB('noxello');
+        const db = await getDB('data');
         const User = createUserModel(db);
 
         const user = await User.findOne({ email });
@@ -70,7 +70,7 @@ router.get('/verify', async (req, res, next) => {
         const token = authToken.split(' ')[1];
         const decoded = verifyToken(token);
 
-        const db = await getDB('noxello');
+        const db = await getDB('data');
         const User = createUserModel(db);
         const user = await User.findById(decoded.userId);
 

@@ -14,16 +14,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    macAddresses: [{
-        macAddress: {
-            type: String,
-            required: true,
-        },
-        name: {
-            type: String,
-            required: true,
-        }
-    }],
+    projects: {
+        type: [mongoose.Schema.Types.ObjectId],
+        default: [],
+    },
     role: {
         type: String,
         enum: ['admin', 'user'],
@@ -33,14 +27,6 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-    isVerified: {
-        type: Boolean,
-        default: false,
-    },
-    resetPasswordToken: String,
-    resetPasswordExpiresAt: Date,
-    verificationToken: String,
-    verificationTokenExpiresAt: Date,
 }, { timestamps: true });
 
 export const createUserModel = (db) => {

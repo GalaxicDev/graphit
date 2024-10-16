@@ -6,10 +6,7 @@ export const connectDB = async () => {
     if (cachedConnection) return cachedConnection;
 
     try {
-        const conn = await mongoose.connect(process.env.MONGO_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+        const conn = await mongoose.connect(process.env.MONGO_URI);
         cachedConnection = conn.connection;
         console.log(`MongoDB Connected: ${conn.connection.host}`);
         return conn.connection;
