@@ -2,7 +2,7 @@
 
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { ProjectView } from '@/components/project-view'
+import { ProjectView } from '@/components/projectView'
 
 const ProjectPage = () => {
     const { project } = useParams()

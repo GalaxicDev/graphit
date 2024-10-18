@@ -1,15 +1,18 @@
-'use client'
-
 import { useState } from 'react'
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { MoreHorizontal, Edit, Trash2, Maximize2, Minimize2 } from 'lucide-react'
+import { MoreHorizontal, Edit, Trash2, Maximize2, Minimize2, Move } from 'lucide-react'
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+    Dialog,
+    DialogContent,
+    DialogTrigger,
+} from "@/components/ui/dialog"
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, AreaChart, Area, ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 const lineData = [
@@ -53,19 +56,18 @@ const scatterData = [
     { x: 110, y: 280, z: 200 },
 ]
 
-const ChartCard = ({ id, title, color, chartType, onDelete, onEdit, onResize }) => {
-    const [isFullSize, setIsFullSize] = useState(false)
+const ChartCard = ({ id, title, color, chartType, onDelete, onEdit }) => {
+    const [isFullScreen, setIsFullScreen] = useState(false)
 
-    const handleResize = () => {
-        setIsFullSize(!isFullSize)
-        onResize(id, !isFullSize)
+    const handleToggleFullScreen = () => {
+        setIsFullScreen(!isFullScreen)
     }
 
     const renderChart = () => {
         switch (chartType) {
             case 'line':
                 return (
-                    <LineChart data={lineData} >
+                    <LineChart data={lineData}>
                         <XAxis dataKey="name" />
                         <YAxis />
                         <CartesianGrid strokeDasharray="3 3" />
@@ -118,41 +120,79 @@ const ChartCard = ({ id, title, color, chartType, onDelete, onEdit, onResize }) 
     }
 
     return (
-        <Card className="shadow-lg h-full flex flex-col resizable-indicator">
-            <CardHeader
-                className="flex flex-row items-center justify-between space-y-0 py-2"
-                style={{ backgroundColor: color }}
-            >
-                <h3 className="font-semibold text-white">{title}</h3>
-                <div className="flex items-center space-x-2">
-                    <Button variant="ghost" size="icon" onClick={handleResize}>
-                        {isFullSize ? <Minimize2 className="h-4 w-4 text-white" /> : <Maximize2 className="h-4 w-4 text-white" />}
-                    </Button>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                                <MoreHorizontal className="h-4 w-4 text-white" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => onEdit(id)}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onDelete(id)}>
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            </CardHeader>
-            <CardContent className="flex-grow p-4">
-                <ResponsiveContainer width="100%" height={200}>
-                    {renderChart()}
-                </ResponsiveContainer>
-            </CardContent>
-        </Card>
+        <>
+            <Card className="shadow-lg h-full flex flex-col resizable-indicator">
+                <CardHeader
+                    className="flex flex-row items-center justify-between space-y-0 py-2"
+                    style={{backgroundColor: color}}
+                >
+                    <h3 className="font-semibold text-white">{title}</h3>
+                    <div className="flex items-center space-x-2">
+                        {/* Full Screen Button */}
+                        <Dialog open={isFullScreen} onOpenChange={handleToggleFullScreen}>
+                            <DialogTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                >
+                                    {isFullScreen ? (
+                                        <Minimize2 className="h-4 w-4 text-white"/>
+                                    ) : (
+                                        <Maximize2 className="h-4 w-4 text-white"/>
+                                    )}
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent
+                                className="fixed inset-0 flex items-center justify-center p-4 bg-white dark:bg-gray-800">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={handleToggleFullScreen}
+                                    className="absolute top-4 right-4"
+                                >
+                                    <Minimize2 className="h-6 w-6 text-gray-800 dark:text-white"/>
+                                </Button>
+                                <div className="w-full h-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        {renderChart()}
+                                    </ResponsiveContainer>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+
+                        {/* Move Button as Drag Handle */}
+                        <Button variant="ghost" size="icon" className="drag-handle">
+                            <Move className="h-4 w-4 text-white"/>
+                        </Button>
+
+                        {/* Dropdown Menu */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                    <MoreHorizontal className="h-4 w-4 text-white"/>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => onEdit(id)}>
+                                    <Edit className="mr-2 h-4 w-4"/>
+                                    Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => onDelete(id)}>
+                                    <Trash2 className="mr-2 h-4 w-4"/>
+                                    Delete
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                </CardHeader>
+                {/* Prevent dragging on chart content */}
+                <CardContent className="flex-grow p-4 no-drag">
+                    <ResponsiveContainer width="100%" height={200}>
+                        {renderChart()}
+                    </ResponsiveContainer>
+                </CardContent>
+            </Card>
+        </>
     )
 }
 

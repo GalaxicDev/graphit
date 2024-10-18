@@ -1,8 +1,6 @@
-'use client'
-
 import { useState } from 'react'
 import { Responsive, WidthProvider } from 'react-grid-layout'
-import ChartCard from './chartCard'
+import ChartCard from './ChartCard'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 
@@ -50,7 +48,10 @@ const ChartCardComponent = () => {
             rowHeight={150}
             onLayoutChange={onLayoutChange}
             isDraggable={true}
-            isResizable={true}
+            isResizable={false}
+            draggableHandle=".drag-handle"  // Only drag when the move button is clicked
+            draggableCancel=".no-drag"      // Prevent dragging when other elements are clicked
+            resizeHandles={['se']}          // Only allow resizing from the bottom-right corner
         >
             {items.map(item => (
                 <div key={item.id} data-grid={{ x: item.x, y: item.y, w: item.w, h: item.h, minW: item.minW, minH: item.minH }}>
@@ -66,6 +67,7 @@ const ChartCardComponent = () => {
                 </div>
             ))}
         </ResponsiveGridLayout>
+
     )
 }
 

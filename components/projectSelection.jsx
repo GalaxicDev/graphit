@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,28 +13,48 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { ProjectCard } from './project-card'
+import { ProjectCard } from './projectCard'
 import { Plus } from 'lucide-react'
 
-export function ProjectSelection({ projects }) {
+export function ProjectSelection({ projects, setProjects }) {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const router = useRouter()
 
+  // Function to handle creating a new project
   const handleCreateProject = async () => {
     try {
-      // Add project creation logic here
+      const res = await fetch('http://localhost:5000/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ name, description })
+      });
+      const result = await res.json();
+      console.log('API response:', result);
+      if (result._id) {
+        // Add the new project to the list of projects
+        setProjects(prevProjects => [...prevProjects, result]);
+        setName('');
+        setDescription('');
+      } else {
+        console.error('Failed to create project:', result);
+      }
     } catch (error) {
-      console.error('Failed to create project:', error)
+      console.error('Failed to create project:', error);
     }
   }
 
+  // Function to handle viewing a project
   const handleViewProject = (projectId) => {
     router.push(`/projects/${projectId}`)
   }
 
   return (
       <>
+        {/* Header section with title and create project button */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-semibold text-gray-800 dark:text-white">Projects</h1>
           <Dialog>
@@ -47,22 +67,26 @@ export function ProjectSelection({ projects }) {
               <DialogHeader>
                 <DialogTitle className="dark:text-white">Create New Project</DialogTitle>
                 <DialogDescription className="dark:text-gray-400">
-                  Enter the details for the new project.
+                  Enter the details for your new project.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="project-name" className="text-right dark:text-white">Name</Label>
+                  <Label htmlFor="name" className="text-right dark:text-white">
+                    Name
+                  </Label>
                   <Input
-                      id="project-name"
+                      id="name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="col-span-3 dark:bg-gray-700 dark:text-white dark:border-gray-600" />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="project-description" className="text-right dark:text-white">Description</Label>
+                  <Label htmlFor="description" className="text-right dark:text-white">
+                    Description
+                  </Label>
                   <Textarea
-                      id="project-description"
+                      id="description"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       className="col-span-3 dark:bg-gray-700 dark:text-white dark:border-gray-600" />
@@ -74,6 +98,8 @@ export function ProjectSelection({ projects }) {
             </DialogContent>
           </Dialog>
         </div>
+
+        {/* Project cards grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map(project => (
               <ProjectCard
