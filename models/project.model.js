@@ -4,7 +4,7 @@ const projectSchema = new mongoose.Schema({
     userId: { type: mongoose.Types.ObjectId, required: true },
     name: { type: String, required: true },
     description: { type: String, required: true },
-    collections: { type: [mongoose.Types.ObjectId], default: [] },
+    collections: { type: [String], default: [] },
     graphs: { type: [mongoose.Types.ObjectId], default: [] },
 }, { timestamps: true });
 

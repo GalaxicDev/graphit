@@ -32,90 +32,96 @@ const extractUserId = (req, res, next) => {
 };
 
 // Apply extractUserId middleware to all routes
-router.use(extractUserId);
+//router.use(extractUserId);
 
-// Get all projects
+// Get all graphs
 router.get('/', async (req, res) => {
     try {
         const db = await getDB('data');
-        const projects = await db.collection('projects').find({ userId: new mongoose.Types.ObjectId(req.userId) }).toArray();
-        console.log('projects:', projects);
-        res.json(projects);
+        const graphs = await db.collection('graphs').find({ userId: new mongoose.Types.ObjectId(req.userId) }).toArray();
+        console.log('Graphs:', graphs);
+        res.json(graphs);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
-// Get a single project by ID
+// Get a single graph by ID
 router.get('/:id', param('id').isMongoId(), handleValidationErrors, async (req, res) => {
     try {
         const db = await getDB('data');
-        const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
-        if (!project) {
-            return res.status(404).json({ success: false, message: 'Project not found' });
+        const graph = await db.collection('graphs').findOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
+        if (!graph) {
+            return res.status(404).json({ success: false, message: 'Graph not found' });
         }
-        console.log('single project:', project);
-        res.json(project);
+        res.json(graph);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
-// Create a new project
-// Create a new project
+// Create a new graph
+// Create a new graph
 router.post('/',
     body('name').isString().isLength({ min: 3 }),
     handleValidationErrors, async (req, res) => {
         try {
             const db = await getDB('data');
-            const newProjectData = {
+            const newGraphData = {
                 userId: new mongoose.Types.ObjectId(req.userId),
                 name: req.body.name,
-                description: req.body.description,
-                collections: [],
+                type: req.body.type,
+                collections: req.body.collections,
+                xField: req.body.xField,
+                xCollection: req.body.xCollection,
+                yField: req.body.yField,
+                yCollection: req.body.yCollection,
             };
-            const result = await db.collection('projects').insertOne(newProjectData);
+            const result = await db.collection('graphs').insertOne(newGraphData);
             console.log('result:', result);
-            // Return the full project object including the inserted ID
-            res.status(201).json({ ...newProjectData, _id: result.insertedId });
+            // Return the full graph object including the inserted ID
+            res.status(201).json({ ...newGraphData, _id: result.insertedId });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
     });
 
 
+// Update a graph by ID
 router.put('/:id',
     param('id').isMongoId(),
     body('name').isString().isLength({ min: 3 }),
     handleValidationErrors, async (req, res) => {
         try {
             const db = await getDB('data');
-            const updateProject = await db.collection('projects').findOneAndUpdate(
+            const graph = await db.collection('graphs').findOneAndUpdate(
                 { _id: new mongoose.Types.ObjectId(req.params.id) },
                 { $set: req.body },
-                { returnDocument: 'after' }
+                { returnOriginal: false }
             );
-
-            res.json(updateProject);
+            if (!graph.value) {
+                return res.status(404).json({ success: false, message: 'Graph not found' });
+            }
+            res.json(graph.value);
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
     });
 
-// Delete a project by ID
+// Delete a graph by ID
 router.delete('/:id', param('id').isMongoId(),
     handleValidationErrors, async (req, res) => {
-    try {
-        const db = await getDB('data');
-        const project = await db.collection('projects').findOneAndDelete({ _id: new mongoose.Types.ObjectId(req.params.id) });
-        if (!project.value) {
-            return res.status(404).json({ success: false, message: 'Project not found' });
+        try {
+            const db = await getDB('data');
+            const graph = await db.collection('graphs').findOneAndDelete({ _id: new mongoose.Types.ObjectId(req.params.id) });
+            if (!graph.value) {
+                return res.status(404).json({ success: false, message: 'Graph not found' });
+            }
+            res.json(graph.value);
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
         }
-        res.json(project.value);
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-});
+    });
 
 export default router;
 

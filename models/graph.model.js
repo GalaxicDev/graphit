@@ -1,0 +1,15 @@
+import mongoose from "mongoose";
+
+const graphSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    type: { type: String, required: true },
+    collections: { type: [mongoose.Types.ObjectId], default: [] },
+    xField: { type: String, required: true },
+    xCollection: { type: mongoose.Types.ObjectId, required: true },
+    yField: { type: String, required: true },
+    yCollection: { type: mongoose.Types.ObjectId, required: true },
+}, { timestamps: true });
+
+export const createProjectModel = (db) => {
+    return db.model('graphs', graphSchema);
+};
