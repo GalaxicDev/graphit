@@ -4,15 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="added update B-2.0.5">
-      <change afterPath="$PROJECT_DIR$/components/createGraphForm.jsx" afterDir="false" />
+    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="added API in env instead of hardcoding">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(root)/layout.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/layout.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ChartCardComponent.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ChartCardComponent.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/chartCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCard.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/projectView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/projectView.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/createGraphForm.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/createGraphForm.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/next.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/next.config.mjs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,7 +106,7 @@
       <workItem from="1729249498977" duration="1981000" />
       <workItem from="1729251883997" duration="3148000" />
       <workItem from="1729579023623" duration="4666000" />
-      <workItem from="1729668714210" duration="6117000" />
+      <workItem from="1729668714210" duration="6624000" />
     </task>
     <task id="LOCAL-00001" summary="added the default files">
       <option name="closed" value="true" />
@@ -153,7 +148,15 @@
       <option name="project" value="LOCAL" />
       <updated>1729255059103</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="added update B-2.0.5">
+      <option name="closed" value="true" />
+      <created>1729675800972</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1729675800972</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -177,6 +180,7 @@
     <MESSAGE value="splitted up components" />
     <MESSAGE value="added movable charts and more" />
     <MESSAGE value="added update B-2.0.5" />
-    <option name="LAST_COMMIT_MESSAGE" value="added update B-2.0.5" />
+    <MESSAGE value="added API in env instead of hardcoding" />
+    <option name="LAST_COMMIT_MESSAGE" value="added API in env instead of hardcoding" />
   </component>
 </project>

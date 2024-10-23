@@ -39,7 +39,11 @@ export function CreateGraphForm({ onClose, formData, setFormData }) {
         setLoading(true)
         setError(null)
         try {
-            const response = await axios.post('http://localhost:5000/api/graphs', formData)
+            const response = await axios.post('http://localhost:5000/api/graphs', formData, {
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                }
+            })
             console.log("Graph created:", response.data)
             setFormData({
                 projectId: formData.projectId,
