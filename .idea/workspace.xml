@@ -6,8 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="added API in env instead of hardcoding">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/createGraphForm.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/createGraphForm.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/next.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/next.config.mjs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ChartCardComponent.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ChartCardComponent.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/projectView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/projectView.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -106,7 +106,7 @@
       <workItem from="1729249498977" duration="1981000" />
       <workItem from="1729251883997" duration="3148000" />
       <workItem from="1729579023623" duration="4666000" />
-      <workItem from="1729668714210" duration="6624000" />
+      <workItem from="1729668714210" duration="7879000" />
     </task>
     <task id="LOCAL-00001" summary="added the default files">
       <option name="closed" value="true" />
@@ -156,7 +156,15 @@
       <option name="project" value="LOCAL" />
       <updated>1729675800972</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="added API in env instead of hardcoding">
+      <option name="closed" value="true" />
+      <created>1729676323609</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1729676323609</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
