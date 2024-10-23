@@ -37,7 +37,7 @@ export default function RootLayout({ children }) {
                 />
 
                 {/* Main section with scrollable content */}
-                <main className="flex-1 overflow-y-auto p-6 bg-gray-100 dark:bg-gray-900 mr-2">
+                <main className="flex-1 overflow-y-auto p-6 bg-gray-100 dark:bg-gray-900">
                     {children}
                 </main>
             </div>

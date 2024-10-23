@@ -4,17 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="splitted up components">
+    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="added update B-2.0.5">
+      <change afterPath="$PROJECT_DIR$/components/createGraphForm.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(root)/projects/[project]/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/projects/[project]/page.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/app/globals.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/layout.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/layout.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ChartCardComponent.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ChartCardComponent.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/chartCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCard.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/dashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/dashboard.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/navbar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/navbar.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/project-card.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/projectCard.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/project-view.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/projectView.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/projectSelection.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/projectSelection.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/projectView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/projectView.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,7 +109,9 @@
       <workItem from="1729070082805" duration="2654000" />
       <workItem from="1729097666024" duration="3240000" />
       <workItem from="1729249498977" duration="1981000" />
-      <workItem from="1729251883997" duration="3008000" />
+      <workItem from="1729251883997" duration="3148000" />
+      <workItem from="1729579023623" duration="4666000" />
+      <workItem from="1729668714210" duration="6117000" />
     </task>
     <task id="LOCAL-00001" summary="added the default files">
       <option name="closed" value="true" />
@@ -145,7 +145,15 @@
       <option name="project" value="LOCAL" />
       <updated>1729072032784</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="added movable charts and more">
+      <option name="closed" value="true" />
+      <created>1729255059103</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1729255059103</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -167,6 +175,8 @@
     <MESSAGE value="added default theme selection&#10;added dynamic sidebar" />
     <MESSAGE value="added chart cards" />
     <MESSAGE value="splitted up components" />
-    <option name="LAST_COMMIT_MESSAGE" value="splitted up components" />
+    <MESSAGE value="added movable charts and more" />
+    <MESSAGE value="added update B-2.0.5" />
+    <option name="LAST_COMMIT_MESSAGE" value="added update B-2.0.5" />
   </component>
 </project>

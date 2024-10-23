@@ -1,96 +1,93 @@
 'use client'
 
-import { useState } from 'react'
-import { Edit } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+import { ChartArea } from 'lucide-react'
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { useRouter } from 'next/navigation'
 import ChartCardComponent from './chartCardComponent'
+import { CreateGraphForm } from "@/components/createGraphForm"
 
 export function ProjectView({ project }) {
-    const [editMode, setEditMode] = useState(false)
     const [projectName, setProjectName] = useState(project.name)
     const [projectDescription, setProjectDescription] = useState(project.description)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [formData, setFormData] = useState({
+        projectId: project._id,
+        name: "",
+        type: "",
+        xField: "",
+        xCollection: "",
+        yField: "",
+        yCollection: "",
+    })
+    const [graphs, setGraphs] = useState([])
 
     const router = useRouter()
 
-    // Function to handle saving the edited project details
-    const handleSave = async () => {
-        try {
-            const res = await fetch(`http://localhost:5000/api/projects/${project._id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({ name: projectName, description: projectDescription })
-            })
-            const result = await res.json()
-            if (res.ok) {
-                setProjectName(result.name)
-                setProjectDescription(result.description)
-                setEditMode(false)
-            } else {
-                console.error('Failed to update project:', result.message)
+    useEffect(() => {
+        const fetchGraphs = async () => {
+            try {
+                const res = await fetch(`http://localhost:5000/api/graphs/${project._id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                })
+                const data = await res.json()
+                setGraphs(data)
+            } catch (error) {
+                console.error('Failed to fetch graphs:', error)
             }
-        } catch (error) {
-            console.error('Failed to update project:', error)
         }
+
+        fetchGraphs()
+    }, [project._id])
+
+    const handleClose = () => {
+        setIsModalOpen(false)
+        setFormData({
+            projectId: project._id,
+            name: "",
+            type: "",
+            xField: "",
+            xCollection: "",
+            yField: "",
+            yCollection: "",
+        })
+        console.log("Form closed")
     }
 
     return (
         <>
-            <div className="flex justify-between items-center mb-6">
-                {editMode ? (
-                    <div className="flex-1 mr-4">
-                        <Input
-                            value={projectName}
-                            onChange={(e) => setProjectName(e.target.value)}
-                            className="text-3xl font-semibold mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-700"
-                        />
-                        <Textarea
-                            value={projectDescription}
-                            onChange={(e) => setProjectDescription(e.target.value)}
-                            className="w-full dark:bg-gray-800 dark:text-white dark:border-gray-700"
-                        />
-                    </div>
-                ) : (
-                    <div>
-                        <h1 className="text-3xl font-semibold text-gray-800 dark:text-white">{projectName}</h1>
-                        <p className="text-gray-500 dark:text-gray-400">{projectDescription}</p>
-                    </div>
-                )}
+            <div className="flex justify-between items-center mb-6 overflow-auto w-full">
+                <div className="flex-1 mr-4">
+                    <h1 className="text-3xl font-semibold text-gray-800 dark:text-white">{projectName}</h1>
+                    <p className="text-gray-500 dark:text-gray-400">{projectDescription}</p>
+                </div>
                 <div className="flex items-center">
-                    {editMode ? (
-                        <>
-                            <Button onClick={handleSave} className="mr-2">Save</Button>
-                            <Button
-                                variant="outline"
-                                onClick={() => setEditMode(false)}
-                                className="dark:border-gray-600 dark:text-gray-300"
-                            >
-                                Cancel
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            <Button onClick={() => setEditMode(true)} className="mr-2">
-                                <Edit className="h-4 w-4 mr-2" /> Edit Project
-                            </Button>
-
-                            <Button
-                                variant="outline"
-                                onClick={() => router.push('/')}
-                                className="dark:border-gray-600 dark:text-gray-300">
-                                Back to projects
-                            </Button>
-                </>
-                    )}
+                    <Button className="mr-2" onClick={() => setIsModalOpen(true)}>
+                        <ChartArea className="h-4 w-4 mr-2" /> Add Graph
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => router.push('/')}
+                        className="dark:border-gray-600 dark:text-gray-300">
+                        Back to projects
+                    </Button>
                 </div>
             </div>
 
-            <ChartCardComponent />
+            <ChartCardComponent graphs={graphs} />
+
+            {isModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                    <CreateGraphForm
+                        onClose={handleClose}
+                        formData={formData}
+                        setFormData={setFormData}
+                    />
+                </div>
+            )}
         </>
     )
 }

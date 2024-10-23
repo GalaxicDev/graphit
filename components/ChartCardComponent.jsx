@@ -1,10 +1,13 @@
-import { useState } from 'react'
+"use client"
+
+import { useState, useEffect } from 'react'
 import { Responsive, WidthProvider } from 'react-grid-layout'
 import ChartCard from './ChartCard'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 
 const ResponsiveGridLayout = WidthProvider(Responsive)
+const LOCAL_STORAGE_KEY = 'dashboard-layouts'
 
 const initialItems = [
     { id: '1', title: 'User Growth', color: '#3b82f6', chartType: 'line', x: 0, y: 0, w: 6, h: 2, minW: 3, minH: 2 },
@@ -14,47 +17,63 @@ const initialItems = [
     { id: '5', title: 'Customer Distribution', color: '#8b5cf6', chartType: 'scatter', x: 0, y: 4, w: 6, h: 2, minW: 3, minH: 2 },
 ]
 
+// Initial layout structure
+const initialLayouts = {
+    lg: initialItems.map(item => ({
+        i: item.id, x: item.x, y: item.y, w: item.w, h: item.h, minW: item.minW, minH: item.minH
+    })),
+    xs: initialItems.map(item => ({
+        i: item.id, x: 0, y: item.y, w: 2, h: 2, minW: 2, minH: 2 // Compact mobile layout
+    }))
+}
+
 const ChartCardComponent = () => {
-    const [items, setItems] = useState(initialItems)
+    const [layouts, setLayouts] = useState(initialLayouts)
+
+    // Load saved layouts from localStorage on mount
+    useEffect(() => {
+        const savedLayouts = localStorage.getItem(LOCAL_STORAGE_KEY)
+        if (savedLayouts) {
+            setLayouts(JSON.parse(savedLayouts))
+        }
+    }, [])
+
+    // Save layouts for different breakpoints to localStorage
+    const onLayoutChange = (layout, allLayouts) => {
+        setLayouts(allLayouts)
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allLayouts))
+    }
 
     const handleDelete = (id) => {
-        setItems(items.filter(item => item.id !== id))
+        const updatedLayouts = { ...layouts }
+        // Remove the item from each layout (lg, xs, etc.)
+        for (const breakpoint in updatedLayouts) {
+            updatedLayouts[breakpoint] = updatedLayouts[breakpoint].filter(layout => layout.i !== id)
+        }
+        setLayouts(updatedLayouts)
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedLayouts)) // Update local storage
     }
 
     const handleEdit = (id) => {
         console.log(`Edit item ${id}`)
     }
 
-    const handleResize = (id, isFullSize) => {
-        setItems(items.map(item =>
-            item.id === id ? { ...item, w: isFullSize ? 12 : 6, h: isFullSize ? 4 : 2 } : item
-        ))
-    }
-
-    const onLayoutChange = (layout) => {
-        const newItems = items.map(item => {
-            const layoutItem = layout.find(l => l.i === item.id)
-            return layoutItem ? { ...item, ...layoutItem } : item
-        })
-        setItems(newItems)
-    }
-
     return (
         <ResponsiveGridLayout
             className="layout"
-            layouts={{ lg: items }}
+            layouts={layouts}   // Pass the layouts object for all breakpoints
             breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
             cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
             rowHeight={150}
-            onLayoutChange={onLayoutChange}
+            onLayoutChange={(layout, allLayouts) => onLayoutChange(layout, allLayouts)}
             isDraggable={true}
-            isResizable={false}
-            draggableHandle=".drag-handle"  // Only drag when the move button is clicked
-            draggableCancel=".no-drag"      // Prevent dragging when other elements are clicked
-            resizeHandles={['se']}          // Only allow resizing from the bottom-right corner
+            isResizable={true}
+            draggableHandle=".drag-handle"
+            draggableCancel=".no-drag"
+            resizeHandles={['se']}
         >
-            {items.map(item => (
-                <div key={item.id} data-grid={{ x: item.x, y: item.y, w: item.w, h: item.h, minW: item.minW, minH: item.minH }}>
+            {initialItems.map(item => (
+                <div key={item.id} data-grid={layouts.lg.find(l => l.i === item.id) || { x: 0, y: 0, w: 6, h: 2 }}>
                     <ChartCard
                         id={item.id}
                         title={item.title}
@@ -62,12 +81,10 @@ const ChartCardComponent = () => {
                         chartType={item.chartType}
                         onDelete={handleDelete}
                         onEdit={handleEdit}
-                        onResize={handleResize}
                     />
                 </div>
             ))}
         </ResponsiveGridLayout>
-
     )
 }
 
