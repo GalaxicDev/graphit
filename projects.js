@@ -39,7 +39,6 @@ router.get('/', async (req, res) => {
     try {
         const db = await getDB('data');
         const projects = await db.collection('projects').find({ userId: new mongoose.Types.ObjectId(req.userId) }).toArray();
-        console.log('projects:', projects);
         res.json(projects);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -54,7 +53,6 @@ router.get('/:id', param('id').isMongoId(), handleValidationErrors, async (req, 
         if (!project) {
             return res.status(404).json({ success: false, message: 'Project not found' });
         }
-        console.log('single project:', project);
         res.json(project);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

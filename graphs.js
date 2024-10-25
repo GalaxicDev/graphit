@@ -32,15 +32,37 @@ const extractUserId = (req, res, next) => {
 };
 
 // Apply extractUserId middleware to all routes
-//router.use(extractUserId);
+router.use(extractUserId);
 
-// Get all graphs
-router.get('/', async (req, res) => {
+
+router.get('/:projectId', async (req, res) => {
     try {
+
         const db = await getDB('data');
-        const graphs = await db.collection('graphs').find({ userId: new mongoose.Types.ObjectId(req.userId) }).toArray();
-        console.log('Graphs:', graphs);
-        res.json(graphs);
+        const graphs = await db.collection('graphs').aggregate([
+            { $match: { userId: new mongoose.Types.ObjectId(req.userId), projectId: new mongoose.Types.ObjectId(req.params.projectId) } },
+            {
+                $lookup: {
+                    from: 'projects',
+                    localField: 'projectId',
+                    foreignField: '_id',
+                    as: 'project'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'user'
+                }
+            }
+        ]).toArray();
+
+        const graphs2 = await db.collection('graphs').find({ userId: new mongoose.Types.ObjectId(req.userId), projectId: new mongoose.Types.ObjectId(req.params.projectId) }).toArray();
+
+        console.log('Graphs:', graphs2);
+        res.json(graphs2);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -61,7 +83,6 @@ router.get('/:id', param('id').isMongoId(), handleValidationErrors, async (req, 
 });
 
 // Create a new graph
-// Create a new graph
 router.post('/',
     body('name').isString().isLength({ min: 3 }),
     handleValidationErrors, async (req, res) => {
@@ -69,9 +90,9 @@ router.post('/',
             const db = await getDB('data');
             const newGraphData = {
                 userId: new mongoose.Types.ObjectId(req.userId),
+                projectId: new mongoose.Types.ObjectId(req.body.projectId),
                 name: req.body.name,
                 type: req.body.type,
-                collections: req.body.collections,
                 xField: req.body.xField,
                 xCollection: req.body.xCollection,
                 yField: req.body.yField,
