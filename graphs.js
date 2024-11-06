@@ -20,7 +20,6 @@ const extractUserId = (req, res, next) => {
     const authToken = req.headers['authorization'];
     if (!authToken) return res.status(403).json({ success: false, message: 'Token required' });
 
-    console.log('authToken:', authToken);
     try {
         const token = authToken.split(' ')[1];
         const decoded = verifyToken(token);
@@ -35,33 +34,11 @@ const extractUserId = (req, res, next) => {
 router.use(extractUserId);
 
 
-router.get('/:projectId', async (req, res) => {
+router.get('/project/:projectId', async (req, res) => {
     try {
-
         const db = await getDB('data');
-        const graphs = await db.collection('graphs').aggregate([
-            { $match: { userId: new mongoose.Types.ObjectId(req.userId), projectId: new mongoose.Types.ObjectId(req.params.projectId) } },
-            {
-                $lookup: {
-                    from: 'projects',
-                    localField: 'projectId',
-                    foreignField: '_id',
-                    as: 'project'
-                }
-            },
-            {
-                $lookup: {
-                    from: 'users',
-                    localField: 'userId',
-                    foreignField: '_id',
-                    as: 'user'
-                }
-            }
-        ]).toArray();
 
         const graphs2 = await db.collection('graphs').find({ userId: new mongoose.Types.ObjectId(req.userId), projectId: new mongoose.Types.ObjectId(req.params.projectId) }).toArray();
-
-        console.log('Graphs:', graphs2);
         res.json(graphs2);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

@@ -40,7 +40,6 @@ router.get('/data', async (req, res) => {
 
     try {
         const db = await getDB('mqtt');
-        const results = {};
 
         // we receive one collection, get the data of this collection
         const collection = await db.collection(collections).find({}, { projection: fields.split(',').reduce((acc, field) => ({ ...acc, [field]: 1 }), {}) }).toArray();
