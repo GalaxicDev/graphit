@@ -36,27 +36,16 @@ const extractUserId = (req, res, next) => {
 
 router.get('/data', async (req, res) => {
     const { collections, fields } = req.query;
-
-    // Ensure collections and fields exist and are arrays
-    if (!Array.isArray(collections) || !Array.isArray(fields)) {
-        return res.status(400).json({ success: false, message: 'Collections and fields must be arrays' });
-    }
+    console.log('collections:', collections);
 
     try {
         const db = await getDB('mqtt');
         const results = {};
 
-        for (const collectionName of collections) {
-            // Create a projection object for MongoDB, setting each requested field to 1
-            const projection = fields.reduce((acc, field) => ({ ...acc, [field]: 1 }), {});
+        // we receive one collection, get the data of this collection
+        const collection = await db.collection(collections).find({}, { projection: fields.split(',').reduce((acc, field) => ({ ...acc, [field]: 1 }), {}) }).toArray();
 
-            // Query the collection for the specified fields
-            const collectionData = await db.collection(collectionName).find({}, { projection }).toArray();
-
-            results[collectionName] = collectionData;
-        }
-
-        res.json({ success: true, data: results });
+        res.json({ success: true, data: collection });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
