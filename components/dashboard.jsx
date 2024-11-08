@@ -25,7 +25,7 @@ export function DashboardComponent() {
   }, [])
 
   return (
-      <main className="flex-1 overflow-x-hidden overflow-y-auto pr-12 bg-gray-100 dark:bg-gray-900">
+      <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-gray-900">
         <ProjectSelection projects={projects} setProjects={setProjects} />
       </main>
   )

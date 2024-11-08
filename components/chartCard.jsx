@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import {useEffect, useState} from 'react'
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal, Edit, Trash2, Maximize2, Minimize2, Move } from 'lucide-react'
@@ -16,6 +16,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, AreaChart, Area, ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import axios from 'axios';
 
 const lineData = [
     { name: 'Jan', users: 4000, transactions: 2400 },
@@ -58,12 +59,37 @@ const scatterData = [
     { x: 110, y: 280, z: 200 },
 ]
 
-const ChartCard = ({ id, title, color, chartType, onDelete, onEdit }) => {
+const ChartCard = ({ id, collection, title, color, chartType, onDelete, onEdit }) => {
     const [isFullScreen, setIsFullScreen] = useState(false)
+    const [graphData, setGraphData] = useState([])
 
     const handleToggleFullScreen = () => {
         setIsFullScreen(!isFullScreen)
     }
+
+    useEffect(() => {
+        const fetchGraphData = async () => {
+            // Fetch data for the chart
+            try {
+                const apiUrl = process.env.API_URL;
+                // Fetch data for the graph
+                const dataResponse = await axios.get(apiUrl + `/api/mqtt/data`, {
+                    params: {
+                        collections: collection,
+                        fields: `${xField},${yField}`,
+                    }
+                });
+
+                return dataResponse.data;
+            } catch (error) {
+                console.error('Failed to fetch graph data:', error)
+            }
+        }
+
+        setGraphData(fetchGraphData());
+    }, [id]);
+
+    console.log('graphData:', graphData)
 
     const renderChart = () => {
         switch (chartType) {

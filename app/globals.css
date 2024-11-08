@@ -93,18 +93,36 @@ body {
   width: 10px;
 }
 
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #111827;
+  background: #f0f0f0; /* Light mode track color */
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #374151;
+  background: #c0c0c0; /* Light mode handle color */
   border-radius: 5px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0; /* Light mode handle hover color */
+}
+
+/* Dark mode styles */
+.dark ::-webkit-scrollbar-track {
+  background: #111827;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }

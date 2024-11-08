@@ -16,13 +16,30 @@ export function ProjectView({ project }) {
         projectId: project._id,
         name: "",
         type: "",
+        collection: "",
         xField: "",
-        xCollection: "",
         yField: "",
-        yCollection: "",
     })
+    const [graphs, setGraphs] = useState([])
 
     const router = useRouter()
+
+    useEffect(() => {
+        const fetchGraphs = async () => {
+            try {
+                const res = await axios.get(`http://localhost:5000/api/graphs/project/${project._id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                })
+                setGraphs(res.data)
+            } catch (error) {
+                console.error('Failed to fetch graphs:', error)
+            }
+        }
+
+        fetchGraphs()
+    }, [project._id])
 
     const handleClose = () => {
         setIsModalOpen(false)
@@ -30,10 +47,9 @@ export function ProjectView({ project }) {
             projectId: project._id,
             name: "",
             type: "",
+            collection: "",
             xField: "",
-            xCollection: "",
             yField: "",
-            yCollection: "",
         })
         console.log("Form closed")
     }
@@ -58,7 +74,7 @@ export function ProjectView({ project }) {
                 </div>
             </div>
 
-            <ChartCardComponent projectId={project._id} />
+            <ChartCardComponent projectId={project._id}/>
 
             {isModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">

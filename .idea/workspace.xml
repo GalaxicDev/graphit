@@ -6,8 +6,17 @@
   <component name="ChangeListManager">
     <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="added API in env instead of hardcoding">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/page.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/app/globals.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ChartCardComponent.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ChartCardComponent.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/chartCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/createGraphForm.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/createGraphForm.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/dashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/dashboard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/loginForm.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/loginForm.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/projectCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/projectCard.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/projectView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/projectView.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/sidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/sidebar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/sidebarUtils.js" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sidebarUtils.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,7 +58,7 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/vw070310/WebstormProjects/graphit/components&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/2Wire/2wire&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -106,7 +115,13 @@
       <workItem from="1729249498977" duration="1981000" />
       <workItem from="1729251883997" duration="3148000" />
       <workItem from="1729579023623" duration="4666000" />
-      <workItem from="1729668714210" duration="7879000" />
+      <workItem from="1729668714210" duration="7935000" />
+      <workItem from="1729854836035" duration="4581000" />
+      <workItem from="1730795113165" duration="8000" />
+      <workItem from="1730795136026" duration="1726000" />
+      <workItem from="1730823795277" duration="17000" />
+      <workItem from="1730882272253" duration="7935000" />
+      <workItem from="1731067504248" duration="2500000" />
     </task>
     <task id="LOCAL-00001" summary="added the default files">
       <option name="closed" value="true" />
@@ -164,7 +179,15 @@
       <option name="project" value="LOCAL" />
       <updated>1729676323609</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="added API in env instead of hardcoding">
+      <option name="closed" value="true" />
+      <created>1729677652751</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1729677652751</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

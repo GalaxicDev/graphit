@@ -25,7 +25,7 @@ const LoginForm = () => {
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
+      const res = await fetch('http://10.157.0.60:5000/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

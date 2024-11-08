@@ -49,10 +49,9 @@ export function CreateGraphForm({ onClose, formData, setFormData }) {
                 projectId: formData.projectId,
                 name: "",
                 type: "",
+                collection: "",
                 xField: "",
-                xCollection: "",
                 yField: "",
-                yCollection: "",
             })
             onClose()
         } catch (err) {
@@ -111,20 +110,12 @@ export function CreateGraphForm({ onClose, formData, setFormData }) {
                     {step === 2 && (
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="xField">X-Axis Field (Field in database)</Label>
-                                <Input
-                                    id="xField"
-                                    value={formData.xField}
-                                    onChange={(e) => updateFormData("xField", e.target.value)}
-                                    required />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="xCollection">Collection X-Axis</Label>
+                                <Label htmlFor="collection">Collection</Label>
                                 <Select
-                                    value={formData.xCollection}
-                                    onValueChange={(value) => updateFormData("xCollection", value)}>
+                                    value={formData.collection}
+                                    onValueChange={(value) => updateFormData("collection", value)}>
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Select collection" />
+                                        <SelectValue placeholder="Select collection"/>
                                     </SelectTrigger>
                                     <SelectContent>
                                         {collections.map((collection) => (
@@ -134,6 +125,14 @@ export function CreateGraphForm({ onClose, formData, setFormData }) {
                                         ))}
                                     </SelectContent>
                                 </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="xField">X-Axis Field (Field in database)</Label>
+                                <Input
+                                    id="xField"
+                                    value={formData.xField}
+                                    onChange={(e) => updateFormData("xField", e.target.value)}
+                                    required/>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="yField">Y-Axis Field (Field in database)</Label>
@@ -141,24 +140,7 @@ export function CreateGraphForm({ onClose, formData, setFormData }) {
                                     id="yField"
                                     value={formData.yField}
                                     onChange={(e) => updateFormData("yField", e.target.value)}
-                                    required />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="yCollection">Collection Y-Axis</Label>
-                                <Select
-                                    value={formData.yCollection}
-                                    onValueChange={(value) => updateFormData("yCollection", value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select collection" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {collections.map((collection) => (
-                                            <SelectItem key={collection.id} value={collection.id}>
-                                                {collection.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                    required/>
                             </div>
                         </div>
                     )}
@@ -166,7 +148,7 @@ export function CreateGraphForm({ onClose, formData, setFormData }) {
                 <CardFooter className="flex justify-between">
                     {step > 1 && (
                         <Button type="button" variant="outline" onClick={handlePrevious}>
-                            <ChevronLeft className="w-4 h-4 mr-2" /> Previous
+                            <ChevronLeft className="w-4 h-4 mr-2"/> Previous
                         </Button>
                     )}
                     {step < 2 ? (
@@ -174,7 +156,7 @@ export function CreateGraphForm({ onClose, formData, setFormData }) {
                             type="button"
                             onClick={handleNext}
                             className={step === 1 ? "ml-auto" : ""}>
-                            Next <ChevronRight className="w-4 h-4 ml-2" />
+                            Next <ChevronRight className="w-4 h-4 ml-2"/>
                         </Button>
                     ) : (
                         <Button type="submit" disabled={loading} onClick={handleSubmit}>
