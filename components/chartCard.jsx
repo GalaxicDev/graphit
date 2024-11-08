@@ -88,7 +88,7 @@ const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => 
         setGraphData(fetchGraphData());
     }, [id]);
 
-    console.log('graphData:', graphData.data)
+    console.log('graphData:', graphData.data);
 
     const renderChart = () => {
         switch (chartType) {
