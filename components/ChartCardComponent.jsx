@@ -29,7 +29,7 @@ const ChartCardComponent = ({ projectId }) => {
         // Fetch graph data from the database
         const fetchGraphs = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/graphs/project/${projectId}`, {
+                const res = await axios.get(process.env.API_URL + `/graphs/project/${projectId}`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }

@@ -27,7 +27,7 @@ export function ProjectView({ project }) {
     useEffect(() => {
         const fetchGraphs = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/graphs/project/${project._id}`, {
+                const res = await axios.get(process.env.API_URL + `/graphs/project/${project._id}`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
