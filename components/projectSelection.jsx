@@ -24,7 +24,7 @@ export function ProjectSelection({ projects, setProjects }) {
   // Function to handle creating a new project
   const handleCreateProject = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/projects', {
+      const res = await fetch(process.env.API_URL + '/projects', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

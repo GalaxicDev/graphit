@@ -9,7 +9,7 @@ export function DashboardComponent() {
   useEffect(() => {
     async function fetchProjects() {
       try {
-        const res = await fetch('http://localhost:5000/api/projects', {
+        const res = await fetch(process.env.API_URL + '/projects', {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
