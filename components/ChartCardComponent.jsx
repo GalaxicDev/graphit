@@ -121,7 +121,7 @@ const ChartCardComponent = ({ projectId }) => {
                 }}>
                     <ChartCard
                         id={graph._id}
-                        grapth
+                        graph={graph}
                         title={graph.name}
                         color="#3b82f6"
                         chartType={graph.type}

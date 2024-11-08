@@ -59,7 +59,7 @@ const scatterData = [
     { x: 110, y: 280, z: 200 },
 ]
 
-const ChartCard = ({ id, collection, title, color, chartType, onDelete, onEdit }) => {
+const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => {
     const [isFullScreen, setIsFullScreen] = useState(false)
     const [graphData, setGraphData] = useState([])
 
@@ -71,12 +71,11 @@ const ChartCard = ({ id, collection, title, color, chartType, onDelete, onEdit }
         const fetchGraphData = async () => {
             // Fetch data for the chart
             try {
-                const apiUrl = process.env.API_URL;
                 // Fetch data for the graph
-                const dataResponse = await axios.get(apiUrl + `/api/mqtt/data`, {
+                const dataResponse = await axios.get(process.env.API_URL + `/mqtt/data`, {
                     params: {
-                        collections: collection,
-                        fields: `${xField},${yField}`,
+                        collection: graph.collection,
+                        fields: `${graph.xField},${graph.yField}`,
                     }
                 });
 
@@ -89,7 +88,7 @@ const ChartCard = ({ id, collection, title, color, chartType, onDelete, onEdit }
         setGraphData(fetchGraphData());
     }, [id]);
 
-    console.log('graphData:', graphData)
+    console.log('graphData:', graphData.data)
 
     const renderChart = () => {
         switch (chartType) {
