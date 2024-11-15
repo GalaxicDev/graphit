@@ -1,107 +1,71 @@
 "use client"
 
-import {useEffect, useState} from 'react'
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { MoreHorizontal, Edit, Trash2, Maximize2, Minimize2, Move } from 'lucide-react'
+import { useEffect, useState } from 'react';
+import { format, subDays, subMonths, subYears } from 'date-fns';
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { MoreHorizontal, Edit, Trash2, Maximize2, Minimize2, Move } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
     Dialog,
     DialogContent,
     DialogTrigger,
-} from "@/components/ui/dialog"
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, AreaChart, Area, ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+} from "@/components/ui/dialog";
+import { LineChart, BarChart, PieChart, ScatterChart, AreaChart, Line, Scatter, Area, Bar, Pie, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import axios from 'axios';
-
-const lineData = [
-    { name: 'Jan', users: 4000, transactions: 2400 },
-    { name: 'Feb', users: 3000, transactions: 1398 },
-    { name: 'Mar', users: 2000, transactions: 9800 },
-    { name: 'Apr', users: 2780, transactions: 3908 },
-    { name: 'May', users: 1890, transactions: 4800 },
-    { name: 'Jun', users: 2390, transactions: 3800 },
-]
-
-const barData = [
-    { name: 'A', value: 4000 },
-    { name: 'B', value: 3000 },
-    { name: 'C', value: 2000 },
-    { name: 'D', value: 2780 },
-    { name: 'E', value: 1890 },
-]
-
-const pieData = [
-    { name: 'Group A', value: 400 },
-    { name: 'Group B', value: 300 },
-    { name: 'Group C', value: 300 },
-    { name: 'Group D', value: 200 },
-]
-
-const areaData = [
-    { name: 'Page A', uv: 4000, pv: 2400, amt: 2400 },
-    { name: 'Page B', uv: 3000, pv: 1398, amt: 2210 },
-    { name: 'Page C', uv: 2000, pv: 9800, amt: 2290 },
-    { name: 'Page D', uv: 2780, pv: 3908, amt: 2000 },
-    { name: 'Page E', uv: 1890, pv: 4800, amt: 2181 },
-]
-
-const scatterData = [
-    { x: 100, y: 200, z: 200 },
-    { x: 120, y: 100, z: 260 },
-    { x: 170, y: 300, z: 400 },
-    { x: 140, y: 250, z: 280 },
-    { x: 150, y: 400, z: 500 },
-    { x: 110, y: 280, z: 200 },
-]
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PacmanLoader } from 'react-spinners'
 
 const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => {
-    const [isFullScreen, setIsFullScreen] = useState(false)
-    const [graphData, setGraphData] = useState([])
+    const [isFullScreen, setIsFullScreen] = useState(false);
+    const [graphData, setGraphData] = useState([]);
+    const [selectedTimeframe, setSelectedTimeframe] = useState('1d');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleToggleFullScreen = () => {
-        setIsFullScreen(!isFullScreen)
-    }
+        setIsFullScreen(!isFullScreen);
+    };
 
     useEffect(() => {
         const fetchGraphData = async () => {
-            // Fetch data for the chart
             try {
-                // Fetch data for the graph
+                setIsLoading(true);
                 const dataResponse = await axios.get(process.env.API_URL + `/mqtt/data`, {
                     params: {
                         collection: graph.collection,
                         fields: `${graph.xField},${graph.yField}`,
+                        timeframe: selectedTimeframe,
                     }
                 });
-
-                return dataResponse.data;
+                setGraphData(dataResponse.data.data);
+                setIsLoading(false);
             } catch (error) {
-                console.error('Failed to fetch graph data:', error)
+                console.error('Failed to fetch graph data:', error);
             }
-        }
+        };
 
-        setGraphData(fetchGraphData());
-    }, [id]);
-
-    console.log('graphData:', graphData.data);
+        fetchGraphData();
+    }, [id, graph.collection, graph.xField, graph.yField, selectedTimeframe]);
 
     const renderChart = () => {
         switch (chartType) {
             case 'line':
                 return (
-                    <LineChart data={lineData}>
-                        <XAxis dataKey="name" />
+                    <LineChart data={graphData} className="flex-grow">
+                        <XAxis
+                            dataKey="createdAt"
+                            tickFormatter={(tick) => format(new Date(tick), 'dd/MM')}
+                        />
                         <YAxis />
                         <CartesianGrid strokeDasharray="3 3" />
-                        <Tooltip />
+                        <Tooltip content={<CustomTooltip />} />
                         <Legend />
-                        <Line type="monotone" dataKey="users" stroke="#8884d8" />
-                        <Line type="monotone" dataKey="transactions" stroke="#82ca9d" />
+                        <Line type="monotone" dataKey="temperature" stroke="#8884d8" />
                     </LineChart>
                 )
             case 'bar':
@@ -142,42 +106,58 @@ const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => 
                     </ScatterChart>
                 )
             default:
-                return null
+                return null;
         }
-    }
+    };
+
+    // CustomTooltip component for better styling and readability
+    const CustomTooltip = ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+            return (
+                <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow-lg rounded-lg p-3">
+                    <p className="text-gray-700 dark:text-gray-200 font-semibold mb-1">{format(new Date(label), 'PPP')}</p>
+                    {payload.map((item, index) => (
+                        <div key={index} className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
+                            <span>{item.name}</span>
+                            <span style={{ color: item.color }} className="font-medium">
+                            {item.value}
+                        </span>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+        return null;
+    };
+
 
     return (
         <>
             <Card className="shadow-lg h-full flex flex-col resizable-indicator">
                 <CardHeader
                     className="flex flex-row items-center justify-between space-y-0 py-2"
-                    style={{backgroundColor: color}}
+                    style={{ backgroundColor: color }}
                 >
                     <h3 className="font-semibold text-white">{title}</h3>
-                    <div className="flex items-center space-x-2">
-                        {/* Full Screen Button */}
+                    <div className="flex items-center space-x-2 justify-center mx-5 my-5">
                         <Dialog open={isFullScreen} onOpenChange={handleToggleFullScreen}>
                             <DialogTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                >
+                                <Button variant="ghost" size="icon">
                                     {isFullScreen ? (
-                                        <Minimize2 className="h-4 w-4 text-white"/>
+                                        <Minimize2 className="h-4 w-4 text-white" />
                                     ) : (
-                                        <Maximize2 className="h-4 w-4 text-white"/>
+                                        <Maximize2 className="h-4 w-4 text-white" />
                                     )}
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent
-                                className="fixed inset-0 flex items-center justify-center p-4 bg-white dark:bg-gray-800">
+                            <DialogContent className="fixed inset-0 flex items-center justify-center p-4 bg-white dark:bg-gray-800">
                                 <Button
                                     variant="ghost"
                                     size="icon"
                                     onClick={handleToggleFullScreen}
                                     className="absolute top-4 right-4"
                                 >
-                                    <Minimize2 className="h-6 w-6 text-gray-800 dark:text-white"/>
+                                    <Minimize2 className="h-6 w-6 text-gray-800 dark:text-white" />
                                 </Button>
                                 <div className="w-full h-full">
                                     <ResponsiveContainer width="100%" height="100%">
@@ -189,23 +169,23 @@ const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => 
 
                         {/* Move Button as Drag Handle */}
                         <Button variant="ghost" size="icon" className="drag-handle">
-                            <Move className="h-4 w-4 text-white"/>
+                            <Move className="h-4 w-4 text-white" />
                         </Button>
 
                         {/* Dropdown Menu */}
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon">
-                                    <MoreHorizontal className="h-4 w-4 text-white"/>
+                                    <MoreHorizontal className="h-4 w-4 text-white" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={() => onEdit(id)}>
-                                    <Edit className="mr-2 h-4 w-4"/>
+                                    <Edit className="mr-2 h-4 w-4" />
                                     Edit
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => onDelete(id)}>
-                                    <Trash2 className="mr-2 h-4 w-4"/>
+                                    <Trash2 className="mr-2 h-4 w-4" />
                                     Delete
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -214,13 +194,30 @@ const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => 
                 </CardHeader>
                 {/* Prevent dragging on chart content */}
                 <CardContent className="flex-grow p-4 no-drag">
-                    <ResponsiveContainer width="100%" height={200}>
-                        {renderChart()}
-                    </ResponsiveContainer>
+                    <Tabs defaultValue="1d" onValueChange={setSelectedTimeframe}>
+                        <TabsList className="">
+                                {['1d', '7d', '30d', '6M', '1Y', 'Max'].map((key) => (
+                                <TabsTrigger key={key} value={key}>
+                                    {key}
+                                </TabsTrigger>
+                            ))}
+                        </TabsList>
+                        <TabsContent value={selectedTimeframe} >
+                            {isLoading ? (
+                                <div className="flex items-center justify-center h-full pt-2">
+                                    <PacmanLoader color={color} />
+                                </div>
+                            ) : (
+                                <ResponsiveContainer width="100%" height={200}>
+                                    {renderChart()}
+                                </ResponsiveContainer>
+                            )}
+                        </TabsContent>
+                    </Tabs>
                 </CardContent>
             </Card>
         </>
-    )
-}
+    );
+};
 
-export default ChartCard
+export default ChartCard;

@@ -36,7 +36,6 @@ const ChartCardComponent = ({ projectId }) => {
                 })
                 const data = res.data;
                 setGraphs(data)
-                console.log('data:', data)
 
                 // Initialize layout positions if no saved layout is present
                 if (!layoutsInitialized.current) {
@@ -95,6 +94,8 @@ const ChartCardComponent = ({ projectId }) => {
     const handleEdit = (id) => {
         console.log(`Edit item ${id}`)
     }
+
+    console.log(graphs.map(graph => graph.collection))
 
     return (
         <ResponsiveGridLayout

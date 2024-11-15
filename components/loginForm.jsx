@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import Cookies from 'js-cookie'
 
 const LoginForm = () => {
   const [email, setEmail] = useState("")
@@ -25,7 +26,7 @@ const LoginForm = () => {
     }
 
     try {
-      const res = await fetch('http://10.157.0.60:5000/api/auth/login', {
+      const res = await fetch(process.env.API_URL + '/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -39,6 +40,7 @@ const LoginForm = () => {
         setError("")
         console.log("Login successful:", data)
         localStorage.setItem('token', data.token)
+        Cookies.set('token', data.token)
         router.push('/') // Redirect to the main page
       }
     } catch (error) {

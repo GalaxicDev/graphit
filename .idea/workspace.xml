@@ -4,7 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="added API in env instead of hardcoding" />
+    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="fixed graph data fetching">
+      <change afterPath="$PROJECT_DIR$/app/(root)/projects/[project]/collection-viewer/page.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(root)/projects/[project]/settings/page.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ChartCardComponent.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ChartCardComponent.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/chartCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/loginForm.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/loginForm.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/navbar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/navbar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/sidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/sidebar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ui/alert.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ui/alert.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/next.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/next.config.mjs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -70,6 +83,8 @@
       <recent name="C:\Users\vw070310\WebstormProjects\graphit\components" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\vw070310\WebstormProjects\graphit\images" />
+      <recent name="C:\Users\vw070310\WebstormProjects\graphit\logo" />
       <recent name="C:\Users\vw070310\WebstormProjects\graphit\app\(root)\projects" />
       <recent name="C:\Users\vw070310\WebstormProjects\graphit\app" />
       <recent name="C:\Users\vw070310\WebstormProjects\graphit\app\(root)" />
@@ -108,7 +123,12 @@
       <workItem from="1730795136026" duration="1726000" />
       <workItem from="1730823795277" duration="17000" />
       <workItem from="1730882272253" duration="7935000" />
-      <workItem from="1731067504248" duration="3216000" />
+      <workItem from="1731067504248" duration="4920000" />
+      <workItem from="1731397046757" duration="5299000" />
+      <workItem from="1731486719156" duration="5704000" />
+      <workItem from="1731492848638" duration="302000" />
+      <workItem from="1731493273170" duration="1584000" />
+      <workItem from="1731672817318" duration="3149000" />
     </task>
     <task id="LOCAL-00001" summary="added the default files">
       <option name="closed" value="true" />
@@ -190,7 +210,15 @@
       <option name="project" value="LOCAL" />
       <updated>1731071468897</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="fixed graph data fetching">
+      <option name="closed" value="true" />
+      <created>1731071543250</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1731071543250</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -227,6 +255,7 @@
     <MESSAGE value="added movable charts and more" />
     <MESSAGE value="added update B-2.0.5" />
     <MESSAGE value="added API in env instead of hardcoding" />
-    <option name="LAST_COMMIT_MESSAGE" value="added API in env instead of hardcoding" />
+    <MESSAGE value="fixed graph data fetching" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed graph data fetching" />
   </component>
 </project>

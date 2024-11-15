@@ -4,6 +4,8 @@ import { X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { sidebarUtils, projectSidebarUtils } from "@/lib/sidebarUtils";
+import Image from "next/image";
+import logo from "@/images/logo.png";
 
 export function Sidebar({ sidebarOpen, toggleSidebar }) {
     const pathname = usePathname();
@@ -16,9 +18,16 @@ export function Sidebar({ sidebarOpen, toggleSidebar }) {
         <aside
             className={`${sidebarOpen ? 'translate-x-0' : 'transition-transform duration-500 ease-in-out -translate-x-full'} fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg`}>
             <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
-                <span className="text-2xl font-semibold text-gray-800 dark:text-white">GraphIt</span>
+                <Image
+                    src={logo}
+                    alt={"Graphit logo"}
+                    height={100}
+                    width={"100%"}
+                    className={"flex justify-center content-center"}
+                    onClick={() => router.push('/')}
+                />
                 <Button variant="ghost" size="icon" onClick={toggleSidebar} className="text-gray-800 dark:text-white">
-                    <X className="h-6 w-6" />
+                    <X className="h-6 w-6"/>
                 </Button>
             </div>
             <nav className="mt-6">

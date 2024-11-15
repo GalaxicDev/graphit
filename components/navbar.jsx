@@ -11,19 +11,32 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import Image from "next/image";
+import logo from "@/images/logo.png";
 
 export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode }) {
   return (
       <header className={`flex items-center justify-between h-16 px-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700`}>
         <div className="flex items-center">
           {!sidebarOpen && (
-              <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={toggleSidebar}
-                  className="mr-4 lg:block hidden text-gray-800 dark:text-white flex items-center justify-center">
-                <Menu className="h-6 w-6" />
-              </Button>
+              <>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleSidebar}
+                    className="mr-2 lg:block hidden text-gray-800 dark:text-white flex items-center justify-center">
+                  <Menu className="h-6 w-6" />
+                </Button>
+                <Image
+                    src={logo}
+                    alt={"Graphity logo"}
+                    height={80}
+                    width={80}
+                    className={"flex justify-center content-center mr-4"}
+                    loading={"eager"}
+                    onClick={() => window.location.href = "/"}
+                />
+              </>
           )}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
