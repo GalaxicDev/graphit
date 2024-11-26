@@ -1,6 +1,7 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
+
+import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { ChartArea } from 'lucide-react'
 import { Button } from "@/components/ui/button"
@@ -21,13 +22,17 @@ export function ProjectView({ project }) {
         yField: "",
     })
     const [graphs, setGraphs] = useState([])
+    const fetchRef = useRef(false)
 
     const router = useRouter()
 
     useEffect(() => {
+        if (fetchRef.current) return;
+        fetchRef.current = true;
+
         const fetchGraphs = async () => {
             try {
-                const res = await axios.get(process.env.API_URL + `/graphs/project/${project._id}`, {
+                const res = axios.get(process.env.API_URL + `/graphs/project/${project._id}`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
@@ -82,6 +87,7 @@ export function ProjectView({ project }) {
                         onClose={handleClose}
                         formData={formData}
                         setFormData={setFormData}
+                        collections={project.collections}
                     />
                 </div>
             )}

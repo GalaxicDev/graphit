@@ -9,15 +9,9 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
-const collections = [
-    { id: "1", name: "Users" },
-    { id: "2", name: "Orders" },
-    { id: "3", name: "Products" },
-]
-
 const graphTypes = ["Bar", "Line", "Pie", "Scatter"]
 
-export function CreateGraphForm({ onClose, formData, setFormData }) {
+export function CreateGraphForm({ onClose, formData, setFormData, collections }) {
     const [step, setStep] = useState(1)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
@@ -119,7 +113,7 @@ export function CreateGraphForm({ onClose, formData, setFormData }) {
                                     </SelectTrigger>
                                     <SelectContent>
                                         {collections.map((collection) => (
-                                            <SelectItem key={collection.id} value={collection.id}>
+                                            <SelectItem key={collection.id} value={collection.name}>
                                                 {collection.name}
                                             </SelectItem>
                                         ))}

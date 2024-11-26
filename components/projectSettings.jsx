@@ -1,5 +1,6 @@
 "use client"
 
+import axios from "axios";
 import { useState, useEffect } from "react";
 import { Plus, X, Save, Trash2, Eye, EyeOff, Info, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,6 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import axios from "axios";
 import {
   Alert,
   AlertDescription,
@@ -36,7 +36,7 @@ export function ProjectSettings({ initialProjectData }) {
             }
           },
           projectData);
-        setAlert(true);
+      setAlert(true);
     } catch (error) {
       console.error("Failed to update project data:", error);
     }
@@ -59,13 +59,25 @@ export function ProjectSettings({ initialProjectData }) {
     }));
   };
 
-  const handleAddCollection = () => {
+  const handleAddCollection = async () => {
     if (newCollection) {
-      setProjectData(prev => ({
-        ...prev,
-        collections: [...prev.collections, { id: Date.now().toString(), name: newCollection, isPublic: false }]
-      }));
-      setNewCollection("");
+      try {
+        const response = await axios.post(process.env.API_URL + `/projects/${projectData._id}/collections`,
+            { name: newCollection },
+            {
+              headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+              }
+            }
+        );
+        setProjectData(prev => ({
+          ...prev,
+          collections: [...prev.collections, response.data]
+        }));
+        setNewCollection("");
+      } catch (error) {
+        console.error("Failed to add collection:", error);
+      }
     }
   };
 
@@ -174,7 +186,7 @@ export function ProjectSettings({ initialProjectData }) {
                       <span
                           className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 p-2 text-xs text-white bg-black rounded opacity-0 group-hover:opacity-100">
                         Making the project public will allow anyone to view it, if they have the link.
-                      </span>
+                     </span>
                     </span>
                       </div>
                     </Label>
@@ -282,32 +294,36 @@ export function ProjectSettings({ initialProjectData }) {
                     </Button>
                   </div>
                   <ScrollArea className="h-[200px] w-full rounded-md border p-4 border-gray-600">
-                    {projectData.collections.map(collection => (
-                        <div
-                            key={collection.id}
-                            className="flex items-center justify-between py-2 border-b last:border-b-0 border-gray-700">
-                          <div className="flex items-center space-x-2">
-                            <Badge variant={collection.isPublic ? "default" : "secondary"}>
-                              {collection.isPublic ? "Public" : "Private"}
-                            </Badge>
-                            <p className="text-sm font-medium">{collection.name}</p>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleToggleCollectionPublic(collection.id)}>
-                              {collection.isPublic ? <EyeOff className="w-4 h-4"/> : <Eye className="w-4 h-4"/>}
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleRemoveCollection(collection.id)}>
-                              <X className="w-4 h-4"/>
-                            </Button>
-                          </div>
-                        </div>
-                    ))}
+                    {projectData.collections.length > 0 ? (
+                        projectData.collections.map(collection => (
+                            <div
+                                key={collection.id}
+                                className="flex items-center justify-between py-2 border-b last:border-b-0 border-gray-700">
+                              <div className="flex items-center space-x-2">
+                                <Badge variant={collection.isPublic ? "default" : "secondary"}>
+                                  {collection.isPublic ? "Public" : "Private"}
+                                </Badge>
+                                <p className="text-sm font-medium">{collection.name}</p>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleToggleCollectionPublic(collection.id)}>
+                                  {collection.isPublic ? <EyeOff className="w-4 h-4"/> : <Eye className="w-4 h-4"/>}
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleRemoveCollection(collection.id)}>
+                                  <X className="w-4 h-4"/>
+                                </Button>
+                              </div>
+                            </div>
+                        ))
+                    ) : (
+                        <p>No collections connected to this project.</p>
+                    )}
                   </ScrollArea>
                 </CardContent>
               </Card>

@@ -14,6 +14,7 @@ const ChartCardComponent = ({ projectId }) => {
     const [layouts, setLayouts] = useState({ lg: [], xs: [] })
     const [graphs, setGraphs] = useState([])
     const layoutsInitialized = useRef(false) // Prevents double initialization in Next.js
+    const fetchRef = useRef(false)
 
     useEffect(() => {
         // Load layout from localStorage if it exists and is not initialized
@@ -28,6 +29,9 @@ const ChartCardComponent = ({ projectId }) => {
 
         // Fetch graph data from the database
         const fetchGraphs = async () => {
+            if (fetchRef.current) return;
+            fetchRef.current = true;
+
             try {
                 const res = await axios.get(process.env.API_URL + `/graphs/project/${projectId}`, {
                     headers: {

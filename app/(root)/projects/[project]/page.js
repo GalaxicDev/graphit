@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { ProjectView } from '@/components/projectView'
 
-const ProjectPage = () => {
+export default   function ProjectPage() {
     const { project } = useParams()
     const [projectData, setProjectData] = useState(null)
 
@@ -34,5 +34,3 @@ const ProjectPage = () => {
 
     return <ProjectView project={projectData} />
 }
-
-export default ProjectPage

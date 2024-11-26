@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { sidebarUtils, projectSidebarUtils } from "@/lib/sidebarUtils";
 import Image from "next/image";
 import logo from "@/images/logo.png";
+import Link from 'next/link';
 
 export function Sidebar({ sidebarOpen, toggleSidebar }) {
     const pathname = usePathname();
@@ -24,7 +25,7 @@ export function Sidebar({ sidebarOpen, toggleSidebar }) {
                     height={100}
                     width={"100%"}
                     className={"flex justify-center content-center"}
-                    onClick={() => router.push('/')}
+                    onClick={() => window.location.href = '/'}
                 />
                 <Button variant="ghost" size="icon" onClick={toggleSidebar} className="text-gray-800 dark:text-white">
                     <X className="h-6 w-6"/>
@@ -35,13 +36,14 @@ export function Sidebar({ sidebarOpen, toggleSidebar }) {
                 {sidebarUtils.map((item) => {
                     const Icon = item.icon;
                     return (
-                        <a
+                        <Link
                             key={item.name}
                             href={item.href}
+                            prefetch={true}
                             className="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700">
                             <Icon className="h-5 w-5 mr-3" />
                             {item.name}
-                        </a>
+                        </Link>
                     );
                 })}
 

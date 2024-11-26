@@ -24,7 +24,7 @@ import { PacmanLoader } from 'react-spinners'
 const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => {
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [graphData, setGraphData] = useState([]);
-    const [selectedTimeframe, setSelectedTimeframe] = useState('1d');
+    const [selectedTimeframe, setSelectedTimeframe] = useState('1D');
     const [isLoading, setIsLoading] = useState(false);
 
     const handleToggleFullScreen = () => {
@@ -35,6 +35,7 @@ const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => 
         const fetchGraphData = async () => {
             try {
                 setIsLoading(true);
+                console.log("Fetching graph data for:", graph.collection, graph.xField, graph.yField, selectedTimeframe);
                 const dataResponse = await axios.get(process.env.API_URL + `/mqtt/data`, {
                     params: {
                         collection: graph.collection,
@@ -43,14 +44,16 @@ const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => 
                     }
                 });
                 setGraphData(dataResponse.data.data);
-                setIsLoading(false);
             } catch (error) {
                 console.error('Failed to fetch graph data:', error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
         fetchGraphData();
     }, [id, graph.collection, graph.xField, graph.yField, selectedTimeframe]);
+
 
     const renderChart = () => {
         switch (chartType) {
@@ -194,15 +197,17 @@ const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => 
                 </CardHeader>
                 {/* Prevent dragging on chart content */}
                 <CardContent className="flex-grow p-4 no-drag">
-                    <Tabs defaultValue="1d" onValueChange={setSelectedTimeframe}>
-                        <TabsList className="">
-                                {['1d', '7d', '30d', '6M', '1Y', 'Max'].map((key) => (
+                    <Tabs defaultValue="1D" onValueChange={setSelectedTimeframe}>
+                    <TabsList>
+                            {['1D', '7D', '30D', '6M', '1Y', 'Max'].map((key) => (
                                 <TabsTrigger key={key} value={key}>
                                     {key}
                                 </TabsTrigger>
                             ))}
                         </TabsList>
-                        <TabsContent value={selectedTimeframe} >
+
+                        {/* A single TabsContent to dynamically render content based on selectedTimeframe */}
+                        <TabsContent value={selectedTimeframe}>
                             {isLoading ? (
                                 <div className="flex items-center justify-center h-full pt-2">
                                     <PacmanLoader color={color} />
@@ -214,6 +219,7 @@ const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => 
                             )}
                         </TabsContent>
                     </Tabs>
+
                 </CardContent>
             </Card>
         </>

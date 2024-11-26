@@ -4,17 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="fixed graph data fetching">
-      <change afterPath="$PROJECT_DIR$/app/(root)/projects/[project]/collection-viewer/page.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/(root)/projects/[project]/settings/page.js" afterDir="false" />
+    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="added edit project details in settings page">
+      <change afterPath="$PROJECT_DIR$/lib/api.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/projects/[project]/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/projects/[project]/page.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/favicon.ico" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ChartCardComponent.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ChartCardComponent.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/chartCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCard.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/loginForm.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/loginForm.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/navbar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/navbar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/createGraphForm.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/createGraphForm.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/projectSettings.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/projectSettings.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/projectView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/projectView.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/sidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/sidebar.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ui/alert.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ui/alert.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/next.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/next.config.mjs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/sidebarUtils.js" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sidebarUtils.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
@@ -128,7 +129,11 @@
       <workItem from="1731486719156" duration="5704000" />
       <workItem from="1731492848638" duration="302000" />
       <workItem from="1731493273170" duration="1584000" />
-      <workItem from="1731672817318" duration="3149000" />
+      <workItem from="1731672817318" duration="5073000" />
+      <workItem from="1731950908228" duration="1172000" />
+      <workItem from="1732001736734" duration="5479000" />
+      <workItem from="1732260923887" duration="6901000" />
+      <workItem from="1732277006579" duration="2796000" />
     </task>
     <task id="LOCAL-00001" summary="added the default files">
       <option name="closed" value="true" />
@@ -218,7 +223,15 @@
       <option name="project" value="LOCAL" />
       <updated>1731071543250</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="added edit project details in settings page">
+      <option name="closed" value="true" />
+      <created>1731676327191</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1731676327191</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -256,6 +269,7 @@
     <MESSAGE value="added update B-2.0.5" />
     <MESSAGE value="added API in env instead of hardcoding" />
     <MESSAGE value="fixed graph data fetching" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed graph data fetching" />
+    <MESSAGE value="added edit project details in settings page" />
+    <option name="LAST_COMMIT_MESSAGE" value="added edit project details in settings page" />
   </component>
 </project>

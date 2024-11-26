@@ -34,6 +34,7 @@
     "react-resizable": "^3.0.5",
     "react-spinners": "^0.14.1",
     "recharts": "^2.13.0",
+    "sharp": "^0.33.5",
     "tailwind-merge": "^2.5.3",
     "tailwindcss-animate": "^1.0.7"
   },
