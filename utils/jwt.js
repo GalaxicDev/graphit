@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 
 // Generate JWT
 export const generateToken = (userId) => {
-    return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '31d' });
 };
 
 // Verify JWT

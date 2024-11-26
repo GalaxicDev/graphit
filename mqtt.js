@@ -3,6 +3,7 @@ import { body, param, validationResult } from 'express-validator';
 import { getDB } from './connectDB.js';
 import mongoose from 'mongoose';
 import {verifyToken} from "./utils/jwt.js";
+import { subDays, subMonths, subYears } from 'date-fns';
 
 const router = express.Router();
 
@@ -20,7 +21,6 @@ const extractUserId = (req, res, next) => {
     const authToken = req.headers['authorization'];
     if (!authToken) return res.status(403).json({ success: false, message: 'Token required' });
 
-    console.log('authToken:', authToken);
     try {
         const token = authToken.split(' ')[1];
         const decoded = verifyToken(token);
@@ -34,17 +34,63 @@ const extractUserId = (req, res, next) => {
 // Apply extractUserId middleware to all routes
 //router.use(extractUserId);
 
-router.get('/data', async (req, res) => {
-    const { collections, fields } = req.query;
-    console.log('collections:', collections);
 
+router.get('/data', async (req, res) => {
+    const { collection, fields, timeframe } = req.query;
+    console.log(collection);
+    console.log(timeframe);
     try {
         const db = await getDB('mqtt');
 
-        // we receive one collection, get the data of this collection
-        const collection = await db.collection(collections).find({}, { projection: fields.split(',').reduce((acc, field) => ({ ...acc, [field]: 1 }), {}) }).toArray();
+        // Create a projection object if fields are provided
+        const projection = fields ? fields.split(',').reduce((acc, field) => ({ ...acc, [field]: 1 }), {}) : {};
 
-        res.json({ success: true, data: collection });
+        // Fetch the last entry to determine the end date
+        const lastEntry = await db.collection(collection).findOne({}, { sort: { createdAt: -1 } });
+        if (!lastEntry) {
+            return res.status(404).json({ success: false, message: 'No data found' });
+        }
+        const endDate = new Date(lastEntry.createdAt);
+
+        // Calculate startDate based on the timeframe
+        let startDate;
+        switch (timeframe) {
+            case '1D':
+                startDate = subDays(endDate, 1);
+                break;
+            case '7D':
+                startDate = subDays(endDate, 7);
+                break;
+            case '30D':
+                startDate = subDays(endDate, 30);
+                break;
+            case '6M':
+                startDate = subMonths(endDate, 6);
+                break;
+            case '1Y':
+                startDate = subYears(endDate, 1);
+                break;
+            case 'Max':
+                startDate = new Date(0);
+                break;
+            default:
+                startDate = new Date();
+        }
+
+        // Create a query object to filter by date range
+        const query = {
+            createdAt: {
+                $gte: startDate,
+                $lte: endDate
+            }
+        };
+
+        console.log(startDate);
+        console.log(endDate);
+
+        // Fetch data from the collection with the query and projection
+        const data = await db.collection(collection).find(query, { projection }).toArray();
+        res.json({ success: true, data: data });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

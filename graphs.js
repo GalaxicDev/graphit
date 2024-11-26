@@ -70,10 +70,9 @@ router.post('/',
                 projectId: new mongoose.Types.ObjectId(req.body.projectId),
                 name: req.body.name,
                 type: req.body.type,
+                collection: req.body.collection,
                 xField: req.body.xField,
-                xCollection: req.body.xCollection,
                 yField: req.body.yField,
-                yCollection: req.body.yCollection,
             };
             const result = await db.collection('graphs').insertOne(newGraphData);
             console.log('result:', result);
