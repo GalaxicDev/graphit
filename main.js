@@ -5,7 +5,6 @@ import rateLimit from 'express-rate-limit';
 import cors from 'cors';
 import { connectDB } from './connectDB.js';
 import authRoutes from './auth.js';  // Authentication routes
-import wineRoutes from './wines.js';  // Wine-related routes
 import projectRoutes from './projects.js';  // Project-related routes
 import graphRoutes from './graphs.js' // Graph-related routes
 import mqttRoutes from './mqtt.js' // MQTT-related routes
@@ -36,7 +35,6 @@ connectDB();
 
 // Routes
 app.use('/api/auth', authRoutes);      // Authentication routes
-app.use('/api/wines', wineRoutes);     // Wine-related routes
 app.use('/api/projects', projectRoutes);  // Project-related routes
 app.use('/api/graphs', graphRoutes);  // Graph-related routes
 app.use('/api/mqtt', mqttRoutes);  // MQTT-related routes
