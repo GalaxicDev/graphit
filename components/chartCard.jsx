@@ -44,6 +44,7 @@ const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => 
                     }
                 });
                 setGraphData(dataResponse.data.data);
+                console.log("Graph data:", dataResponse.data.data);
             } catch (error) {
                 console.error('Failed to fetch graph data:', error);
             } finally {
@@ -61,51 +62,51 @@ const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => 
                 return (
                     <LineChart data={graphData} className="flex-grow">
                         <XAxis
-                            dataKey="createdAt"
+                            dataKey={graph.xField}
                             tickFormatter={(tick) => format(new Date(tick), 'dd/MM')}
                         />
                         <YAxis />
                         <CartesianGrid strokeDasharray="3 3" />
                         <Tooltip content={<CustomTooltip />} />
                         <Legend />
-                        <Line type="monotone" dataKey="temperature" stroke="#8884d8" />
+                        <Line type="monotone" dataKey={graph.yField} stroke="#8884d8" dot={false} />
                     </LineChart>
                 )
             case 'bar':
                 return (
-                    <BarChart data={barData}>
-                        <XAxis dataKey="name" />
+                    <BarChart data={graphData}>
+                        <XAxis dataKey={graph.xField} />
                         <YAxis />
                         <CartesianGrid strokeDasharray="3 3" />
-                        <Tooltip />
+                        <Tooltip content={<CustomTooltip />} />
                         <Legend />
-                        <Bar dataKey="value" fill="#8884d8" />
+                        <Bar dataKey={graph.yField} fill="#8884d8" />
                     </BarChart>
                 )
             case 'pie':
                 return (
                     <PieChart>
-                        <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={50} fill="#8884d8" label />
-                        <Tooltip />
+                        <Pie data={graphData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={50} fill="#8884d8" label />
+                        <Tooltip content={<CustomTooltip />} />
                     </PieChart>
                 )
             case 'area':
                 return (
-                    <AreaChart data={areaData}>
+                    <AreaChart data={graphData}>
                         <XAxis dataKey="name" />
                         <YAxis />
                         <CartesianGrid strokeDasharray="3 3" />
-                        <Tooltip />
+                        <Tooltip content={<CustomTooltip />} />
                         <Area type="monotone" dataKey="uv" stroke="#8884d8" fill="#8884d8" />
                     </AreaChart>
                 )
             case 'scatter':
                 return (
                     <ScatterChart>
-                        <XAxis type="number" dataKey="x" name="stature" unit="cm" />
-                        <YAxis type="number" dataKey="y" name="weight" unit="kg" />
-                        <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                        <Scatter name="A school" data={scatterData} fill="#8884d8" />
+                        <XAxis type="number" dataKey={graph.xField} name="stature" unit="cm" />
+                        <YAxis type="number" dataKey={graph.yField} name="weight" unit="kg" />
+                        <Tooltip cursor={{ strokeDasharray: '3 3' }} content={<CustomTooltip />} />
+                        <Scatter name="A school" data={graphData} fill="#8884d8" />
                     </ScatterChart>
                 )
             default:

@@ -4,18 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="added edit project details in settings page">
-      <change afterPath="$PROJECT_DIR$/lib/api.js" afterDir="false" />
+    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="updated files">
+      <change afterPath="$PROJECT_DIR$/app/(root)/projects/[project]/chartcreator/page.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(root)/projects/[project]/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/projects/[project]/page.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/favicon.ico" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ChartCardComponent.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ChartCardComponent.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/chartCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCard.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/createGraphForm.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/createGraphForm.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/projectSettings.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/projectSettings.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/projectView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/projectView.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/sidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/sidebar.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/sidebarUtils.js" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sidebarUtils.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/lib/api.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
@@ -134,6 +128,10 @@
       <workItem from="1732001736734" duration="5479000" />
       <workItem from="1732260923887" duration="6901000" />
       <workItem from="1732277006579" duration="2796000" />
+      <workItem from="1732606555768" duration="1790000" />
+      <workItem from="1732608766953" duration="3242000" />
+      <workItem from="1732883674681" duration="3769000" />
+      <workItem from="1733211856440" duration="4488000" />
     </task>
     <task id="LOCAL-00001" summary="added the default files">
       <option name="closed" value="true" />
@@ -231,7 +229,15 @@
       <option name="project" value="LOCAL" />
       <updated>1731676327191</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="updated files">
+      <option name="closed" value="true" />
+      <created>1732606607150</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1732606607150</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -270,6 +276,7 @@
     <MESSAGE value="added API in env instead of hardcoding" />
     <MESSAGE value="fixed graph data fetching" />
     <MESSAGE value="added edit project details in settings page" />
-    <option name="LAST_COMMIT_MESSAGE" value="added edit project details in settings page" />
+    <MESSAGE value="updated files" />
+    <option name="LAST_COMMIT_MESSAGE" value="updated files" />
   </component>
 </project>

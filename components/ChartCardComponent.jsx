@@ -74,6 +74,7 @@ const ChartCardComponent = ({ projectId }) => {
     useEffect(() => {
         if (layoutsInitialized.current) {
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(layouts))
+            console.log('updated layouts:', layouts)
         }
     }, [layouts])
 
