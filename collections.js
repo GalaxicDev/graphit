@@ -52,7 +52,7 @@ const getCollectionData = async (dbName) => {
         //CAN'T GET STATS OF COLLECTIONS PLS FIX
         //const collectionObj = db.collection(collection.name);
         //const stats = await collectionObj.stats();
-        console.log(stats);
+        //console.log(stats);
         return {
             name: collection.name,
             //size: formatSize(stats.size),
