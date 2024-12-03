@@ -1,14 +1,13 @@
 import mongoose from "mongoose";
 
 const graphSchema = new mongoose.Schema({
+    userId: { type: mongoose.Types.ObjectId, required: true },
     projectId: { type: mongoose.Types.ObjectId, required: true },
-    name: { type: String, required: true },
-    type: { type: String, required: true },
-    collection: { type: mongoose.Types.ObjectId, required: true },
-    xField: { type: String, required: true },
-    yField: { type: String, required: true },
+    options: { type: Object, required: true },
+    elements: { type: Array, required: true },
+    conditionalParams: { type: Object, required: true },
 }, { timestamps: true });
 
-export const createProjectModel = (db) => {
+export const createGraphModel = (db) => {
     return db.model('graphs', graphSchema);
 };

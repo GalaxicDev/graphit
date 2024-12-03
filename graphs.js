@@ -68,11 +68,9 @@ router.post('/',
             const newGraphData = {
                 userId: new mongoose.Types.ObjectId(req.userId),
                 projectId: new mongoose.Types.ObjectId(req.body.projectId),
-                name: req.body.name,
-                type: req.body.type,
-                collection: req.body.collection,
-                xField: req.body.xField,
-                yField: req.body.yField,
+                options: req.body.options,
+                elements: req.body.elements,
+                conditionalParams: req.body.conditionalParams,
             };
             const result = await db.collection('graphs').insertOne(newGraphData);
             console.log('result:', result);
@@ -81,7 +79,7 @@ router.post('/',
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
-    });
+});
 
 
 // Update a graph by ID

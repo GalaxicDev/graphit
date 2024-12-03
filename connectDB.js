@@ -9,7 +9,7 @@ export const connectDB = async () => {
         const conn = await mongoose.connect(process.env.MONGO_URI);
         cachedConnection = conn.connection;
         console.log(`MongoDB Connected: ${conn.connection.host}`);
-        return conn.connection;
+        return cachedConnection;
     } catch (e) {
         console.log("Error connecting to MongoDB:", e.message);
         process.exit(1);
