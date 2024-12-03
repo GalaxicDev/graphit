@@ -37,8 +37,6 @@ const extractUserId = (req, res, next) => {
 
 router.get('/data', async (req, res) => {
     const { collection, fields, timeframe } = req.query;
-    console.log(collection);
-    console.log(timeframe);
     try {
         const db = await getDB('mqtt');
 
@@ -85,11 +83,10 @@ router.get('/data', async (req, res) => {
             }
         };
 
-        console.log(startDate);
-        console.log(endDate);
 
         // Fetch data from the collection with the query and projection
         const data = await db.collection(collection).find(query, { projection }).toArray();
+        console.log(data);
         res.json({ success: true, data: data });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
