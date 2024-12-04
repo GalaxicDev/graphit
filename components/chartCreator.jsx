@@ -13,11 +13,42 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Plus, Minus } from 'lucide-react';
+import { Plus, Minus, Info } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, AreaChart, Area, ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from "recharts";
 import { fetchGraphData, fetchProject } from "@/lib/api";
+import { z } from "zod";
 
 const chartTypes = ["Line", "Bar", "Area", "Scatter"];
+
+const chartSchema = z.object({
+  title: z.string().nonempty("Title is required"),
+  cardColor: z.string().nonempty("Card color is required"),
+  showGrid: z.boolean(),
+  stacked: z.boolean(),
+  yRange: z.object({
+    min: z.string().optional(),
+    max: z.string().optional(),
+  }),
+  elements: z.array(z.object({
+    id: z.string(),
+    collection: z.string().nonempty("Collection is required"),
+    dataKey: z.string().nonempty("Data key is required"),
+    yDataKey: z.string().nonempty("Y Data key is required"),
+    xDataKey: z.string().nonempty("X Data key is required"),
+    name: z.string().nonempty("Name is required"),
+    color: z.string().nonempty("Color is required"),
+    thickness: z.number().min(1).max(10),
+    curved: z.boolean(),
+    dotted: z.boolean(),
+    showDots: z.boolean(),
+    dotSize: z.number().min(1).max(10),
+  })),
+  conditionalParams: z.object({
+    collection: z.string().nonempty("Collection is required"),
+    field: z.string().nonempty("Field is required"),
+    value: z.string().nonempty("Value is required"),
+  }),
+});
 
 export function ChartCreator({ token, projectData }) {
   const [chartType, setChartType] = useState("Line");
@@ -47,6 +78,7 @@ export function ChartCreator({ token, projectData }) {
     };
 
     try {
+      chartSchema.parse(chartData);
       const response = await axios.post(process.env.API_URL + '/graphs', chartData, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -54,7 +86,11 @@ export function ChartCreator({ token, projectData }) {
       });
       console.log('Chart data saved successfully:', response.data);
     } catch (error) {
-      console.error('Failed to save chart data:', error);
+      if (error instanceof z.ZodError) {
+        console.error('Validation failed:', error.errors);
+      } else {
+        console.error('Failed to save chart data:', error);
+      }
     }
   };
 
@@ -87,6 +123,7 @@ export function ChartCreator({ token, projectData }) {
       id: newId,
       collection: firstCollection,
       dataKey: "",
+      yDataKey: "",
       xDataKey: "",
       name: `${chartType} ${newId}`,
       color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
@@ -159,7 +196,7 @@ export function ChartCreator({ token, projectData }) {
               <ScrollArea className="h-[calc(100vh-200px)] pr-4">
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="chartType">Chart Type</Label>
+                    <Label htmlFor="chartType">Chart Type <span className="text-red-500">*</span></Label>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -191,7 +228,7 @@ export function ChartCreator({ token, projectData }) {
                     </TooltipProvider>
                   </div>
                   <div>
-                    <Label htmlFor="title">Chart Title</Label>
+                    <Label htmlFor="title">Chart Title <span className="text-red-500">*</span></Label>
                     <Input
                         id="title"
                         value={options.title}
@@ -200,7 +237,7 @@ export function ChartCreator({ token, projectData }) {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="cardColor">Card Color</Label>
+                    <Label htmlFor="cardColor">Card Color <span className="text-red-500">*</span></Label>
                     <Input
                         id="cardColor"
                         type="color"
@@ -253,7 +290,7 @@ export function ChartCreator({ token, projectData }) {
                           <AccordionContent>
                             <div className="space-y-4">
                               <div>
-                                <Label htmlFor={`collection-${el.id}`}>Collection</Label>
+                                <Label htmlFor={`collection-${el.id}`}>Collection <span className="text-red-500">*</span></Label>
                                 <Select
                                     value={el.collection}
                                     onValueChange={(value) => handleElementChange(el.id, "collection", value)}
@@ -272,25 +309,70 @@ export function ChartCreator({ token, projectData }) {
                                 </Select>
                               </div>
                               <div>
-                                <Label htmlFor={`dataKey-${el.id}`}>Data Key</Label>
-                                <Input
-                                    id={`dataKey-${el.id}`}
-                                    value={el.dataKey}
-                                    onChange={(e) => handleElementChange(el.id, "dataKey", e.target.value)}
-                                    className={"dark:bg-gray-700"}
-                                />
+                                <Label htmlFor={`dataKey-${el.id}`}>Data Key <span className="text-red-500">*</span></Label>
+                                <div className="flex items-center space-x-2">
+                                  <Input
+                                      id={`dataKey-${el.id}`}
+                                      value={el.dataKey}
+                                      onChange={(e) => handleElementChange(el.id, "dataKey", e.target.value)}
+                                      className={"dark:bg-gray-700"}
+                                  />
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Info className="h-4 w-4 text-gray-500 cursor-pointer" />
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        The field in the database for the data key.
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </div>
                               </div>
                               <div>
-                                <Label htmlFor={`xDataKey-${el.id}`}>X Data Key</Label>
-                                <Input
-                                    id={`xDataKey-${el.id}`}
-                                    value={el.xDataKey}
-                                    onChange={(e) => handleElementChange(el.id, "xDataKey", e.target.value)}
-                                    className={"dark:bg-gray-700"}
-                                />
+                                <Label htmlFor={`yDataKey-${el.id}`}>Y Data Key <span className="text-red-500">*</span></Label>
+                                <div className="flex items-center space-x-2">
+                                  <Input
+                                      id={`yDataKey-${el.id}`}
+                                      value={el.yDataKey}
+                                      onChange={(e) => handleElementChange(el.id, "yDataKey", e.target.value)}
+                                      className={"dark:bg-gray-700"}
+                                  />
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Info className="h-4 w-4 text-gray-500 cursor-pointer" />
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        The field in the database for the Y data key.
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </div>
                               </div>
                               <div>
-                                <Label htmlFor={`name-${el.id}`}>Name</Label>
+                                <Label htmlFor={`xDataKey-${el.id}`}>X Data Key <span className="text-red-500">*</span></Label>
+                                <div className="flex items-center space-x-2">
+                                  <Input
+                                      id={`xDataKey-${el.id}`}
+                                      value={el.xDataKey}
+                                      onChange={(e) => handleElementChange(el.id, "xDataKey", e.target.value)}
+                                      className={"dark:bg-gray-700"}
+                                  />
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Info className="h-4 w-4 text-gray-500 cursor-pointer" />
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        The field in the database for the X data key.
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </div>
+                              </div>
+                              <div>
+                                <Label htmlFor={`name-${el.id}`}>Name <span className="text-red-500">*</span></Label>
                                 <Input
                                     id={`name-${el.id}`}
                                     value={el.name}
@@ -299,7 +381,7 @@ export function ChartCreator({ token, projectData }) {
                                 />
                               </div>
                               <div>
-                                <Label htmlFor={`color-${el.id}`}>Color</Label>
+                                <Label htmlFor={`color-${el.id}`}>Color <span className="text-red-500">*</span></Label>
                                 <Input
                                     id={`color-${el.id}`}
                                     type="color"
@@ -307,7 +389,7 @@ export function ChartCreator({ token, projectData }) {
                                     onChange={(e) => handleElementChange(el.id, "color", e.target.value)} />
                               </div>
                               <div>
-                                <Label htmlFor={`thickness-${el.id}`}>Thickness</Label>
+                                <Label htmlFor={`thickness-${el.id}`}>Thickness <span className="text-red-500">*</span></Label>
                                 <Slider
                                     id={`thickness-${el.id}`}
                                     min={1}
@@ -367,7 +449,7 @@ export function ChartCreator({ token, projectData }) {
                   <Separator className="my-4 dark:bg-gray-700" />
                   <h3 className="text-sm font-medium text-black mb-2 dark:text-white">Conditional Parameters</h3>
                   <div>
-                    <Label htmlFor="conditionalCollection">Collection</Label>
+                    <Label htmlFor="conditionalCollection">Collection <span className="text-red-500">*</span></Label>
                     <Select
                         value={conditionalParams.collection}
                         onValueChange={(value) => handleConditionalParamChange("collection", value)}
@@ -386,7 +468,7 @@ export function ChartCreator({ token, projectData }) {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="conditionalField">Field</Label>
+                    <Label htmlFor="conditionalField">Field <span className="text-red-500">*</span></Label>
                     <Input
                         id="conditionalField"
                         value={conditionalParams.field}
@@ -395,7 +477,7 @@ export function ChartCreator({ token, projectData }) {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="conditionalValue">Value</Label>
+                    <Label htmlFor="conditionalValue">Value <span className="text-red-500">*</span></Label>
                     <Input
                         id="conditionalValue"
                         value={conditionalParams.value}
