@@ -61,13 +61,19 @@ router.get('/:id', param('id').isMongoId(), handleValidationErrors, async (req, 
 
 // Create a new graph
 router.post('/',
-    body('name').isString().isLength({ min: 3 }),
-    handleValidationErrors, async (req, res) => {
+    body('projectId').isString().withMessage('Project ID is required'),
+    body('chartType').isString().withMessage('Chart Type is required'),
+    body('options').isObject().withMessage('Options must be an object'),
+    body('elements').isArray().withMessage('Elements must be an array'),
+    body('conditionalParams').isObject().optional().withMessage('Conditional Params must be an object'),
+    handleValidationErrors,
+    async (req, res) => {
         try {
             const db = await getDB('data');
             const newGraphData = {
                 userId: new mongoose.Types.ObjectId(req.userId),
                 projectId: new mongoose.Types.ObjectId(req.body.projectId),
+                chartType: req.body.chartType,
                 options: req.body.options,
                 elements: req.body.elements,
                 conditionalParams: req.body.conditionalParams,
@@ -79,7 +85,7 @@ router.post('/',
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
-});
+    });
 
 
 // Update a graph by ID
