@@ -36,7 +36,7 @@ const extractUserId = (req, res, next) => {
 
 
 router.get('/data', async (req, res) => {
-    const { collection, fields, timeframe } = req.query;
+    const { collection, fields, timeframe = "Max" } = req.query;
     try {
         const db = await getDB('mqtt');
 
