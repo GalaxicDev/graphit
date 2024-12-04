@@ -40,6 +40,7 @@ const ChartCardComponent = ({ projectId }) => {
                 })
                 const data = res.data;
                 setGraphs(data)
+                console.log('graphs:', data)
 
                 // Initialize layout positions if no saved layout is present
                 if (!layoutsInitialized.current) {
@@ -128,9 +129,6 @@ const ChartCardComponent = ({ projectId }) => {
                     <ChartCard
                         id={graph._id}
                         graph={graph}
-                        title={graph.name}
-                        color="#3b82f6"
-                        chartType={graph.type}
                         onDelete={handleDelete}
                         onEdit={handleEdit}
                     />

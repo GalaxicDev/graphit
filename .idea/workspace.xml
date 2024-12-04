@@ -4,8 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="graphcreator before big zod update">
+    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="graphcreator after big zod update">
+      <change afterPath="$PROJECT_DIR$/components/chartCreator/chartOptions.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/chartCreator/conditionalParams.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/chartCreator/elementConfig.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/projects/[project]/chartcreator/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/projects/[project]/chartcreator/page.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ChartCardComponent.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ChartCardComponent.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/chartCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCard.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/chartCreator.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCreator.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -16,8 +22,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="JSX File" />
         <option value="JavaScript File" />
+        <option value="JSX File" />
       </list>
     </option>
   </component>
@@ -73,11 +79,11 @@
       <recent name="C:\Users\vw070310\WebstormProjects\graphit\components" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\vw070310\WebstormProjects\graphit\components\chartCreator" />
       <recent name="C:\Users\vw070310\WebstormProjects\graphit\images" />
       <recent name="C:\Users\vw070310\WebstormProjects\graphit\logo" />
       <recent name="C:\Users\vw070310\WebstormProjects\graphit\app\(root)\projects" />
       <recent name="C:\Users\vw070310\WebstormProjects\graphit\app" />
-      <recent name="C:\Users\vw070310\WebstormProjects\graphit\app\(root)" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -127,6 +133,7 @@
       <workItem from="1732608766953" duration="3242000" />
       <workItem from="1732883674681" duration="3769000" />
       <workItem from="1733211856440" duration="4954000" />
+      <workItem from="1733301065341" duration="8103000" />
     </task>
     <task id="LOCAL-00001" summary="added the default files">
       <option name="closed" value="true" />
@@ -240,7 +247,15 @@
       <option name="project" value="LOCAL" />
       <updated>1733216487132</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="graphcreator after big zod update">
+      <option name="closed" value="true" />
+      <created>1733301210998</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1733301210998</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -281,6 +296,7 @@
     <MESSAGE value="added edit project details in settings page" />
     <MESSAGE value="updated files" />
     <MESSAGE value="graphcreator before big zod update" />
-    <option name="LAST_COMMIT_MESSAGE" value="graphcreator before big zod update" />
+    <MESSAGE value="graphcreator after big zod update" />
+    <option name="LAST_COMMIT_MESSAGE" value="graphcreator after big zod update" />
   </component>
 </project>

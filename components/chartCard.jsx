@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from 'react';
-import { format, subDays, subMonths, subYears } from 'date-fns';
+import { format } from 'date-fns';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Edit, Trash2, Maximize2, Minimize2, Move } from 'lucide-react';
@@ -21,7 +21,7 @@ import axios from 'axios';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PacmanLoader } from 'react-spinners'
 
-const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => {
+const ChartCard = ({ id, graph, onDelete, onEdit }) => {
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [graphData, setGraphData] = useState([]);
     const [selectedTimeframe, setSelectedTimeframe] = useState('1D');
@@ -35,16 +35,17 @@ const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => 
         const fetchGraphData = async () => {
             try {
                 setIsLoading(true);
-                console.log("Fetching graph data for:", graph.collection, graph.xField, graph.yField, selectedTimeframe);
+                const element = graph.elements[0];
+                console.log('element:', element);
+                console.log('graph:', graph);
                 const dataResponse = await axios.get(process.env.API_URL + `/mqtt/data`, {
                     params: {
-                        collection: graph.collection,
-                        fields: `${graph.xField},${graph.yField}`,
+                        collection: element.collection,
+                        fields: `${element.xAxisKey},${element.yAxisKey}`,
                         timeframe: selectedTimeframe,
                     }
                 });
                 setGraphData(dataResponse.data.data);
-                console.log("Graph data:", dataResponse.data.data);
             } catch (error) {
                 console.error('Failed to fetch graph data:', error);
             } finally {
@@ -53,60 +54,60 @@ const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => 
         };
 
         fetchGraphData();
-    }, [id, graph.collection, graph.xField, graph.yField, selectedTimeframe]);
-
+    }, [id, graph.elements, selectedTimeframe]);
 
     const renderChart = () => {
-        switch (chartType) {
-            case 'line':
+        const element = graph.elements[0];
+        switch (graph.chartType) {
+            case 'Line':
                 return (
                     <LineChart data={graphData} className="flex-grow">
                         <XAxis
-                            dataKey={graph.xField}
+                            dataKey={element.xAxisKey}
                             tickFormatter={(tick) => format(new Date(tick), 'dd/MM')}
                         />
                         <YAxis />
-                        <CartesianGrid strokeDasharray="3 3" />
+                        {graph.options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
                         <Tooltip content={<CustomTooltip />} />
                         <Legend />
-                        <Line type="monotone" dataKey={graph.yField} stroke="#8884d8" dot={false} />
+                        <Line type={element.curved ? "monotone" : "linear"} dataKey={element.yAxisKey} stroke={element.color} dot={element.showDots} />
                     </LineChart>
                 )
-            case 'bar':
+            case 'Bar':
                 return (
                     <BarChart data={graphData}>
-                        <XAxis dataKey={graph.xField} />
+                        <XAxis dataKey={element.xAxisKey} />
                         <YAxis />
                         <CartesianGrid strokeDasharray="3 3" />
                         <Tooltip content={<CustomTooltip />} />
                         <Legend />
-                        <Bar dataKey={graph.yField} fill="#8884d8" />
+                        <Bar dataKey={element.yAxisKey} fill={element.color} />
                     </BarChart>
                 )
-            case 'pie':
+            case 'Pie':
                 return (
                     <PieChart>
-                        <Pie data={graphData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={50} fill="#8884d8" label />
+                        <Pie data={graphData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={50} fill={element.color} label />
                         <Tooltip content={<CustomTooltip />} />
                     </PieChart>
                 )
-            case 'area':
+            case 'Area':
                 return (
                     <AreaChart data={graphData}>
-                        <XAxis dataKey="name" />
+                        <XAxis dataKey={element.xAxisKey} />
                         <YAxis />
                         <CartesianGrid strokeDasharray="3 3" />
                         <Tooltip content={<CustomTooltip />} />
-                        <Area type="monotone" dataKey="uv" stroke="#8884d8" fill="#8884d8" />
+                        <Area type={element.curved ? "monotone" : "linear"} dataKey={element.yAxisKey} stroke={element.color} fill={element.color} />
                     </AreaChart>
                 )
-            case 'scatter':
+            case 'Scatter':
                 return (
                     <ScatterChart>
-                        <XAxis type="number" dataKey={graph.xField} name="stature" unit="cm" />
-                        <YAxis type="number" dataKey={graph.yField} name="weight" unit="kg" />
+                        <XAxis type="number" dataKey={element.xAxisKey} name="stature" unit="cm" />
+                        <YAxis type="number" dataKey={element.yAxisKey} name="weight" unit="kg" />
                         <Tooltip cursor={{ strokeDasharray: '3 3' }} content={<CustomTooltip />} />
-                        <Scatter name="A school" data={graphData} fill="#8884d8" />
+                        <Scatter name="A school" data={graphData} fill={element.color} />
                     </ScatterChart>
                 )
             default:
@@ -114,7 +115,6 @@ const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => 
         }
     };
 
-    // CustomTooltip component for better styling and readability
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
             return (
@@ -134,15 +134,14 @@ const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => 
         return null;
     };
 
-
     return (
         <>
             <Card className="shadow-lg h-full flex flex-col resizable-indicator">
                 <CardHeader
                     className="flex flex-row items-center justify-between space-y-0 py-2"
-                    style={{ backgroundColor: color }}
+                    style={{ backgroundColor: graph.options.cardColor }}
                 >
-                    <h3 className="font-semibold text-white">{title}</h3>
+                    <h3 className="font-semibold text-white">{graph.options.title}</h3>
                     <div className="flex items-center space-x-2 justify-center mx-5 my-5">
                         <Dialog open={isFullScreen} onOpenChange={handleToggleFullScreen}>
                             <DialogTrigger asChild>
@@ -171,12 +170,10 @@ const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => 
                             </DialogContent>
                         </Dialog>
 
-                        {/* Move Button as Drag Handle */}
                         <Button variant="ghost" size="icon" className="drag-handle">
                             <Move className="h-4 w-4 text-white" />
                         </Button>
 
-                        {/* Dropdown Menu */}
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon">
@@ -196,22 +193,19 @@ const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => 
                         </DropdownMenu>
                     </div>
                 </CardHeader>
-                {/* Prevent dragging on chart content */}
                 <CardContent className="flex-grow p-4 no-drag">
                     <Tabs defaultValue="1D" onValueChange={setSelectedTimeframe}>
-                    <TabsList>
+                        <TabsList>
                             {['1D', '7D', '30D', '6M', '1Y', 'Max'].map((key) => (
                                 <TabsTrigger key={key} value={key}>
                                     {key}
                                 </TabsTrigger>
                             ))}
                         </TabsList>
-
-                        {/* A single TabsContent to dynamically render content based on selectedTimeframe */}
                         <TabsContent value={selectedTimeframe}>
                             {isLoading ? (
                                 <div className="flex items-center justify-center h-full pt-2">
-                                    <PacmanLoader color={color} />
+                                    <PacmanLoader color={graph.options.cardColor} />
                                 </div>
                             ) : (
                                 <ResponsiveContainer width="100%" height={200}>
@@ -220,7 +214,6 @@ const ChartCard = ({ id, graph, title, color, chartType, onDelete, onEdit }) => 
                             )}
                         </TabsContent>
                     </Tabs>
-
                 </CardContent>
             </Card>
         </>

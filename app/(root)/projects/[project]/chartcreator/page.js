@@ -8,6 +8,7 @@ export default async function SettingsPage({ params }) {
     const token = cookies().get("token")?.value;
     const projectData = await fetchProject(token, project);
 
+
     return (
         <div>
             <ChartCreator token={token} projectData={projectData} />

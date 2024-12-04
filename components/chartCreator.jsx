@@ -2,39 +2,44 @@
 
 import axios from 'axios';
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Slider } from "@/components/ui/slider";
-import { Separator } from "@/components/ui/separator";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Plus, Minus, Info } from 'lucide-react';
-import { LineChart, Line, BarChart, Bar, AreaChart, Area, ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from "recharts";
-import { fetchGraphData, fetchProject } from "@/lib/api";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PacmanLoader } from 'react-spinners';
+import { LineChart, Line, BarChart, Bar, AreaChart, Area, ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { z } from "zod";
+import { ChartOptions } from "@/components/chartCreator/chartOptions";
+import { ConditionalParams } from "@/components/chartCreator/conditionalParams";
+import { ElementConfig } from "@/components/chartCreator/elementConfig";
+import { Separator } from "@/components/ui/separator";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Plus } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { format } from 'date-fns';
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { MoreHorizontal, Edit, Trash2, Maximize2, Minimize2, Move } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const chartTypes = ["Line", "Bar", "Area", "Scatter"];
 
 const chartSchema = z.object({
-  title: z.string().nonempty("Title is required"),
-  cardColor: z.string().nonempty("Card color is required"),
-  showGrid: z.boolean(),
-  stacked: z.boolean(),
-  yRange: z.object({
-    min: z.string().optional(),
-    max: z.string().optional(),
+  projectId: z.string().nonempty("Project ID is required"),
+  options: z.object({
+    title: z.string().nonempty("Title is required"),
+    cardColor: z.string().nonempty("Card color is required"),
+    showGrid: z.boolean(),
+    dynamicTime: z.boolean(),
+    stacked: z.boolean(),
+    yRange: z.object({
+      min: z.string().optional(),
+      max: z.string().optional(),
+    }),
   }),
   elements: z.array(z.object({
     id: z.string(),
     collection: z.string().nonempty("Collection is required"),
-    dataKey: z.string().nonempty("Data key is required"),
-    yDataKey: z.string().nonempty("Y Data key is required"),
-    xDataKey: z.string().nonempty("X Data key is required"),
+    xAxisKey: z.string().nonempty("X Axis key is required"),
+    yAxisKey: z.string().nonempty("Y Axis key is required"),
     name: z.string().nonempty("Name is required"),
     color: z.string().nonempty("Color is required"),
     thickness: z.number().min(1).max(10),
@@ -44,18 +49,19 @@ const chartSchema = z.object({
     dotSize: z.number().min(1).max(10),
   })),
   conditionalParams: z.object({
-    collection: z.string().nonempty("Collection is required"),
-    field: z.string().nonempty("Field is required"),
-    value: z.string().nonempty("Value is required"),
-  }),
+    collection: z.string().optional(),
+    field: z.string().optional(),
+    value: z.string().optional(),
+  }).optional(),
 });
 
 export function ChartCreator({ token, projectData }) {
   const [chartType, setChartType] = useState("Line");
   const [options, setOptions] = useState({
-    title: "Chart Title",
+    title: "",
     cardColor: "#f0f0f0",
     showGrid: true,
+    dynamicTime: true,
     stacked: false,
     yRange: { min: "", max: "" },
   });
@@ -63,47 +69,90 @@ export function ChartCreator({ token, projectData }) {
   const [collections, setCollections] = useState([]);
   const [graphData, setGraphData] = useState([]);
   const [conditionalParams, setConditionalParams] = useState({ collection: "", field: "", value: "" });
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedTimeframe, setSelectedTimeframe] = useState('1D');
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   useEffect(() => {
     if (projectData) {
       setCollections(projectData.collections);
+      console.log(projectData)
     }
   }, [projectData]);
 
+  useEffect(() => {
+    const fetchGraphData = async () => {
+      if (elements.length === 0) return;
+      const element = elements[0];
+      if (!element.collection || !element.xAxisKey || !element.yAxisKey) return;
+
+      try {
+        setIsLoading(true);
+        const dataResponse = await axios.get(process.env.API_URL + `/mqtt/data`, {
+          params: {
+            collection: element.collection,
+            fields: `${element.xAxisKey},${element.yAxisKey}`,
+            timeframe: selectedTimeframe,
+          }
+        });
+        setGraphData(dataResponse.data.data);
+      } catch (error) {
+        console.error('Failed to fetch graph data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchGraphData();
+  }, [elements, selectedTimeframe]);
+
   const saveChartData = async () => {
     const chartData = {
-      options,
+      projectId: projectData._id,
+      chartType,
+      options: {
+        title: options.title,
+        cardColor: options.cardColor,
+        showGrid: options.showGrid,
+        dynamicTime: options.dynamicTime,
+        stacked: options.stacked,
+        yRange: options.yRange,
+      },
       elements,
       conditionalParams,
     };
 
+    console.log("Validating chartData:", chartData);
+
     try {
       chartSchema.parse(chartData);
-      const response = await axios.post(process.env.API_URL + '/graphs', chartData, {
+
+      const response = await axios.post(process.env.API_URL + "/graphs", chartData, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-      console.log('Chart data saved successfully:', response.data);
+
+      console.log("Chart data saved successfully:", response.data);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        console.error('Validation failed:', error.errors);
+        console.error("Validation failed:", error.errors);
       } else {
-        console.error('Failed to save chart data:', error);
+        console.error("Failed to save chart data:", error.response ? error.response.data : error.message);
       }
     }
   };
 
   const handleOptionChange = (key, value) => {
-    setOptions(prev => ({ ...prev, [key]: value }));
+    console.log(`Updating option ${key} to ${value}`);
+    setOptions((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
   };
 
   const handleElementChange = async (id, key, value) => {
     setElements(prev => prev.map(el => el.id === id ? { ...el, [key]: value } : el));
-    if (key === "collection") {
-      const data = await fetchGraphData(token, value, [], conditionalParams);
-      setGraphData(data);
-    }
   };
 
   const handleConditionalParamChange = (key, value) => {
@@ -122,9 +171,8 @@ export function ChartCreator({ token, projectData }) {
     setElements(prev => [...prev, {
       id: newId,
       collection: firstCollection,
-      dataKey: "",
-      yDataKey: "",
-      xDataKey: "",
+      xAxisKey: "",
+      yAxisKey: "",
       name: `${chartType} ${newId}`,
       color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
       thickness: 2,
@@ -140,38 +188,85 @@ export function ChartCreator({ token, projectData }) {
   };
 
   const renderChart = () => {
-    const ChartComponent = chartType === "Bar" ? BarChart
-        : chartType === "Area" ? AreaChart
-            : chartType === "Scatter" ? ScatterChart
-                : LineChart;
+    const element = elements[0];
+    switch (chartType) {
+      case 'Line':
+        return (
+            <LineChart data={graphData} className="flex-grow">
+              <XAxis
+                  dataKey={element?.xAxisKey}
+                  tickFormatter={(tick) => format(new Date(tick), 'dd/MM')}
+              />
+              <YAxis />
+              {options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
+              <Tooltip content={<CustomTooltip />} />
+              <Legend />
+              <Line type={element?.curved ? "monotone" : "linear"} dataKey={element?.yAxisKey} stroke={element?.color} dot={element?.showDots} />
+            </LineChart>
+        )
+      case 'Bar':
+        return (
+            <BarChart data={graphData}>
+              <XAxis dataKey={element?.xAxisKey} />
+              <YAxis />
+              <CartesianGrid strokeDasharray="3 3" />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend />
+              <Bar dataKey={element?.yAxisKey} fill={element?.color} />
+            </BarChart>
+        )
+      case 'Pie':
+        return (
+            <PieChart>
+              <Pie data={graphData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={50} fill={element?.color} label />
+              <Tooltip content={<CustomTooltip />} />
+            </PieChart>
+        )
+      case 'Area':
+        return (
+            <AreaChart data={graphData}>
+              <XAxis dataKey={element?.xAxisKey} />
+              <YAxis />
+              <CartesianGrid strokeDasharray="3 3" />
+              <Tooltip content={<CustomTooltip />} />
+              <Area type={element?.curved ? "monotone" : "linear"} dataKey={element?.yAxisKey} stroke={element?.color} fill={element?.color} />
+            </AreaChart>
+        )
+      case 'Scatter':
+        return (
+            <ScatterChart>
+              <XAxis type="number" dataKey={element?.xAxisKey} name="stature" unit="cm" />
+              <YAxis type="number" dataKey={element?.yAxisKey} name="weight" unit="kg" />
+              <Tooltip cursor={{ strokeDasharray: '3 3' }} content={<CustomTooltip />} />
+              <Scatter name="A school" data={graphData} fill={element?.color} />
+            </ScatterChart>
+        )
+      default:
+        return null;
+    }
+  };
 
-    const ElementComponent = chartType === "Bar" ? Bar
-        : chartType === "Area" ? Area
-            : chartType === "Scatter" ? Scatter
-                : Line;
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow-lg rounded-lg p-3">
+            <p className="text-gray-700 dark:text-gray-200 font-semibold mb-1">{format(new Date(label), 'PPP')}</p>
+            {payload.map((item, index) => (
+                <div key={index} className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
+                  <span>{item.name}</span>
+                  <span style={{ color: item.color }} className="font-medium">
+                {item.value}
+              </span>
+                </div>
+            ))}
+          </div>
+      );
+    }
+    return null;
+  };
 
-    return (
-        <ChartComponent data={graphData}>
-          {options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
-          <XAxis dataKey={elements[0]?.xDataKey || "name"} />
-          <YAxis domain={[options.yRange.min || 'auto', options.yRange.max || 'auto']} />
-          <RechartsTooltip />
-          <Legend />
-          {elements.map((el) => (
-              <ElementComponent
-                  key={el.id}
-                  type={el.curved ? "natural" : "linear"}
-                  dataKey={el.dataKey}
-                  name={el.name}
-                  stroke={el.color}
-                  fill={el.color}
-                  strokeWidth={el.thickness}
-                  strokeDasharray={el.dotted ? "5 5" : "0"}
-                  dot={el.showDots ? { r: el.dotSize } : false}
-                  stackId={options.stacked ? "stack" : undefined} />
-          ))}
-        </ChartComponent>
-    );
+  const handleToggleFullScreen = () => {
+    setIsFullScreen(!isFullScreen);
   };
 
   return (
@@ -179,320 +274,129 @@ export function ChartCreator({ token, projectData }) {
         <h1 className="text-3xl font-bold mb-8 text-black dark:text-white">Chart Creator</h1>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <Card className="col-span-1 md:col-span-2 bg-white dark:bg-gray-800">
-            <CardHeader>
-              <CardTitle>{options.title}</CardTitle>
+            <CardHeader
+                className="flex flex-row items-center justify-between space-y-0 py-2"
+                style={{ backgroundColor: options.cardColor }}
+            >
+              <h3 className="font-semibold text-white">{options.title}</h3>
+              <div className="flex items-center space-x-2 justify-center mx-5 my-5">
+                <Dialog open={isFullScreen} onOpenChange={handleToggleFullScreen}>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      {isFullScreen ? (
+                          <Minimize2 className="h-4 w-4 text-white" />
+                      ) : (
+                          <Maximize2 className="h-4 w-4 text-white" />
+                      )}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="fixed inset-0 flex items-center justify-center p-4 bg-white dark:bg-gray-800">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleToggleFullScreen}
+                        className="absolute top-4 right-4"
+                    >
+                      <Minimize2 className="h-6 w-6 text-gray-800 dark:text-white" />
+                    </Button>
+                    <div className="w-full h-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        {renderChart()}
+                      </ResponsiveContainer>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                <Button variant="ghost" size="icon" className="drag-handle">
+                  <Move className="h-4 w-4 text-white" />
+                </Button>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <MoreHorizontal className="h-4 w-4 text-white" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => console.log('Edit')}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => console.log('Delete')}>
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </CardHeader>
-            <CardContent className="h-[400px]">
-              <ResponsiveContainer width="100%" height="100%">
-                {renderChart()}
-              </ResponsiveContainer>
+            <CardContent className="flex-grow p-4 no-drag">
+              <Tabs defaultValue="1D" onValueChange={setSelectedTimeframe}>
+                <TabsList>
+                  {['1D', '7D', '30D', '6M', '1Y', 'Max'].map((key) => (
+                      <TabsTrigger key={key} value={key}>
+                        {key}
+                      </TabsTrigger>
+                  ))}
+                </TabsList>
+                <TabsContent value={selectedTimeframe}>
+                  {isLoading ? (
+                      <div className="flex items-center justify-center h-full pt-2">
+                        <PacmanLoader color={options.cardColor} />
+                      </div>
+                  ) : (
+                      <ResponsiveContainer width="100%" height={200}>
+                        {renderChart()}
+                      </ResponsiveContainer>
+                  )}
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
           <Card className={"bg-white dark:bg-gray-800"}>
             <CardHeader>
-              <CardTitle>Chart Options</CardTitle>
+              <h3 className="font-semibold text-black dark:text-white">Chart Options</h3>
             </CardHeader>
             <CardContent>
               <ScrollArea className="h-[calc(100vh-200px)] pr-4">
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="chartType">Chart Type <span className="text-red-500">*</span></Label>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div>
-                            <Select
-                                value={chartType}
-                                onValueChange={(value) => setChartType(value)}
-                                disabled={elements.length > 0}
-                            >
-                              <SelectTrigger id="chartType" className={"dark:bg-gray-700"}>
-                                <SelectValue placeholder="Select chart type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {chartTypes.map((type) => (
-                                    <SelectItem key={type} value={type}>
-                                      {type}
-                                    </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {elements.length > 0
-                              ? "Chart type cannot be changed after adding elements"
-                              : "Select the type of chart you want to create"}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  <div>
-                    <Label htmlFor="title">Chart Title <span className="text-red-500">*</span></Label>
-                    <Input
-                        id="title"
-                        value={options.title}
-                        onChange={(e) => handleOptionChange("title", e.target.value)}
-                        className={"dark:bg-gray-700"}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="cardColor">Card Color <span className="text-red-500">*</span></Label>
-                    <Input
-                        id="cardColor"
-                        type="color"
-                        value={options.cardColor}
-                        onChange={(e) => handleOptionChange("cardColor", e.target.value)}
-                        className={"dark:bg-gray-700"}
-                    />
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                        id="showGrid"
-                        checked={options.showGrid}
-                        onCheckedChange={(checked) => handleOptionChange("showGrid", checked)}
-                    />
-                    <Label htmlFor="showGrid">Show Grid</Label>
-                  </div>
-                  {chartType === "Bar" && (
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                            id="stacked"
-                            checked={options.stacked}
-                            onCheckedChange={(checked) => handleOptionChange("stacked", checked)} />
-                        <Label htmlFor="stacked">Stacked Bars</Label>
-                      </div>
-                  )}
-                  <div>
-                    <Label>Y-Axis Range</Label>
-                    <div className="flex items-center space-x-2">
-                      <Input
-                          type="number"
-                          value={options.yRange.min}
-                          onChange={(e) => handleOptionChange("yRange", { ...options.yRange, min: e.target.value })}
-                          placeholder="Min"
-                          className="w-20 dark:bg-gray-700" />
-                      <span>to</span>
-                      <Input
-                          type="number"
-                          value={options.yRange.max}
-                          onChange={(e) => handleOptionChange("yRange", { ...options.yRange, max: e.target.value })}
-                          placeholder="Max"
-                          className="w-20 dark:bg-gray-700" />
-                    </div>
-                  </div>
-                  <Separator className="my-4 dark:bg-gray-700" />
-                  <h3 className="text-sm font-medium text-black mb-2 dark:text-white">{chartType}s</h3>
-                  <Accordion type="single" collapsible className="w-full">
-                    {elements.map((el) => (
-                        <AccordionItem value={el.id} key={el.id}>
-                          <AccordionTrigger>{el.name}</AccordionTrigger>
-                          <AccordionContent>
-                            <div className="space-y-4">
-                              <div>
-                                <Label htmlFor={`collection-${el.id}`}>Collection <span className="text-red-500">*</span></Label>
-                                <Select
-                                    value={el.collection}
-                                    onValueChange={(value) => handleElementChange(el.id, "collection", value)}
-                                    className={"dark:bg-gray-700"}
-                                >
-                                  <SelectTrigger id={`collection-${el.id}`} className={"dark:bg-gray-700"}>
-                                    <SelectValue placeholder="Select collection"/>
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {collections.map((col) => (
-                                        <SelectItem key={col.name} value={col.name}>
-                                          {col.name}
-                                        </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div>
-                                <Label htmlFor={`dataKey-${el.id}`}>Data Key <span className="text-red-500">*</span></Label>
-                                <div className="flex items-center space-x-2">
-                                  <Input
-                                      id={`dataKey-${el.id}`}
-                                      value={el.dataKey}
-                                      onChange={(e) => handleElementChange(el.id, "dataKey", e.target.value)}
-                                      className={"dark:bg-gray-700"}
-                                  />
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <Info className="h-4 w-4 text-gray-500 cursor-pointer" />
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        The field in the database for the data key.
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                </div>
-                              </div>
-                              <div>
-                                <Label htmlFor={`yDataKey-${el.id}`}>Y Data Key <span className="text-red-500">*</span></Label>
-                                <div className="flex items-center space-x-2">
-                                  <Input
-                                      id={`yDataKey-${el.id}`}
-                                      value={el.yDataKey}
-                                      onChange={(e) => handleElementChange(el.id, "yDataKey", e.target.value)}
-                                      className={"dark:bg-gray-700"}
-                                  />
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <Info className="h-4 w-4 text-gray-500 cursor-pointer" />
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        The field in the database for the Y data key.
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                </div>
-                              </div>
-                              <div>
-                                <Label htmlFor={`xDataKey-${el.id}`}>X Data Key <span className="text-red-500">*</span></Label>
-                                <div className="flex items-center space-x-2">
-                                  <Input
-                                      id={`xDataKey-${el.id}`}
-                                      value={el.xDataKey}
-                                      onChange={(e) => handleElementChange(el.id, "xDataKey", e.target.value)}
-                                      className={"dark:bg-gray-700"}
-                                  />
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <Info className="h-4 w-4 text-gray-500 cursor-pointer" />
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        The field in the database for the X data key.
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                </div>
-                              </div>
-                              <div>
-                                <Label htmlFor={`name-${el.id}`}>Name <span className="text-red-500">*</span></Label>
-                                <Input
-                                    id={`name-${el.id}`}
-                                    value={el.name}
-                                    onChange={(e) => handleElementChange(el.id, "name", e.target.value)}
-                                    className={"dark:bg-gray-700"}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor={`color-${el.id}`}>Color <span className="text-red-500">*</span></Label>
-                                <Input
-                                    id={`color-${el.id}`}
-                                    type="color"
-                                    value={el.color}
-                                    onChange={(e) => handleElementChange(el.id, "color", e.target.value)} />
-                              </div>
-                              <div>
-                                <Label htmlFor={`thickness-${el.id}`}>Thickness <span className="text-red-500">*</span></Label>
-                                <Slider
-                                    id={`thickness-${el.id}`}
-                                    min={1}
-                                    max={10}
-                                    step={1}
-                                    value={[el.thickness]}
-                                    onValueChange={([value]) => handleElementChange(el.id, "thickness", value)} />
-                              </div>
-                              {chartType !== "Bar" && (
-                                  <>
-                                    <div className="flex items-center space-x-2">
-                                      <Switch
-                                          id={`curved-${el.id}`}
-                                          checked={el.curved}
-                                          onCheckedChange={(checked) => handleElementChange(el.id, "curved", checked)} />
-                                      <Label htmlFor={`curved-${el.id}`}>Curved Line</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                      <Switch
-                                          id={`dotted-${el.id}`}
-                                          checked={el.dotted}
-                                          onCheckedChange={(checked) => handleElementChange(el.id, "dotted", checked)} />
-                                      <Label htmlFor={`dotted-${el.id}`}>Dotted Line</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                      <Switch
-                                          id={`showDots-${el.id}`}
-                                          checked={el.showDots}
-                                          onCheckedChange={(checked) => handleElementChange(el.id, "showDots", checked)} />
-                                      <Label htmlFor={`showDots-${el.id}`}>Show Dots</Label>
-                                    </div>
-                                    {el.showDots && (
-                                        <div>
-                                          <Label htmlFor={`dotSize-${el.id}`}>Dot Size</Label>
-                                          <Slider
-                                              id={`dotSize-${el.id}`}
-                                              min={1}
-                                              max={10}
-                                              step={1}
-                                              value={[el.dotSize]}
-                                              onValueChange={([value]) => handleElementChange(el.id, "dotSize", value)} />
-                                        </div>
-                                    )}
-                                  </>
-                              )}
-                              <Button variant="destructive" onClick={() => removeElement(el.id)}>
-                                <Minus className="mr-2 h-4 w-4" /> Remove {chartType}
-                              </Button>
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                    ))}
-                  </Accordion>
-                  <Button onClick={addElement}>
-                    <Plus className="mr-2 h-4 w-4" /> Add {chartType}
-                  </Button>
-                  <Separator className="my-4 dark:bg-gray-700" />
-                  <h3 className="text-sm font-medium text-black mb-2 dark:text-white">Conditional Parameters</h3>
-                  <div>
-                    <Label htmlFor="conditionalCollection">Collection <span className="text-red-500">*</span></Label>
-                    <Select
-                        value={conditionalParams.collection}
-                        onValueChange={(value) => handleConditionalParamChange("collection", value)}
-                        className={"dark:bg-gray-700"}
-                    >
-                      <SelectTrigger id="conditionalCollection" className={"dark:bg-gray-700"}>
-                        <SelectValue placeholder="Select collection"/>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {collections.map((col) => (
-                            <SelectItem key={col.name} value={col.name}>
-                              {col.name}
-                            </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="conditionalField">Field <span className="text-red-500">*</span></Label>
-                    <Input
-                        id="conditionalField"
-                        value={conditionalParams.field}
-                        onChange={(e) => handleConditionalParamChange("field", e.target.value)}
-                        className={"dark:bg-gray-700"}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="conditionalValue">Value <span className="text-red-500">*</span></Label>
-                    <Input
-                        id="conditionalValue"
-                        value={conditionalParams.value}
-                        onChange={(e) => handleConditionalParamChange("value", e.target.value)}
-                        className={"dark:bg-gray-700"}
-                    />
-                  </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                    This will filter the data so it only shows the data that have this parameter and value.
-                  </p>
-                  <Separator className="my-4 dark:bg-gray-700" />
-                  <Button onClick={saveChartData} className="w-full mt-4">
-                    Save Chart Data
-                  </Button>
-                </div>
+                <ChartOptions
+                    chartType={chartType}
+                    setChartType={setChartType}
+                    options={options}
+                    handleOptionChange={handleOptionChange}
+                    elements={elements}
+                />
+                <Separator className="my-4 dark:bg-gray-700" />
+                <h3 className="text-sm font-medium text-black mb-2 dark:text-white">{chartType}s</h3>
+                <Accordion type="single" collapsible className="w-full">
+                  {elements.map((el) => (
+                      <AccordionItem value={el.id} key={el.id}>
+                        <AccordionTrigger>{el.name}</AccordionTrigger>
+                        <AccordionContent>
+                          <ElementConfig
+                              el={el}
+                              collections={collections}
+                              handleElementChange={handleElementChange}
+                              removeElement={removeElement}
+                              chartType={chartType}
+                          />
+                        </AccordionContent>
+                      </AccordionItem>
+                  ))}
+                </Accordion>
+                <Button onClick={addElement}>
+                  <Plus className="mr-2 h-4 w-4" /> Add {chartType}
+                </Button>
+                <Separator className="my-4 dark:bg-gray-700" />
+                <h3 className="text-sm font-medium text-black mb-2 dark:text-white">Conditional Parameters</h3>
+                <ConditionalParams
+                    collections={collections}
+                    conditionalParams={conditionalParams}
+                    handleConditionalParamChange={handleConditionalParamChange}
+                />
+                <Button onClick={saveChartData} className="w-full mt-4">
+                  Save Chart Data
+                </Button>
               </ScrollArea>
             </CardContent>
           </Card>
