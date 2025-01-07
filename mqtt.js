@@ -36,58 +36,87 @@ const extractUserId = (req, res, next) => {
 
 
 router.get('/data', async (req, res) => {
-    const { collection, fields, timeframe } = req.query;
+    const { collection, fields, timeframe, from, to } = req.query;
     try {
         const db = await getDB('mqtt');
 
-        // Create a projection object if fields are provided
-        const projection = fields ? fields.split(',').reduce((acc, field) => ({ ...acc, [field]: 1 }), {}) : {};
+        if (timeframe) {
+            // Create a projection object if fields are provided
+            const projection = fields ? fields.split(',').reduce((acc, field) => ({ ...acc, [field]: 1 }), {}) : {};
 
-        // Fetch the last entry to determine the end date
-        const lastEntry = await db.collection(collection).findOne({}, { sort: { createdAt: -1 } });
-        if (!lastEntry) {
-            return res.status(404).json({ success: false, message: 'No data found' });
-        }
-        const endDate = new Date(lastEntry.createdAt);
-
-        // Calculate startDate based on the timeframe
-        let startDate;
-        switch (timeframe) {
-            case '1D':
-                startDate = subDays(endDate, 1);
-                break;
-            case '7D':
-                startDate = subDays(endDate, 7);
-                break;
-            case '30D':
-                startDate = subDays(endDate, 30);
-                break;
-            case '6M':
-                startDate = subMonths(endDate, 6);
-                break;
-            case '1Y':
-                startDate = subYears(endDate, 1);
-                break;
-            case 'Max':
-                startDate = new Date(0);
-                break;
-            default:
-                startDate = new Date();
-        }
-
-        // Create a query object to filter by date range
-        const query = {
-            createdAt: {
-                $gte: startDate,
-                $lte: endDate
+            // Fetch the last entry to determine the end date
+            const lastEntry = await db.collection(collection).findOne({}, { sort: { createdAt: -1 } });
+            if (!lastEntry) {
+                return res.status(404).json({ success: false, message: 'No data found' });
             }
-        };
+            const endDate = new Date(lastEntry.createdAt);
 
+            // Calculate startDate based on the timeframe
+            let startDate;
+            switch (timeframe) {
+                case '1D':
+                    startDate = subDays(endDate, 1);
+                    break;
+                case '7D':
+                    startDate = subDays(endDate, 7);
+                    break;
+                case '30D':
+                    startDate = subDays(endDate, 30);
+                    break;
+                case '6M':
+                    startDate = subMonths(endDate, 6);
+                    break;
+                case '1Y':
+                    startDate = subYears(endDate, 1);
+                    break;
+                case 'Max':
+                    startDate = new Date(0);
+                    break;
+                default:
+                    startDate = new Date();
+            }
 
-        // Fetch data from the collection with the query and projection
-        const data = await db.collection(collection).find(query, { projection }).toArray();
-        console.log(data);
-        res.json({ success: true, data: data });
+            // Create a query object to filter by date range
+            const query = {
+                createdAt: {
+                    $gte: startDate,
+                    $lte: endDate
+                }
+            };
+
+            // Fetch data from the collection with the query and projection
+            const data = await db.collection(collection).find(query, { projection }).toArray();
+            res.json({ success: true, data: data });
+        }
+
+        if (from && to) {
+            const query = {
+                createdAt: {
+                    $gte: new Date(from),
+                    $lte: new Date(to)
+                }
+            };
+            const data = await db.collection(collection).find(query).toArray();
+            res.json({ success: true, data: data });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+router.get('/availableKeys', async (req, res) => {
+    const { collection } = req.query;
+    try {
+        const db = await getDB('mqtt');
+
+        // Fetch all documents from the collection
+        const allDocuments = await db.collection(collection).find({}).toArray();
+        const availableKeys = new Set();
+        allDocuments.forEach(doc => {
+            Object.keys(doc).forEach(key => availableKeys.add(key));
+        });
+
+        res.json({ success: true, availableKeys: Array.from(availableKeys) });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

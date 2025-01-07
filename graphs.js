@@ -79,7 +79,6 @@ router.post('/',
                 conditionalParams: req.body.conditionalParams,
             };
             const result = await db.collection('graphs').insertOne(newGraphData);
-            console.log('result:', result);
             // Return the full graph object including the inserted ID
             res.status(201).json({ ...newGraphData, _id: result.insertedId });
         } catch (error) {
