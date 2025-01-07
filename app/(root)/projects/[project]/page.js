@@ -12,7 +12,7 @@ export default   function ProjectPage() {
         if (project) {
             const fetchProject = async () => {
                 try {
-                    const res = await fetch(`http://localhost:5000/api/projects/${project}`, {
+                    const res = await fetch(process.env.API_URL + `/projects/${project}`, {
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('token')}`
                         }
