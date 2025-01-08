@@ -24,7 +24,8 @@ export default function MongoDBViewer() {
       }
     })
       .then(response => {
-        setCollections(response.data)
+        const collectionList = response.data.map(collection => collection.name); // Extract collection names and put them in a list
+        setCollections(collectionList);
       })
       .catch(error => {
         console.error('Error fetching collections:', error)
@@ -33,6 +34,9 @@ export default function MongoDBViewer() {
 
   useEffect(() => {
     if (selectedCollection) {
+      console.log('Fetching documents for collection:', selectedCollection)
+      console.log('Current page:', currentPage)
+      console.log('Items per page:', itemsPerPage)
       // Fetch documents of the selected collection
       axios.get(process.env.API_URL + `/collections/${selectedCollection}`, {
         headers: {
@@ -44,6 +48,7 @@ export default function MongoDBViewer() {
         }
       })
       .then(response => {
+        console.log('Documents:', response.data.documents)
         setDocuments(response.data.documents)
         setTotalDocuments(response.data.totalDocuments)
       })
@@ -51,7 +56,7 @@ export default function MongoDBViewer() {
         console.error('Error fetching documents:', error)
       })
     }
-  }, [selectedCollection, currentPage, searchTerm])
+  }, [selectedCollection, currentPage, itemsPerPage])
 
   const handleCollectionClick = (collection) => {
     setSelectedCollection(collection)
@@ -76,16 +81,13 @@ export default function MongoDBViewer() {
   )
   // Search for documents
   const filteredDocuments = selectedCollection
-    ? documents[selectedCollection].filter(doc =>
+    ? documents.filter(doc =>
         JSON.stringify(doc).toLowerCase().includes(searchTerm.toLowerCase())
       )
     : []
 
-  const totalPages = Math.ceil(filteredDocuments.length / itemsPerPage)
-  const paginatedDocuments = filteredDocuments.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  )
+  const totalPages = Math.ceil(totalDocuments / itemsPerPage)
+
 
   return (
     <div className="container mx-auto p-4">
@@ -131,7 +133,7 @@ export default function MongoDBViewer() {
                 </Button>
               </div>
               <div className="space-y-4">
-                {paginatedDocuments.map(doc => (
+                {filteredDocuments.map(doc => (
                   <div key={doc.id} className="bg-gray-100 p-4 rounded-lg">
                     <div className="flex justify-between items-start mb-2">
                       <pre className="text-sm overflow-x-auto">
