@@ -1,49 +1,62 @@
 'use client'
 
-import { useState } from 'react'
-import { Search, Database, Trash2, Download, Edit } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+import { Search, Database, Download, Edit, Trash2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
-// Sample data to simulate MongoDB collections and documents
-
-const sampleCollections = ['users', 'products', 'orders', 'reviews']
-const sampleDocuments = {
-  users: [
-    { id: 1, name: 'John Doe', email: 'john@example.com' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
-    { id: 3, name: 'Bob Johnson', email: 'bob@example.com' },
-    { id: 4, name: 'Alice Brown', email: 'alice@example.com' },
-    { id: 5, name: 'Charlie Davis', email: 'charlie@example.com' },
-  ],
-  products: [
-    { id: 1, name: 'Laptop', price: 999.99 },
-    { id: 2, name: 'Smartphone', price: 599.99 },
-    { id: 3, name: 'Headphones', price: 149.99 },
-    { id: 4, name: 'Tablet', price: 399.99 },
-    { id: 5, name: 'Smartwatch', price: 249.99 },
-  ],
-  orders: [
-    { id: 1, customer: 'John Doe', total: 1299.98, date: '2023-05-01' },
-    { id: 2, customer: 'Jane Smith', total: 599.99, date: '2023-05-02' },
-    { id: 3, customer: 'Bob Johnson', total: 149.99, date: '2023-05-03' },
-    { id: 4, customer: 'Alice Brown', total: 999.99, date: '2023-05-04' },
-    { id: 5, customer: 'Charlie Davis', total: 849.98, date: '2023-05-05' },
-  ],
-  reviews: [
-    { id: 1, product: 'Laptop', rating: 4.5, comment: 'Great performance!' },
-    { id: 2, product: 'Smartphone', rating: 4.0, comment: 'Good value for money' },
-    { id: 3, product: 'Headphones', rating: 5.0, comment: 'Excellent sound quality' },
-    { id: 4, product: 'Tablet', rating: 3.5, comment: 'Decent, but could be better' },
-    { id: 5, product: 'Smartwatch', rating: 4.2, comment: 'Nice features, comfortable to wear' },
-  ],
-}
 
 export default function MongoDBViewer() {
+  const [collections, setCollections] = useState([])
   const [selectedCollection, setSelectedCollection] = useState(null)
+  const [documents, setDocuments] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [totalDocuments, setTotalDocuments] = useState(0)
   const itemsPerPage = 10
+
+  useEffect(() => {
+    // Fetch all collections
+    axios.get(process.env.API_URL + '/collections', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+      .then(response => {
+        const collectionList = response.data.map(collection => collection.name); // Extract collection names and put them in a list
+        setCollections(collectionList);
+      })
+      .catch(error => {
+        console.error('Error fetching collections:', error)
+      })
+  }, [])
+
+  useEffect(() => {
+    if (selectedCollection) {
+      console.log('Fetching documents for collection:', selectedCollection)
+      console.log('Current page:', currentPage)
+      console.log('Items per page:', itemsPerPage)
+      // Fetch documents of the selected collection
+      axios.get(process.env.API_URL + `/collections/${selectedCollection}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        params: {
+          page: currentPage,
+          pageSize: itemsPerPage
+        }
+      })
+      .then(response => {
+        console.log('Documents:', response.data.documents)
+        setDocuments(response.data.documents)
+        setTotalDocuments(response.data.totalDocuments)
+      })
+      .catch(error => {
+        console.error('Error fetching documents:', error)
+      })
+    }
+  }, [selectedCollection, currentPage, itemsPerPage])
 
   const handleCollectionClick = (collection) => {
     setSelectedCollection(collection)
@@ -60,32 +73,25 @@ export default function MongoDBViewer() {
   }
 
   const handleDelete = (id) => {
-    alert(`Deleting document with ID: ${id}`)
+    // Handle delete document
   }
-
-  const handleEdit = (id) => {
-    alert(`Editing document with ID: ${id}`)
-  }
-
-  const filteredCollections = sampleCollections.filter(collection =>
+  // Search for collections
+  const filteredCollections = collections.filter(collection =>
     collection.toLowerCase().includes(searchTerm.toLowerCase())
   )
-
+  // Search for documents
   const filteredDocuments = selectedCollection
-    ? sampleDocuments[selectedCollection].filter(doc =>
+    ? documents.filter(doc =>
         JSON.stringify(doc).toLowerCase().includes(searchTerm.toLowerCase())
       )
     : []
 
-  const totalPages = Math.ceil(filteredDocuments.length / itemsPerPage)
-  const paginatedDocuments = filteredDocuments.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  )
+  const totalPages = Math.ceil(totalDocuments / itemsPerPage)
+
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4 dark:text-white">MongoDB Collection Viewer</h1>
+      <h1 className="text-2xl font-bold mb-4 dark:text-white">Collection Viewer</h1>
       <div className="mb-4">
         <div className="relative">
           <Input
@@ -127,7 +133,7 @@ export default function MongoDBViewer() {
                 </Button>
               </div>
               <div className="space-y-4">
-                {paginatedDocuments.map(doc => (
+                {filteredDocuments.map(doc => (
                   <div key={doc.id} className="bg-gray-100 p-4 rounded-lg">
                     <div className="flex justify-between items-start mb-2">
                       <pre className="text-sm overflow-x-auto">
@@ -169,4 +175,3 @@ export default function MongoDBViewer() {
     </div>
   )
 }
-
