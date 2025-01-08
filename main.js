@@ -8,8 +8,9 @@ import authRoutes from './auth.js';  // Authentication routes
 import projectRoutes from './projects.js';  // Project-related routes
 import graphRoutes from './graphs.js' // Graph-related routes
 import mqttRoutes from './mqtt.js' // MQTT-related routes
+import collectionRoutes from './collections.js' // Collection-related routes
 import { errorHandler } from './utils/errorHandler.js';
-import collectionRoutes from './collections.js';
+
 dotenv.config();
 
 const app = express();
@@ -25,7 +26,7 @@ app.use(cors({
 
 // Rate limiting to prevent brute-force attacks
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 3 * 60 * 1000, // 3 minutes
     max: 100, // 100 requests per IP
 });
 app.use(limiter);
@@ -38,7 +39,8 @@ app.use('/api/auth', authRoutes);      // Authentication routes
 app.use('/api/projects', projectRoutes);  // Project-related routes
 app.use('/api/graphs', graphRoutes);  // Graph-related routes
 app.use('/api/mqtt', mqttRoutes);  // MQTT-related routes
-app.use('/api/collections', collectionRoutes);
+app.use('/api/collections', collectionRoutes);  // Collection-related routes
+
 
 // Centralized error handling
 app.use(errorHandler);

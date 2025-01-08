@@ -52,7 +52,6 @@ router.get('/:id', param('id').isMongoId(), handleValidationErrors, async (req, 
         if (!project) {
             return res.status(404).json({ success: false, message: 'Project not found' });
         }
-        console.log('project:', project);
         res.json(project);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -73,7 +72,6 @@ router.post('/',
                 collections: [],
             };
             const result = await db.collection('projects').insertOne(newProjectData);
-            console.log('result:', result);
             // Return the full project object including the inserted ID
             res.status(201).json({ ...newProjectData, _id: result.insertedId });
         } catch (error) {
@@ -87,7 +85,6 @@ param('id').isMongoId(),
 body('name').isString().isLength({ min: 3 }),
 handleValidationErrors, async (req, res) => {
     try {
-        console.log('req.body:', req.body);
         const db = await getDB('data');
         const { _id, userId, ...updateData } = req.body; // Exclude _id and userId from req.body
         const updateProject = await db.collection('projects').findOneAndUpdate(
