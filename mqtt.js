@@ -32,7 +32,7 @@ const extractUserId = (req, res, next) => {
 };
 
 // Apply extractUserId middleware to all routes
-//router.use(extractUserId);
+router.use(extractUserId);
 
 
 router.get('/data', async (req, res) => {
