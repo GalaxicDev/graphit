@@ -45,13 +45,10 @@ const formatSize = (size) => {
     return `${size.toFixed(2)} ${units[index]}`;
 };
 
-const getCollectionData = async (dbName) => {
+const getCollections = async (dbName) => {
     const db = await getDB(dbName);
     const collections = await db.db.listCollections().toArray();
     const collectionData = await Promise.all(collections.map(async (collection) => {
-        //CAN'T GET STATS OF COLLECTIONS PLS FIX
-        //const collectionObj = db.collection(collection.name);
-        //const stats = await collectionObj.stats();
         return {
             name: collection.name,
             //size: formatSize(stats.size),
@@ -61,39 +58,48 @@ const getCollectionData = async (dbName) => {
     return collectionData;
 };
 
-
-const getCollectionContent = async (dbName, collectionName, page = 1, pageSize = 10) => {
-    if (collectionName === 'users') {
-        throw new Error('Access to the users collection is restricted');
-    }
-
-    try {
-        await connectDB();
-        const db = await getDB(dbName);
-        const coll = db.collection(collectionName);
-        const skip = (page - 1) * pageSize;
-        const totalDocuments = await coll.countDocuments(); // Get total document count
-        const data = await coll.find({}).skip(skip).limit(pageSize).toArray(); // Ensure find parameter is an object
-
-        // Convert ObjectIDs to strings
-        const convertedData = data.map(doc => ({
-            ...doc,
-            _id: doc._id.toString()
-        }));
-
-        return { documents: convertedData, totalDocuments }; // Return both documents and total count
-    } catch (error) {
-        throw new Error('Failed to fetch collection content');
-    }
+const getDocuments = async (collectionName, page, pageSize) => {
+    const db = await getDB("mqtt");
+    const coll = db.collection(collectionName);
+    const totalDocuments = await coll.countDocuments();
+    const documents = await coll.find()
+        .skip((page - 1) * pageSize)
+        .limit(pageSize)
+        .toArray();
+    return { documents, totalDocuments };
 };
 
 // GET /api/collections
 router.get('/', async (req, res) => {
     try {
-        const collectionData = await getCollectionData("mqtt");
-        res.json(collectionData);
+        const collections = await getCollections("mqtt");
+        res.json(collections);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+router.get('/:collection', async (req, res) => {
+    const { collection } = req.params;
+    const { page = 1, pageSize = 10 } = req.query; // Default to page 1 and pageSize 10 if not provided
+
+    try {
+        const { documents, totalDocuments } = await getDocuments(collection, parseInt(page), parseInt(pageSize));
+        res.json({ documents, totalDocuments });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to fetch collection content', error: error.message });
+    }
+});
+
+router.get('/:collection', async (req, res) => {
+    const { collection } = req.params;
+    const { page = 1, pageSize = 10 } = req.query; // Default to page 1 and pageSize 10 if not provided
+
+    try {
+        const { documents, totalDocuments } = await getDocuments(collection, parseInt(page), parseInt(pageSize));
+        res.json({ documents, totalDocuments });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to fetch collection content', error: error.message });
     }
 });
 
