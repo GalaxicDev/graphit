@@ -1,6 +1,6 @@
 import express from 'express';
 import { body, param, validationResult } from 'express-validator';
-import { getDB } from './connectDB.js';
+import {connectDB, getDB} from './connectDB.js';
 import mongoose from 'mongoose';
 import {verifyToken} from "./utils/jwt.js";
 
@@ -91,4 +91,16 @@ router.get('/:collection', async (req, res) => {
     }
 });
 
-export default router
+router.get('/:collection', async (req, res) => {
+    const { collection } = req.params;
+    const { page = 1, pageSize = 10 } = req.query; // Default to page 1 and pageSize 10 if not provided
+
+    try {
+        const { documents, totalDocuments } = await getDocuments(collection, parseInt(page), parseInt(pageSize));
+        res.json({ documents, totalDocuments });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to fetch collection content', error: error.message });
+    }
+});
+
+export default router;
