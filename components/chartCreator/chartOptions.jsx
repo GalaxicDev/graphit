@@ -1,11 +1,19 @@
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Info } from "lucide-react";
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Info } from 'lucide-react'
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import { CalendarIcon } from 'lucide-react'
+import { format } from "date-fns"
+import { cn } from "@/lib/utils"
+import TimePicker from 'react-time-picker'
+import 'react-time-picker/dist/TimePicker.css'
 
-const chartTypes = ["Line", "Bar", "Area", "Scatter"];
+const chartTypes = ["Line", "Bar", "Area", "Scatter"]
 
 export function ChartOptions({ chartType, setChartType, options, handleOptionChange, elements }) {
     return (
@@ -96,6 +104,80 @@ export function ChartOptions({ chartType, setChartType, options, handleOptionCha
                         checked={options.stacked}
                         onCheckedChange={(checked) => handleOptionChange("stacked", checked)}/>
                     <Label htmlFor="stacked">Stacked Bars</Label>
+                </div>
+            )}
+            {!options.dynamicTime && (
+                <div>
+                    <Label>X Range</Label>
+                    <div className="flex items-center space-x-2">
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "justify-start text-left font-normal",
+                                        !options.xRange && "text-muted-foreground"
+                                    )}
+                                >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {options.xRange?.from ? (
+                                        options.xRange.to ? (
+                                            <>
+                                                {format(options.xRange.from, "LLL dd, y HH:mm")} -{" "}
+                                                {format(options.xRange.to, "LLL dd, y HH:mm")}
+                                            </>
+                                        ) : (
+                                            format(options.xRange.from, "LLL dd, y HH:mm")
+                                        )
+                                    ) : (
+                                        <span>Pick a date range</span>
+                                    )}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                    mode="range"
+                                    selected={options.xRange}
+                                    onSelect={(range) => handleOptionChange("xRange", range)}
+                                    initialFocus
+                                />
+                                <div className="flex justify-between p-3">
+                                    <div>
+                                        <Label>From</Label>
+                                        <TimePicker
+                                            value={options.xRange?.from}
+                                            onChange={(time) => {
+                                                const newDate = new Date(options.xRange.from);
+                                                const [hours, minutes] = time.split(':');
+                                                newDate.setHours(parseInt(hours, 10));
+                                                newDate.setMinutes(parseInt(minutes, 10));
+                                                handleOptionChange("xRange", { ...options.xRange, from: newDate });
+                                            }}
+                                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label>To</Label>
+                                        <TimePicker
+                                            value={options.xRange?.from?.toISOString().substring(11, 16) || ""}
+                                            onChange={(time) => {
+                                                if (time) {
+                                                    const newDate = new Date(options.xRange.from || Date.now());
+                                                    const [hours, minutes] = time.split(':');
+                                                    newDate.setHours(parseInt(hours, 10));
+                                                    newDate.setMinutes(parseInt(minutes, 10));
+                                                    handleOptionChange("xRange", { ...options.xRange, from: newDate });
+                                                }
+                                            }}
+                                            clockClassName="react-time-picker__clock" // Applies dropdown styles
+                                            className="w-full rounded-md border dark:bg-gray-700 px-3 py-2"
+                                        />
+
+                                    </div>
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
                 </div>
             )}
             <div>

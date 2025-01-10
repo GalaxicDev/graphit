@@ -33,19 +33,43 @@ const ChartCard = ({ id, graph, onDelete, onEdit }) => {
 
     useEffect(() => {
         const fetchGraphData = async () => {
+            if (!graph || !graph.elements || graph.elements.length === 0) return;
+
             try {
                 setIsLoading(true);
-                const element = graph.elements[0];
-                console.log('element:', element);
-                console.log('graph:', graph);
-                const dataResponse = await axios.get(process.env.API_URL + `/mqtt/data`, {
-                    params: {
-                        collection: element.collection,
-                        fields: `${element.xAxisKey},${element.yAxisKey}`,
-                        timeframe: selectedTimeframe,
+                let params = {
+                    collections: graph.elements.map(el => el.collection).join(','),
+                    fields: graph.elements.map(el => `${el.xAxisKey},${el.yAxisKey}`).join(',')
+                };
+
+                if (graph.options.dynamicTime) {
+                    params.timeframe = selectedTimeframe;
+                } else {
+                    const fromDate = new Date(graph.options.xRange.from);
+                    const toDate = new Date(graph.options.xRange.to);
+
+                    if (graph.options.xRange.fromTime) {
+                        const [fromHours, fromMinutes] = graph.options.xRange.fromTime.split(':');
+                        fromDate.setHours(parseInt(fromHours, 10), parseInt(fromMinutes, 10));
+                    }
+
+                    if (graph.options.xRange.toTime) {
+                        const [toHours, toMinutes] = graph.options.xRange.toTime.split(':');
+                        toDate.setHours(parseInt(toHours, 10), parseInt(toMinutes, 10));
+                    }
+
+                    params.from = fromDate.toISOString();
+                    params.to = toDate.toISOString();
+                }
+
+                const dataResponse = await axios.get(`${process.env.API_URL}/mqtt/data`, {
+                    params,
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
                     }
                 });
                 setGraphData(dataResponse.data.data);
+                processData(dataResponse.data.data);
             } catch (error) {
                 console.error('Failed to fetch graph data:', error);
             } finally {
@@ -54,62 +78,106 @@ const ChartCard = ({ id, graph, onDelete, onEdit }) => {
         };
 
         fetchGraphData();
-    }, [id, graph.elements, selectedTimeframe]);
+
+    }, [id, graph, selectedTimeframe]);
+
+    const processData = (data) => {
+        if (!graph || !graph.options || !graph.elements) return;
+
+        const range = graph.options.yRange;
+        if (range.min !== "" && range.max !== "") {
+            const filteredData = data.filter((item) => item[graph.elements[0].yAxisKey] >= range.min && item[graph.elements[0].yAxisKey] <= range.max);
+            setGraphData(filteredData);
+        }
+    }
 
     const renderChart = () => {
-        const element = graph.elements[0];
+        if (!graph || !graph.elements || graphData.length === 0) return null;
+
+        const yValues = graph.elements.flatMap(element => graphData.map(data => data[element.yAxisKey]));
+        const yMin = Math.min(...yValues);
+        const yMax = Math.max(...yValues);
+        const margin = (yMax - yMin) * 0.1;
+        const adjustedYMin = yMin - margin;
+        const adjustedYMax = yMax + margin;
+
         switch (graph.chartType) {
             case 'Line':
                 return (
                     <LineChart data={graphData} className="flex-grow">
                         <XAxis
-                            dataKey={element.xAxisKey}
-                            tickFormatter={(tick) => format(new Date(tick), 'dd/MM')}
+                            dataKey={graph.elements[0]?.xAxisKey}
+                            tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
                         />
-                        <YAxis />
+                        <YAxis domain={[adjustedYMin, adjustedYMax]} />
+                        {graph.options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend verticalAlign="top" height={36} />
+                        {graph.elements.map((element) => (
+                            <Line
+                                key={element.id}
+                                type={element.curved ? "monotone" : "linear"}
+                                dataKey={element.yAxisKey}
+                                stroke={element.color}
+                                dot={element.showDots}
+                            />
+                        ))}
+                    </LineChart>
+                );
+            case 'Bar':
+                return (
+                    <BarChart data={graphData} className="flex-grow">
+                        <XAxis
+                            dataKey={graph.elements[0]?.xAxisKey}
+                            tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
+                        />
+                        <YAxis domain={[adjustedYMin, adjustedYMax]} />
                         {graph.options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
                         <Tooltip content={<CustomTooltip />} />
                         <Legend />
-                        <Line type={element.curved ? "monotone" : "linear"} dataKey={element.yAxisKey} stroke={element.color} dot={element.showDots} />
-                    </LineChart>
-                )
-            case 'Bar':
-                return (
-                    <BarChart data={graphData}>
-                        <XAxis dataKey={element.xAxisKey} />
-                        <YAxis />
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <Tooltip content={<CustomTooltip />} />
-                        <Legend />
-                        <Bar dataKey={element.yAxisKey} fill={element.color} />
+                        {graph.elements.map((element) => (
+                            <Bar key={element.id} dataKey={element.yAxisKey} fill={element.color} />
+                        ))}
                     </BarChart>
-                )
-            case 'Pie':
-                return (
-                    <PieChart>
-                        <Pie data={graphData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={50} fill={element.color} label />
-                        <Tooltip content={<CustomTooltip />} />
-                    </PieChart>
-                )
+                );
             case 'Area':
                 return (
-                    <AreaChart data={graphData}>
-                        <XAxis dataKey={element.xAxisKey} />
-                        <YAxis />
-                        <CartesianGrid strokeDasharray="3 3" />
+                    <AreaChart data={graphData} className="flex-grow">
+                        <XAxis
+                            dataKey={graph.elements[0]?.xAxisKey}
+                            tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
+                        />
+                        <YAxis domain={[adjustedYMin, adjustedYMax]} />
+                        {graph.options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
                         <Tooltip content={<CustomTooltip />} />
-                        <Area type={element.curved ? "monotone" : "linear"} dataKey={element.yAxisKey} stroke={element.color} fill={element.color} />
+                        <Legend />
+                        {graph.elements.map((element) => (
+                            <Area
+                                key={element.id}
+                                type={element.curved ? "monotone" : "linear"}
+                                dataKey={element.yAxisKey}
+                                stroke={element.color}
+                                fill={element.color}
+                            />
+                        ))}
                     </AreaChart>
-                )
+                );
             case 'Scatter':
                 return (
-                    <ScatterChart>
-                        <XAxis type="number" dataKey={element.xAxisKey} name="stature" unit="cm" />
-                        <YAxis type="number" dataKey={element.yAxisKey} name="weight" unit="kg" />
-                        <Tooltip cursor={{ strokeDasharray: '3 3' }} content={<CustomTooltip />} />
-                        <Scatter name="A school" data={graphData} fill={element.color} />
+                    <ScatterChart className="flex-grow">
+                        <XAxis
+                            dataKey={graph.elements[0]?.xAxisKey}
+                            tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
+                        />
+                        <YAxis domain={[adjustedYMin, adjustedYMax]} />
+                        {graph.options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend />
+                        {graph.elements.map((element) => (
+                            <Scatter key={element.id} dataKey={element.yAxisKey} fill={element.color} />
+                        ))}
                     </ScatterChart>
-                )
+                );
             default:
                 return null;
         }
@@ -139,9 +207,9 @@ const ChartCard = ({ id, graph, onDelete, onEdit }) => {
             <Card className="shadow-lg h-full flex flex-col resizable-indicator">
                 <CardHeader
                     className="flex flex-row items-center justify-between space-y-0 py-2"
-                    style={{ backgroundColor: graph.options.cardColor }}
+                    style={{ backgroundColor: graph?.options?.cardColor }}
                 >
-                    <h3 className="font-semibold text-white">{graph.options.title}</h3>
+                    <h3 className="font-semibold text-white">{graph?.options?.title}</h3>
                     <div className="flex items-center space-x-2 justify-center mx-5 my-5">
                         <Dialog open={isFullScreen} onOpenChange={handleToggleFullScreen}>
                             <DialogTrigger asChild>
@@ -205,7 +273,7 @@ const ChartCard = ({ id, graph, onDelete, onEdit }) => {
                         <TabsContent value={selectedTimeframe}>
                             {isLoading ? (
                                 <div className="flex items-center justify-center h-full pt-2">
-                                    <PacmanLoader color={graph.options.cardColor} />
+                                    <PacmanLoader color={graph?.options?.cardColor} />
                                 </div>
                             ) : (
                                 <ResponsiveContainer width="100%" height={200}>

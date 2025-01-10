@@ -4,15 +4,23 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="graphcreator after big zod update">
-      <change afterPath="$PROJECT_DIR$/components/chartCreator/chartOptions.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/components/chartCreator/conditionalParams.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/components/chartCreator/elementConfig.jsx" afterDir="false" />
+    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="fixed multiple elements in chartCreator.jsx. added better data fetching and validation.&#10;fixed CSS of collectionviewer">
+      <change afterPath="$PROJECT_DIR$/components/ui/calendar.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/ui/command.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/ui/popover.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(root)/projects/[project]/chartcreator/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/projects/[project]/chartcreator/page.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/collection-viewer/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/collection-viewer/page.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/layout.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/layout.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/projects/[project]/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/projects/[project]/page.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/app/globals.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ChartCardComponent.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ChartCardComponent.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/chartCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCard.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/chartCreator.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCreator.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/chartCreator/chartOptions.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCreator/chartOptions.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/chartCreator/conditionalParams.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCreator/conditionalParams.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/chartCreator/elementConfig.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCreator/elementConfig.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,8 +61,9 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/2Wire/2wire&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/vw070310/WebstormProjects/zerowine_v2&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -89,7 +98,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-7c0b70fcd90d-JavaScript-WS-242.21829.149" />
+        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-WS-243.22562.222" />
       </set>
     </attachedChunks>
   </component>
@@ -133,7 +142,14 @@
       <workItem from="1732608766953" duration="3242000" />
       <workItem from="1732883674681" duration="3769000" />
       <workItem from="1733211856440" duration="4954000" />
-      <workItem from="1733301065341" duration="8103000" />
+      <workItem from="1733301065341" duration="8405000" />
+      <workItem from="1735081325468" duration="140000" />
+      <workItem from="1736149000299" duration="5328000" />
+      <workItem from="1736235504085" duration="28000" />
+      <workItem from="1736235737277" duration="5198000" />
+      <workItem from="1736324959559" duration="22000" />
+      <workItem from="1736325059511" duration="8495000" />
+      <workItem from="1736510653369" duration="3191000" />
     </task>
     <task id="LOCAL-00001" summary="added the default files">
       <option name="closed" value="true" />
@@ -255,7 +271,15 @@
       <option name="project" value="LOCAL" />
       <updated>1733301210998</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="implemented chartCreator.jsx">
+      <option name="closed" value="true" />
+      <created>1733309816937</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1733309816937</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -297,6 +321,10 @@
     <MESSAGE value="updated files" />
     <MESSAGE value="graphcreator before big zod update" />
     <MESSAGE value="graphcreator after big zod update" />
-    <option name="LAST_COMMIT_MESSAGE" value="graphcreator after big zod update" />
+    <MESSAGE value="implemented chartCreator.jsx" />
+    <MESSAGE value="implemented x range and better data fetching&#10;also implemented key selector and temporarily removed conditionalParams.jsx" />
+    <MESSAGE value="fixed multiple elements in chartCreator.jsx. added better data fetching and validation." />
+    <MESSAGE value="fixed multiple elements in chartCreator.jsx. added better data fetching and validation.&#10;fixed CSS of collectionviewer" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed multiple elements in chartCreator.jsx. added better data fetching and validation.&#10;fixed CSS of collectionviewer" />
   </component>
 </project>

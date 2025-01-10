@@ -20,7 +20,6 @@ const ChartCardComponent = ({ projectId }) => {
         // Load layout from localStorage if it exists and is not initialized
         if (!layoutsInitialized.current) {
             const savedLayouts = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY))
-            console.log('savedLayouts:', savedLayouts)
             if (savedLayouts) {
                 setLayouts(savedLayouts)
             }
@@ -40,7 +39,6 @@ const ChartCardComponent = ({ projectId }) => {
                 })
                 const data = res.data;
                 setGraphs(data)
-                console.log('graphs:', data)
 
                 // Initialize layout positions if no saved layout is present
                 if (!layoutsInitialized.current) {
@@ -75,7 +73,6 @@ const ChartCardComponent = ({ projectId }) => {
     useEffect(() => {
         if (layoutsInitialized.current) {
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(layouts))
-            console.log('updated layouts:', layouts)
         }
     }, [layouts])
 
@@ -101,7 +98,6 @@ const ChartCardComponent = ({ projectId }) => {
         console.log(`Edit item ${id}`)
     }
 
-    console.log(graphs.map(graph => graph.collection))
 
     return (
         <ResponsiveGridLayout

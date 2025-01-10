@@ -2,12 +2,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export function ConditionalParams({ collections, conditionalParams, handleConditionalParamChange }) {
+export function ConditionalParams({ collections, handleConditionalParamChange }) {
     return (
         <div>
             <Label htmlFor="conditionalCollection">Collection</Label>
             <Select
-                value={conditionalParams.collection}
+                value={""}
                 onValueChange={(value) => handleConditionalParamChange("collection", value)}
                 className={"dark:bg-gray-700"}
             >
@@ -26,7 +26,7 @@ export function ConditionalParams({ collections, conditionalParams, handleCondit
                 <Label htmlFor="conditionalField">Field</Label>
                 <Input
                     id="conditionalField"
-                    value={conditionalParams.field}
+                    value={""}
                     onChange={(e) => handleConditionalParamChange("field", e.target.value)}
                     className={"dark:bg-gray-700"}
                 />
@@ -35,7 +35,7 @@ export function ConditionalParams({ collections, conditionalParams, handleCondit
                 <Label htmlFor="conditionalValue">Value</Label>
                 <Input
                     id="conditionalValue"
-                    value={conditionalParams.value}
+                    value={""}
                     onChange={(e) => handleConditionalParamChange("value", e.target.value)}
                     className={"dark:bg-gray-700"}
                 />
