@@ -5,9 +5,9 @@ import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { ChartArea } from 'lucide-react'
 import { Button } from "@/components/ui/button"
-import { useRouter } from 'next/navigation'
 import ChartCardComponent from './chartCardComponent'
 import { CreateGraphForm } from "@/components/createGraphForm"
+import { useRouter } from "next/navigation"
 
 export function ProjectView({ project }) {
     const [projectName, setProjectName] = useState(project.name)
@@ -59,6 +59,12 @@ export function ProjectView({ project }) {
         console.log("Form closed")
     }
 
+    const handleCreateGraph = () => {
+       // handle user redirection to create graph page
+        router.push(`/projects/${project._id}/chartcreator`)
+    }
+
+
     return (
         <>
             <div className="flex justify-between items-center mb-6 overflow-auto w-full">
@@ -67,7 +73,7 @@ export function ProjectView({ project }) {
                     <p className="text-gray-500 dark:text-gray-400">{projectDescription}</p>
                 </div>
                 <div className="flex items-center">
-                    <Button className="mr-2" onClick={() => setIsModalOpen(true)}>
+                    <Button className="mr-2" onClick={() => handleCreateGraph()}>
                         <ChartArea className="h-4 w-4 mr-2" /> Add Graph
                     </Button>
                     <Button
