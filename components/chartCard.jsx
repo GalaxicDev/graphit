@@ -92,50 +92,58 @@ const ChartCard = ({ id, graph, onDelete, onEdit }) => {
     }
 
     const renderChart = () => {
-        if (!graph || !graph.elements || graphData.length === 0) return null;
+        if (!chartType || !elements?.length || !graphData?.length) {
+            return <p>No data available for rendering the chart.</p>;
+        }
 
-        const yValues = graph.elements.flatMap(element => graphData.map(data => data[element.yAxisKey]));
+        const yValues = elements.flatMap(element => graphData.map(data => data[element.yAxisKey]));
         const yMin = Math.min(...yValues);
         const yMax = Math.max(...yValues);
         const margin = (yMax - yMin) * 0.1;
         const adjustedYMin = yMin - margin;
         const adjustedYMax = yMax + margin;
 
-        switch (graph.chartType) {
+        const yAxisDomain = options.yRange.min !== "" && options.yRange.max !== ""
+            ? [options.yRange.min, options.yRange.max]
+            : [0, "auto"];
+
+        console.log('yAxisDomain', yAxisDomain);
+
+
+        switch (chartType) {
             case 'Line':
                 return (
-                    <LineChart data={graphData} className="flex-grow">
-                        <XAxis
-                            dataKey={graph.elements[0]?.xAxisKey}
-                            tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
-                        />
-                        <YAxis domain={[adjustedYMin, adjustedYMax]} />
-                        {graph.options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
-                        <Tooltip content={<CustomTooltip />} />
-                        <Legend verticalAlign="top" height={36} />
-                        {graph.elements.map((element) => (
-                            <Line
-                                key={element.id}
-                                type={element.curved ? "monotone" : "linear"}
-                                dataKey={element.yAxisKey}
-                                stroke={element.color}
-                                dot={element.showDots}
-                            />
-                        ))}
-                    </LineChart>
+                    <ResponsiveContainer width="100%" height={200}>
+                        <LineChart data={graphData}>
+                            <XAxis dataKey={elements[0]?.xAxisKey} />
+                            <YAxis domain={yAxisDomain} />
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend />
+                            {elements.map(element => (
+                                <Line
+                                    key={element.id}
+                                    type={element.curved ? "monotone" : "linear"}
+                                    dataKey={element.yAxisKey}
+                                    stroke={element.color}
+                                    dot={element.showDots}
+                                />
+                            ))}
+                        </LineChart>
+                    </ResponsiveContainer>
                 );
             case 'Bar':
                 return (
                     <BarChart data={graphData} className="flex-grow">
                         <XAxis
-                            dataKey={graph.elements[0]?.xAxisKey}
+                            dataKey={elements[0]?.xAxisKey}
                             tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
                         />
-                        <YAxis domain={[adjustedYMin, adjustedYMax]} />
-                        {graph.options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
+                        <YAxis domain={yAxisDomain} />
+                        {options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
                         <Tooltip content={<CustomTooltip />} />
                         <Legend />
-                        {graph.elements.map((element) => (
+                        {elements.map((element) => (
                             <Bar key={element.id} dataKey={element.yAxisKey} fill={element.color} />
                         ))}
                     </BarChart>
@@ -144,14 +152,14 @@ const ChartCard = ({ id, graph, onDelete, onEdit }) => {
                 return (
                     <AreaChart data={graphData} className="flex-grow">
                         <XAxis
-                            dataKey={graph.elements[0]?.xAxisKey}
+                            dataKey={elements[0]?.xAxisKey}
                             tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
                         />
-                        <YAxis domain={[adjustedYMin, adjustedYMax]} />
-                        {graph.options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
+                        <YAxis domain={yAxisDomain} />
+                        {options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
                         <Tooltip content={<CustomTooltip />} />
                         <Legend />
-                        {graph.elements.map((element) => (
+                        {elements.map((element) => (
                             <Area
                                 key={element.id}
                                 type={element.curved ? "monotone" : "linear"}
@@ -166,14 +174,14 @@ const ChartCard = ({ id, graph, onDelete, onEdit }) => {
                 return (
                     <ScatterChart className="flex-grow">
                         <XAxis
-                            dataKey={graph.elements[0]?.xAxisKey}
+                            dataKey={elements[0]?.xAxisKey}
                             tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
                         />
-                        <YAxis domain={[adjustedYMin, adjustedYMax]} />
-                        {graph.options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
+                        <YAxis domain={yAxisDomain} />
+                        {options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
                         <Tooltip content={<CustomTooltip />} />
                         <Legend />
-                        {graph.elements.map((element) => (
+                        {elements.map((element) => (
                             <Scatter key={element.id} dataKey={element.yAxisKey} fill={element.color} />
                         ))}
                     </ScatterChart>

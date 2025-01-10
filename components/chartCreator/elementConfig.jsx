@@ -36,7 +36,7 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
     return (
         <div className="space-y-4">
             <div>
-                <Label htmlFor={`collection-${el.id}`}>Collection</Label>
+                <Label className="font-bold" htmlFor={`collection-${el.id}`}>Collection</Label>
                 <Select
                     value={el.collection}
                     onValueChange={(value) => handleElementChange(el.id, "collection", value)}
@@ -55,7 +55,7 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
                 </Select>
             </div>
             <div>
-                <Label htmlFor={`xAxisKey-${el.id}`}>X Axis Key</Label>
+                <Label className="font-bold" htmlFor={`xAxisKey-${el.id}`}>X Axis Key</Label>
                 <Select
                     value={el.xAxisKey}
                     onValueChange={(value) => handleElementChange(el.id, "xAxisKey", value)}
@@ -74,7 +74,7 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
                 </Select>
             </div>
             <div>
-                <Label htmlFor={`yAxisKey-${el.id}`}>Y Axis Key</Label>
+                <Label className="font-bold" htmlFor={`yAxisKey-${el.id}`}>Y Axis Key</Label>
                 <Select
                     value={el.yAxisKey}
                     onValueChange={(value) => handleElementChange(el.id, "yAxisKey", value)}
@@ -93,7 +93,7 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
                 </Select>
             </div>
             <div>
-                <Label htmlFor={`name-${el.id}`}>Name</Label>
+                <Label className="font-bold" htmlFor={`name-${el.id}`}>Name</Label>
                 <Input
                     id={`name-${el.id}`}
                     value={el.name}
@@ -102,16 +102,17 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
                 />
             </div>
             <div>
-                <Label htmlFor={`color-${el.id}`}>Color</Label>
+                <Label className="font-bold" htmlFor={`color-${el.id}`}>Color</Label>
                 <Input
                     id={`color-${el.id}`}
                     type="color"
                     value={el.color}
                     onChange={(e) => handleElementChange(el.id, "color", e.target.value)}
+                    className={"py-3 dark:bg-gray-700"}
                 />
             </div>
             <div>
-                <Label htmlFor={`thickness-${el.id}`}>Thickness</Label>
+                <Label className="font-bold" htmlFor={`thickness-${el.id}`}>Thickness</Label>
                 <Slider
                     id={`thickness-${el.id}`}
                     min={1}
@@ -119,6 +120,7 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
                     step={1}
                     value={[el.thickness]}
                     onValueChange={([value]) => handleElementChange(el.id, "thickness", value)}
+                    className={"py-3"}
                 />
             </div>
             {chartType !== "Bar" && (
@@ -129,7 +131,7 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
                             checked={el.curved}
                             onCheckedChange={(checked) => handleElementChange(el.id, "curved", checked)}
                         />
-                        <Label htmlFor={`curved-${el.id}`}>Curved Line</Label>
+                        <Label className="font-bold" htmlFor={`curved-${el.id}`}>Curved Line</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                         <Switch
@@ -137,7 +139,7 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
                             checked={el.dotted}
                             onCheckedChange={(checked) => handleElementChange(el.id, "dotted", checked)}
                         />
-                        <Label htmlFor={`dotted-${el.id}`}>Dotted Line</Label>
+                        <Label className="font-bold" htmlFor={`dotted-${el.id}`}>Dotted Line</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                         <Switch
@@ -145,7 +147,7 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
                             checked={el.showDots}
                             onCheckedChange={(checked) => handleElementChange(el.id, "showDots", checked)}
                         />
-                        <Label htmlFor={`showDots-${el.id}`}>Show Dots</Label>
+                        <Label className="font-bold" htmlFor={`showDots-${el.id}`}>Show Dots</Label>
                     </div>
                     {el.showDots && (
                         <div>
