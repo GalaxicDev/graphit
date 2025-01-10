@@ -175,40 +175,45 @@ export function ChartCreator({ token, projectData }) {
 
   // render the chart based on the chart type
   const renderChart = () => {
-    if (!chartType || !elements || elements.length === 0 || graphData.length === 0) return null;
+    if (!chartType || !elements?.length || !graphData?.length) {
+      return <p>No data available for rendering the chart.</p>;
+    }
 
-    // Calculate the min and max values for the Y-axis
     const yValues = elements.flatMap(element => graphData.map(data => data[element.yAxisKey]));
     const yMin = Math.min(...yValues);
     const yMax = Math.max(...yValues);
-
-    // Add a margin to the min and max values
-    const margin = (yMax - yMin) * 0.1; // 10% margin
+    const margin = (yMax - yMin) * 0.1;
     const adjustedYMin = yMin - margin;
     const adjustedYMax = yMax + margin;
+
+    const yAxisDomain = options.yRange.min !== "" && options.yRange.max !== ""
+        ? [options.yRange.min, options.yRange.max]
+        : [0, "auto"];
+
+    console.log('yAxisDomain', yAxisDomain);
+
 
     switch (chartType) {
       case 'Line':
         return (
-            <LineChart data={graphData} className="flex-grow">
-              <XAxis
-                  dataKey={elements[0]?.xAxisKey}
-                  tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
-              />
-              <YAxis domain={["auto", "auto"]} />
-              {options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
-              <Tooltip content={<CustomTooltip />} />
-              <Legend verticalAlign="top" height={36} />
-              {elements.map((element) => (
-                  <Line
-                      key={element.id}
-                      type={element.curved ? "monotone" : "linear"}
-                      dataKey={element.yAxisKey}
-                      stroke={element.color}
-                      dot={element.showDots}
-                  />
-              ))}
-            </LineChart>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={graphData}>
+                <XAxis dataKey={elements[0]?.xAxisKey} />
+                <YAxis domain={yAxisDomain} />
+                <CartesianGrid strokeDasharray="3 3" />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                {elements.map(element => (
+                    <Line
+                        key={element.id}
+                        type={element.curved ? "monotone" : "linear"}
+                        dataKey={element.yAxisKey}
+                        stroke={element.color}
+                        dot={element.showDots}
+                    />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
         );
       case 'Bar':
         return (
@@ -217,7 +222,7 @@ export function ChartCreator({ token, projectData }) {
                   dataKey={elements[0]?.xAxisKey}
                   tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
               />
-              <YAxis domain={[adjustedYMin, adjustedYMax]} />
+              <YAxis domain={yAxisDomain} />
               {options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
               <Tooltip content={<CustomTooltip />} />
               <Legend />
@@ -233,7 +238,7 @@ export function ChartCreator({ token, projectData }) {
                   dataKey={elements[0]?.xAxisKey}
                   tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
               />
-              <YAxis domain={[adjustedYMin, adjustedYMax]} />
+              <YAxis domain={yAxisDomain} />
               {options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
               <Tooltip content={<CustomTooltip />} />
               <Legend />
@@ -255,7 +260,7 @@ export function ChartCreator({ token, projectData }) {
                   dataKey={elements[0]?.xAxisKey}
                   tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
               />
-              <YAxis domain={[adjustedYMin, adjustedYMax]} />
+              <YAxis domain={yAxisDomain} />
               {options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
               <Tooltip content={<CustomTooltip />} />
               <Legend />
@@ -268,6 +273,7 @@ export function ChartCreator({ token, projectData }) {
         return null;
     }
   };
+
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {

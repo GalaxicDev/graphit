@@ -108,7 +108,7 @@ export default function MongoDBViewer() {
               <li key={collection}>
                 <Button
                   variant={selectedCollection === collection ? "default" : "outline"}
-                  className="w-full justify-start"
+                  className="w-full justify-start dark:bg-gray-700 dark:text-white"
                   onClick={() => handleCollectionClick(collection)}
                 >
                   <Database className="mr-2 h-4 w-4" />
@@ -121,7 +121,7 @@ export default function MongoDBViewer() {
         <div className="col-span-1 md:col-span-3">
           {selectedCollection && (
             <>
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-4 dark:text-white">
                 <h2 className="text-xl font-semibold">{selectedCollection}</h2>
                 <Button onClick={handleExport}>
                   <Download className="mr-2 h-4 w-4" />
@@ -130,13 +130,13 @@ export default function MongoDBViewer() {
               </div>
               <div className="space-y-4">
                 {filteredDocuments.map(doc => (
-                  <div key={doc.id} className="bg-gray-100 p-4 rounded-lg">
+                  <div key={doc.id} className="bg-gray-100 p-4 rounded-lg dark:bg-gray-700 dark:text-white">
                     <div className="flex justify-between items-start mb-2">
                       <pre className="text-sm overflow-x-auto">
                         {JSON.stringify(doc, null, 2)}
                       </pre>
                       <div className="flex space-x-2">
-                        <Button variant="outline" size="sm" onClick={() => handleEdit(doc.id)}>
+                        <Button className="dark:bg-gray-800" variant="outline" size="sm" onClick={() => handleEdit(doc.id)}>
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button variant="destructive" size="sm" onClick={() => handleDelete(doc.id)}>

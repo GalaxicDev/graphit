@@ -5,22 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="fixed multiple elements in chartCreator.jsx. added better data fetching and validation.&#10;fixed CSS of collectionviewer">
-      <change afterPath="$PROJECT_DIR$/components/ui/calendar.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/components/ui/command.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/components/ui/popover.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(root)/collection-viewer/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/collection-viewer/page.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(root)/layout.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/layout.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(root)/projects/[project]/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/projects/[project]/page.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/app/globals.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ChartCardComponent.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ChartCardComponent.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/chartCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCard.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/chartCreator.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCreator.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/chartCreator/chartOptions.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCreator/chartOptions.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/chartCreator/conditionalParams.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCreator/conditionalParams.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/chartCreator/elementConfig.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCreator/elementConfig.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -149,7 +136,7 @@
       <workItem from="1736235737277" duration="5198000" />
       <workItem from="1736324959559" duration="22000" />
       <workItem from="1736325059511" duration="8495000" />
-      <workItem from="1736510653369" duration="3191000" />
+      <workItem from="1736510653369" duration="4203000" />
     </task>
     <task id="LOCAL-00001" summary="added the default files">
       <option name="closed" value="true" />
@@ -279,7 +266,15 @@
       <option name="project" value="LOCAL" />
       <updated>1733309816937</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="fixed multiple elements in chartCreator.jsx. added better data fetching and validation.&#10;fixed CSS of collectionviewer">
+      <option name="closed" value="true" />
+      <created>1736513995086</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1736513995086</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
