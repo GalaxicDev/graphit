@@ -34,9 +34,6 @@ export default function MongoDBViewer() {
 
   useEffect(() => {
     if (selectedCollection) {
-      console.log('Fetching documents for collection:', selectedCollection)
-      console.log('Current page:', currentPage)
-      console.log('Items per page:', itemsPerPage)
       // Fetch documents of the selected collection
       axios.get(process.env.API_URL + `/collections/${selectedCollection}`, {
         headers: {
@@ -48,7 +45,6 @@ export default function MongoDBViewer() {
         }
       })
       .then(response => {
-        console.log('Documents:', response.data.documents)
         setDocuments(response.data.documents)
         setTotalDocuments(response.data.totalDocuments)
       })
