@@ -34,9 +34,6 @@ export default function MongoDBViewer() {
 
   useEffect(() => {
     if (selectedCollection) {
-      console.log('Fetching documents for collection:', selectedCollection)
-      console.log('Current page:', currentPage)
-      console.log('Items per page:', itemsPerPage)
       // Fetch documents of the selected collection
       axios.get(process.env.API_URL + `/collections/${selectedCollection}`, {
         headers: {
@@ -48,7 +45,6 @@ export default function MongoDBViewer() {
         }
       })
       .then(response => {
-        console.log('Documents:', response.data.documents)
         setDocuments(response.data.documents)
         setTotalDocuments(response.data.totalDocuments)
       })
@@ -158,9 +154,21 @@ export default function MongoDBViewer() {
                 >
                   Previous
                 </Button>
-                <span>
-                  Page {currentPage} of {totalPages}
-                </span>
+                <div>
+                  <input
+                    type="number"
+                    value={currentPage}
+                    onChange={(e) => {
+                      const page = Math.max(1, Math.min(Number(e.target.value), totalPages));
+                      setCurrentPage(page);
+                    }}
+                    className="w-12 rounded text-center border-none focus:outline-none hover:border-gray-800 hover:bg-white hover:border-solid"
+                    
+                  />
+                  <span>
+                    of {totalPages}
+                  </span>
+                </div>  
                 <Button
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
