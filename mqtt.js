@@ -36,69 +36,73 @@ router.use(extractUserId);
 
 
 router.get('/data', async (req, res) => {
-    const { collection, fields, timeframe, from, to } = req.query;
+    const { collections, fields, timeframe, from, to } = req.query;
+    if (!collections || !fields) {
+        return res.status(400).json({ success: false, message: 'Collections and fields parameters are required' });
+    }
+
     try {
         const db = await getDB('mqtt');
+        const collectionList = collections.split(',');
+        const fieldList = fields.split(',');
 
-        if (timeframe) {
-            // Create a projection object if fields are provided
-            const projection = fields ? fields.split(',').reduce((acc, field) => ({ ...acc, [field]: 1 }), {}) : {};
+        let data = [];
 
-            // Fetch the last entry to determine the end date
-            const lastEntry = await db.collection(collection).findOne({}, { sort: { createdAt: -1 } });
-            if (!lastEntry) {
-                return res.status(404).json({ success: false, message: 'No data found' });
-            }
-            const endDate = new Date(lastEntry.createdAt);
+        for (const collection of collectionList) {
+            let query = {};
+            let projection = fieldList.reduce((acc, field) => ({ ...acc, [field]: 1 }), {});
 
-            // Calculate startDate based on the timeframe
-            let startDate;
-            switch (timeframe) {
-                case '1D':
-                    startDate = subDays(endDate, 1);
-                    break;
-                case '7D':
-                    startDate = subDays(endDate, 7);
-                    break;
-                case '30D':
-                    startDate = subDays(endDate, 30);
-                    break;
-                case '6M':
-                    startDate = subMonths(endDate, 6);
-                    break;
-                case '1Y':
-                    startDate = subYears(endDate, 1);
-                    break;
-                case 'Max':
-                    startDate = new Date(0);
-                    break;
-                default:
-                    startDate = new Date();
-            }
+            if (timeframe) {
+                const lastEntry = await db.collection(collection).findOne({}, { sort: { createdAt: -1 } });
+                if (!lastEntry) continue;
+                const endDate = new Date(lastEntry.createdAt);
 
-            // Create a query object to filter by date range
-            const query = {
-                createdAt: {
-                    $gte: startDate,
-                    $lte: endDate
+                let startDate;
+                switch (timeframe) {
+                    case '1D':
+                        startDate = subDays(endDate, 1);
+                        break;
+                    case '7D':
+                        startDate = subDays(endDate, 7);
+                        break;
+                    case '30D':
+                        startDate = subDays(endDate, 30);
+                        break;
+                    case '6M':
+                        startDate = subMonths(endDate, 6);
+                        break;
+                    case '1Y':
+                        startDate = subYears(endDate, 1);
+                        break;
+                    case 'Max':
+                        startDate = new Date(0);
+                        break;
+                    default:
+                        startDate = new Date();
                 }
-            };
 
-            // Fetch data from the collection with the query and projection
-            const data = await db.collection(collection).find(query, { projection }).toArray();
-            res.json({ success: true, data: data });
+                query = {
+                    createdAt: {
+                        $gte: startDate,
+                        $lte: endDate
+                    }
+                };
+            } else if (from && to) {
+                query = {
+                    createdAt: {
+                        $gte: new Date(from),
+                        $lte: new Date(to)
+                    }
+                };
+            } else {
+                return res.status(400).json({ success: false, message: 'Invalid query parameters' });
+            }
+
+            const collectionData = await db.collection(collection).find(query, { projection }).toArray();
+            data = data.concat(collectionData);
         }
 
-        if (from && to) {
-            const query = {
-                createdAt: {
-                    $gte: new Date(from),
-                    $lte: new Date(to)
-                }
-            };
-            const data = await db.collection(collection).find(query).toArray();
-            res.json({ success: true, data: data });
-        }
+        res.json({ success: true, data: data });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
