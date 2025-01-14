@@ -16,10 +16,12 @@ import {
     DialogContent,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { LineChart, BarChart, PieChart, ScatterChart, AreaChart, Line, Scatter, Area, Bar, Pie, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, BarChart, PieChart, ScatterChart, AreaChart, RadarChart, Line, Scatter, Area, Bar, Pie, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import axios from 'axios';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PacmanLoader } from 'react-spinners'
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']; // Define the COLORS array
 
 const ChartCard = ({ id, graph, onDelete, onEdit }) => {
     const [isFullScreen, setIsFullScreen] = useState(false);
@@ -69,7 +71,6 @@ const ChartCard = ({ id, graph, onDelete, onEdit }) => {
                     }
                 });
                 setGraphData(dataResponse.data.data);
-                processData(dataResponse.data.data);
             } catch (error) {
                 console.error('Failed to fetch graph data:', error);
             } finally {
@@ -81,107 +82,170 @@ const ChartCard = ({ id, graph, onDelete, onEdit }) => {
 
     }, [id, graph, selectedTimeframe]);
 
-    const processData = (data) => {
-        if (!graph || !graph.options || !graph.elements) return;
 
-        const range = graph.options.yRange;
-        if (range.min !== "" && range.max !== "") {
-            const filteredData = data.filter((item) => item[graph.elements[0].yAxisKey] >= range.min && item[graph.elements[0].yAxisKey] <= range.max);
-            setGraphData(filteredData);
-        }
-    }
-
-    const renderChart = () => {
+    // render the chart based on the chart type
+      const renderChart = () => {
         if (!graph.chartType || !graph.elements?.length || !graphData?.length) {
-            return <p>No data available for rendering the chart.</p>;
+          return <p>No data available for rendering the chart.</p>;
         }
-
-        const yAxisDomain = graph.options.yRange.min !== "" && graph.options.yRange.max !== ""
-            ? [graph.options.yRange.min, graph.options.yRange.max]
-            : [0, "auto"];
-
-        console.log('yAxisDomain', yAxisDomain);
-
-
-        switch (graph.chartType) {
-            case 'Line':
+    
+        const yValues = graph.elements.flatMap(element => graphData.map(data => data[element.yAxisKey]));
+      const yMin = graph.options.yRange.min;
+      const yMax = graph.options.yRange.max;
+    
+      // we have 4 options, yMin can be defined, yMax can be defined or both can be defined or none
+      // if none are defined we don't need to do anything, the chart will automatically adjust the y axis
+      const yAxisDomain = (yMin !== undefined && yMin !== "" && yMax !== undefined && yMax !== "")
+          ? [yMin, yMax]
+          : (yMin !== undefined && yMin !== "")
+              ? [yMin, "auto"]
+              : (yMax !== undefined && yMax !== "")
+                  ? [0, yMax]
+                  : [0, "auto"];
+    
+      // Filter the graph data based on the yAxisDomain
+      const filteredGraphData = graphData.filter(data => {
+        return graph.elements.every(element => {
+          const value = data[element.yAxisKey];
+          return (yMin === undefined || yMin === "" || value >= yMin) &&
+                 (yMax === undefined || yMax === "" || value <= yMax);
+        });
+      });
+    
+      switch (graph.chartType) {
+        case 'Line':
+          return (
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={filteredGraphData}>
+                  <XAxis dataKey={graph.elements[0]?.xAxisKey} />
+                  <YAxis domain={yAxisDomain} />
+                  { graph.options.showGrid && <CartesianGrid strokeDasharray="3 3" /> }
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend />
+                  {graph.elements.map(element => (
+                      <Line
+                          key={element.id}
+                          type={element.curved ? "monotone" : "linear"}
+                          dataKey={element.yAxisKey}
+                          stroke={element.color}
+                      />
+                  ))}
+                </LineChart>
+              </ResponsiveContainer>
+          );
+          case 'Bar':
+            return (
+                <BarChart data={graphData} className="flex-grow">
+                  <XAxis
+                      dataKey={graph.elements[0]?.xAxisKey}
+                      tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
+                  />
+                  <YAxis domain={yAxisDomain} />
+                  {options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend />
+                  {graph.elements.map((element) => (
+                      <Bar key={element.id} dataKey={element.yAxisKey} fill={element.color} />
+                  ))}
+                </BarChart>
+            );
+          case 'Area':
+            return (
+                <AreaChart data={graphData} className="flex-grow">
+                  <XAxis
+                      dataKey={graph.elements[0]?.xAxisKey}
+                      tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
+                  />
+                  <YAxis domain={yAxisDomain} />
+                  {graph.options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend />
+                  {graph.elements.map((element) => (
+                      <Area
+                          key={element.id}
+                          type={element.curved ? "monotone" : "linear"}
+                          dataKey={element.yAxisKey}
+                          stroke={element.color}
+                          fill={element.color}
+                      />
+                  ))}
+                </AreaChart>
+            );
+          case 'Scatter':
+            return (
+                <ScatterChart className="flex-grow">
+                  <XAxis
+                      dataKey={elements[0]?.xAxisKey}
+                      tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
+                  />
+                  <YAxis domain={yAxisDomain} />
+                  {options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend />
+                  {elements.map((element) => (
+                      <Scatter key={element.id} dataKey={element.yAxisKey} fill={element.color} />
+                  ))}
+                </ScatterChart>
+            );
+            case 'Pie':
+                return (
+                  <ResponsiveContainer width="100%" height={200}>
+                    <PieChart>
+                      <Pie
+                        data={filteredGraphData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={renderCustomizedLabel}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey={graph.elements[0]?.yAxisKey}
+                      >
+                        {filteredGraphData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+            );
+            case 'Radar':
                 return (
                     <ResponsiveContainer width="100%" height={200}>
-                        <LineChart data={graphData}>
-                            <XAxis dataKey={graph.elements[0]?.xAxisKey} />
-                            <YAxis domain={yAxisDomain} />
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <Tooltip content={<CustomTooltip />} />
-                            <Legend />
+                        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={filteredGraphData}>
+                            <PolarGrid />
+                            <PolarAngleAxis dataKey={graph.elements[0]?.xAxisKey} />
+                            <PolarRadiusAxis angle={30} domain={yAxisDomain} />
                             {graph.elements.map(element => (
-                                <Line
+                                <Radar
                                     key={element.id}
-                                    type={element.curved ? "monotone" : "linear"}
+                                    name={element.name}
                                     dataKey={element.yAxisKey}
                                     stroke={element.color}
-                                    dot={element.showDots}
+                                    fill={element.color}
+                                    fillOpacity={0.6}
                                 />
                             ))}
-                        </LineChart>
+                            <Legend />
+                        </RadarChart>
                     </ResponsiveContainer>
                 );
-            case 'Bar':
-                return (
-                    <BarChart data={graphData} className="flex-grow">
-                        <XAxis
-                            dataKey={graph.elements[0]?.xAxisKey}
-                            tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
-                        />
-                        <YAxis domain={yAxisDomain} />
-                        {graph.options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
-                        <Tooltip content={<CustomTooltip />} />
-                        <Legend />
-                        {graph.elements.map((element) => (
-                            <Bar key={element.id} dataKey={element.yAxisKey} fill={element.color} />
-                        ))}
-                    </BarChart>
-                );
-            case 'Area':
-                return (
-                    <AreaChart data={graphData} className="flex-grow">
-                        <XAxis
-                            dataKey={graph.elements[0]?.xAxisKey}
-                            tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
-                        />
-                        <YAxis domain={yAxisDomain} />
-                        {graph.options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
-                        <Tooltip content={<CustomTooltip />} />
-                        <Legend />
-                        {graph.elements.map((element) => (
-                            <Area
-                                key={element.id}
-                                type={element.curved ? "monotone" : "linear"}
-                                dataKey={element.yAxisKey}
-                                stroke={element.color}
-                                fill={element.color}
-                            />
-                        ))}
-                    </AreaChart>
-                );
-            case 'Scatter':
-                return (
-                    <ScatterChart className="flex-grow">
-                        <XAxis
-                            dataKey={graph.elements[0]?.xAxisKey}
-                            tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
-                        />
-                        <YAxis domain={yAxisDomain} />
-                        {graph.options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
-                        <Tooltip content={<CustomTooltip />} />
-                        <Legend />
-                        {graph.elements.map((element) => (
-                            <Scatter key={element.id} dataKey={element.yAxisKey} fill={element.color} />
-                        ))}
-                    </ScatterChart>
-                );
-            default:
-                return null;
+          default:
+            return null;
         }
+      };
+
+    // Define the renderCustomizedLabel function
+    const RADIAN = Math.PI / 180;
+    const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+      const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+      const x = cx + radius * Math.cos(-midAngle * RADIAN);
+      const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    
+      return (
+        <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+          {`${(percent * 100).toFixed(0)}%`}
+        </text>
+      );
     };
 
     const CustomTooltip = ({ active, payload, label }) => {

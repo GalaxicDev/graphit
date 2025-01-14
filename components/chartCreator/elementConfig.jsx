@@ -123,7 +123,7 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
                     className={"py-3"}
                 />
             </div>
-            {chartType !== "Bar" && (
+            {chartType !== "Bar" && chartType !== "Pie" && (
                 <>
                     <div className="flex items-center space-x-2">
                         <Switch

@@ -16,7 +16,7 @@ import { CircleAlert } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import {
   LineChart, Line, BarChart, Bar, AreaChart, Area, ScatterChart, Scatter,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis
 } from "recharts"
 import { ChartOptions } from "@/components/chartCreator/chartOptions"
 import { ElementConfig } from "@/components/chartCreator/elementConfig"
@@ -28,6 +28,7 @@ import { MoreHorizontal, Edit, Trash2, Maximize2, Minimize2, Move, Plus } from '
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useRouter } from "next/navigation"
 
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']; // Define the COLORS array
 
 export function ChartCreator({ token, projectData }) {
   const [chartType, setChartType] = useState("Line")
@@ -88,7 +89,6 @@ export function ChartCreator({ token, projectData }) {
           }
         });
         setGraphData(dataResponse.data.data);
-        processData(dataResponse.data.data);
       } catch (error) {
         console.error('Failed to fetch graph data:', error);
       } finally {
@@ -97,17 +97,7 @@ export function ChartCreator({ token, projectData }) {
     };
 
     fetchGraphData();
-  }, [elements, selectedTimeframe, options.dynamicTime, options.xRange, options.yRange]);
-
-  // process the data to fit the y range and set the graph data
-  const processData = (data) => {
-    // fetch the min and max y range and remove all the data that is not in the range
-    const range = options.yRange; // object with min and max properties
-    if (range.min !== "" && range.max !== "") {
-      data = data.filter((item) => item[graph.elements[0].yAxisKey] >= range.min && item[graph.elements[0].yAxisKey] <= range.max);
-      setGraphData(data);
-    }
-  }
+  }, [elements, selectedTimeframe, options.dynamicTime, options.xRange, options.yRange, token]);
 
   // handle the change of the options
   const handleOptionChange = (key, value) => {
@@ -180,41 +170,51 @@ export function ChartCreator({ token, projectData }) {
     }
 
     const yValues = elements.flatMap(element => graphData.map(data => data[element.yAxisKey]));
-    const yMin = Math.min(...yValues);
-    const yMax = Math.max(...yValues);
-    const margin = (yMax - yMin) * 0.1;
-    const adjustedYMin = yMin - margin;
-    const adjustedYMax = yMax + margin;
+  const yMin = options.yRange.min;
+  const yMax = options.yRange.max;
 
-    const yAxisDomain = options.yRange.min !== "" && options.yRange.max !== ""
-        ? [options.yRange.min, options.yRange.max]
-        : [0, "auto"];
+  // we have 4 options, yMin can be defined, yMax can be defined or both can be defined or none
+  // if none are defined we don't need to do anything, the chart will automatically adjust the y axis
+  const yAxisDomain = (yMin !== undefined && yMin !== "" && yMax !== undefined && yMax !== "")
+      ? [yMin, yMax]
+      : (yMin !== undefined && yMin !== "")
+          ? [yMin, "auto"]
+          : (yMax !== undefined && yMax !== "")
+              ? [0, yMax]
+              : [0, "auto"];
 
-    console.log('yAxisDomain', yAxisDomain);
+  console.log('yAxisDomain', yAxisDomain);
 
+  // Filter the graph data based on the yAxisDomain
+  const filteredGraphData = graphData.filter(data => {
+    return elements.every(element => {
+      const value = data[element.yAxisKey];
+      return (yMin === undefined || yMin === "" || value >= yMin) &&
+             (yMax === undefined || yMax === "" || value <= yMax);
+    });
+  });
 
-    switch (chartType) {
-      case 'Line':
-        return (
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={graphData}>
-                <XAxis dataKey={elements[0]?.xAxisKey} />
-                <YAxis domain={yAxisDomain} />
-                <CartesianGrid strokeDasharray="3 3" />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                {elements.map(element => (
-                    <Line
-                        key={element.id}
-                        type={element.curved ? "monotone" : "linear"}
-                        dataKey={element.yAxisKey}
-                        stroke={element.color}
-                        dot={element.showDots}
-                    />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
-        );
+  switch (chartType) {
+    case 'Line':
+      return (
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={filteredGraphData}>
+              <XAxis dataKey={elements[0]?.xAxisKey} />
+              <YAxis domain={yAxisDomain} />
+              { options.showGrid && <CartesianGrid strokeDasharray="3 3" /> }
+              <Tooltip content={<CustomTooltip />} />
+              <Legend />
+              {elements.map(element => (
+                  <Line
+                      key={element.id}
+                      type={element.curved ? "monotone" : "linear"}
+                      dataKey={element.yAxisKey}
+                      stroke={element.color}
+                  />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
+      );
       case 'Bar':
         return (
             <BarChart data={graphData} className="flex-grow">
@@ -269,9 +269,65 @@ export function ChartCreator({ token, projectData }) {
               ))}
             </ScatterChart>
         );
+        case 'Pie':
+          return (
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={filteredGraphData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={renderCustomizedLabel}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey={elements[0]?.yAxisKey}
+                >
+                  {filteredGraphData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          );
+          case 'Radar':
+            return (
+              <ResponsiveContainer width="100%" height={200}>
+                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={filteredGraphData}>
+                  <PolarGrid />
+                  <PolarAngleAxis dataKey={elements[0]?.xAxisKey} />
+                  <PolarRadiusAxis angle={30} domain={yAxisDomain} />
+                  {elements.map(element => (
+                    <Radar
+                      key={element.id}
+                      name={element.name}
+                      dataKey={element.yAxisKey}
+                      stroke={element.color}
+                      fill={element.color}
+                      fillOpacity={0.6}
+                    />
+                  ))}
+                  <Legend />
+                </RadarChart>
+              </ResponsiveContainer>
+            );
       default:
         return null;
     }
+  };
+
+  // Define the renderCustomizedLabel function
+  const RADIAN = Math.PI / 180;
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  
+    return (
+      <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
   };
 
 
