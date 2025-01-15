@@ -6,21 +6,11 @@ import axios from 'axios'
 import { ChartArea } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import ChartCardComponent from './chartCardComponent'
-import { CreateGraphForm } from "@/components/createGraphForm"
 import { useRouter } from "next/navigation"
 
 export function ProjectView({ project }) {
     const [projectName, setProjectName] = useState(project.name)
     const [projectDescription, setProjectDescription] = useState(project.description)
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    const [formData, setFormData] = useState({
-        projectId: project._id,
-        name: "",
-        type: "",
-        collection: "",
-        xField: "",
-        yField: "",
-    })
     const [graphs, setGraphs] = useState([])
     const fetchRef = useRef(false)
 
@@ -46,23 +36,6 @@ export function ProjectView({ project }) {
         fetchGraphs()
     }, [project._id])
 
-    const handleClose = () => {
-        setIsModalOpen(false)
-        setFormData({
-            projectId: project._id,
-            name: "",
-            type: "",
-            collection: "",
-            xField: "",
-            yField: "",
-        })
-        console.log("Form closed")
-    }
-
-    const handleCreateGraph = () => {
-       // handle user redirection to create graph page
-        router.push(`/projects/${project._id}/chartcreator`)
-    }
 
 
     return (
@@ -73,7 +46,7 @@ export function ProjectView({ project }) {
                     <p className="text-gray-500 dark:text-gray-400">{projectDescription}</p>
                 </div>
                 <div className="flex items-center">
-                    <Button className="mr-2" onClick={() => handleCreateGraph()}>
+                    <Button className="mr-2" onClick={() => router.push(`/projects/${project._id}/chartcreator`)}> 
                         <ChartArea className="h-4 w-4 mr-2" /> Add Graph
                     </Button>
                     <Button
@@ -86,17 +59,6 @@ export function ProjectView({ project }) {
             </div>
 
             <ChartCardComponent projectId={project._id}/>
-
-            {isModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-                    <CreateGraphForm
-                        onClose={handleClose}
-                        formData={formData}
-                        setFormData={setFormData}
-                        collections={project.collections}
-                    />
-                </div>
-            )}
         </>
     )
 }

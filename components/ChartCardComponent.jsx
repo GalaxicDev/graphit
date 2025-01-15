@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Responsive, WidthProvider } from 'react-grid-layout'
-import ChartCard from './ChartCard'
+import ChartCard from './chartCard'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import axios from 'axios'
@@ -123,7 +123,6 @@ const ChartCardComponent = ({ projectId }) => {
                     h: layouts.lg?.find(item => item.i === graph._id)?.h || 2,
                 }}>
                     <ChartCard
-                        id={graph._id}
                         graph={graph}
                         onDelete={handleDelete}
                         onEdit={handleEdit}
