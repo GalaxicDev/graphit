@@ -1,5 +1,4 @@
-// TODO: implement y ranges again
-
+// TODO: every time we change an option to the element it resubmits a API request and fetches all the data. if we select 30D range then this is a LOT! how can we optimise the data fetching so we don't overload the api, be more efficient while still being responsive and serving the right data.
 "use client"
 
 import {useState, useEffect} from "react"
@@ -82,6 +81,16 @@ export function ChartCreator({ token, projectData }) {
           params.to = toDate.toISOString();
         }
 
+        elements.forEach(el => {
+          if (el.conditionalParams.length > 0) {
+            el.conditionalParams.forEach((param, index) => {
+              params[`conditionalParams[${index}][field]`] = param.field;
+              params[`conditionalParams[${index}][operator]`] = param.operator;
+              params[`conditionalParams[${index}][value]`] = param.value;
+            });
+          }
+        });
+
         const dataResponse = await axios.get(`${process.env.API_URL}/mqtt/data`, {
           params,
           headers: {
@@ -123,7 +132,8 @@ export function ChartCreator({ token, projectData }) {
       curved: false,
       dotted: false,
       showDots: true,
-      dotSize: 5
+      dotSize: 5,
+      conditionalParams: [],
     }])
   }
 
@@ -138,7 +148,6 @@ export function ChartCreator({ token, projectData }) {
       chartType,
       options,
       elements,
-      conditionalParams: {}
     }
 
     // validate if every element has a collection, xAxisKey and yAxisKey. If they are missing return
@@ -183,7 +192,6 @@ export function ChartCreator({ token, projectData }) {
               ? [0, yMax]
               : [0, "auto"];
 
-  console.log('yAxisDomain', yAxisDomain);
 
   // Filter the graph data based on the yAxisDomain
   const filteredGraphData = graphData.filter(data => {
