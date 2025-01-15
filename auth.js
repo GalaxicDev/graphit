@@ -44,6 +44,9 @@ router.post('/signup', async (req, res, next) => {
 router.post('/login', async (req, res, next) => {
     const { email, password } = req.body;
 
+    console.log('Login Route');
+    console.log(email, password);
+
     try {
         const db = await getDB('data');
         const User = createUserModel(db);
@@ -55,6 +58,7 @@ router.post('/login', async (req, res, next) => {
         if (!isMatch) return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
         const token = generateToken(user._id);
+        console.log('Token:', token);
         res.json({ success: true, message: 'Login successful', token });
     } catch (error) {
         next(error); // Pass the error to centralized error handler

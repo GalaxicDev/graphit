@@ -26,8 +26,8 @@ app.use(cors({
 
 // Rate limiting to prevent brute-force attacks
 const limiter = rateLimit({
-    windowMs: 3 * 60 * 1000, // 3 minutes
-    max: 100, // 100 requests per IP
+    windowMs: 1 * 60 * 1000, // 3 minutes
+    max: 300, // 100 requests per IP
 });
 app.use(limiter);
 
