@@ -37,6 +37,10 @@ router.use(extractUserId);
 
 router.get('/data', async (req, res) => {
     const { collections, fields, timeframe, from, to } = req.query;
+    const conditionalParams = req.query.conditionalParams;
+
+    console.log("starting to fetch data", req.query);
+
     if (!collections || !fields) {
         return res.status(400).json({ success: false, message: 'Collections and fields parameters are required' });
     }
@@ -44,7 +48,10 @@ router.get('/data', async (req, res) => {
     try {
         const db = await getDB('mqtt');
         const collectionList = collections.split(',');
-        const fieldList = fields.split(',');
+        const fieldList = fields.split(',').map(f => f.trim()).filter(f => f);
+        if (fieldList.length === 0) {
+            return res.status(400).json({success: false, message: 'No valid fields provided'});
+        }
 
         let data = [];
 
@@ -52,61 +59,98 @@ router.get('/data', async (req, res) => {
             let query = {};
             let projection = fieldList.reduce((acc, field) => ({ ...acc, [field]: 1 }), {});
 
+            // Handle timeframe filtering
             if (timeframe) {
                 const lastEntry = await db.collection(collection).findOne({}, { sort: { createdAt: -1 } });
                 if (!lastEntry) continue;
-                const endDate = new Date(lastEntry.createdAt);
 
+                const endDate = new Date(lastEntry.createdAt);
                 let startDate;
+
                 switch (timeframe) {
-                    case '1D':
-                        startDate = subDays(endDate, 1);
-                        break;
-                    case '7D':
-                        startDate = subDays(endDate, 7);
-                        break;
-                    case '30D':
-                        startDate = subDays(endDate, 30);
-                        break;
-                    case '6M':
-                        startDate = subMonths(endDate, 6);
-                        break;
-                    case '1Y':
-                        startDate = subYears(endDate, 1);
-                        break;
-                    case 'Max':
-                        startDate = new Date(0);
-                        break;
-                    default:
-                        startDate = new Date();
+                    case '1D': startDate = subDays(endDate, 1); break;
+                    case '7D': startDate = subDays(endDate, 7); break;
+                    case '30D': startDate = subDays(endDate, 30); break;
+                    case '6M': startDate = subMonths(endDate, 6); break;
+                    case '1Y': startDate = subYears(endDate, 1); break;
+                    case 'Max': startDate = new Date(0); break;
+                    default: startDate = new Date();
                 }
 
-                query = {
-                    createdAt: {
-                        $gte: startDate,
-                        $lte: endDate
-                    }
-                };
+                query.createdAt = { $gte: startDate, $lte: endDate };
             } else if (from && to) {
-                query = {
-                    createdAt: {
-                        $gte: new Date(from),
-                        $lte: new Date(to)
-                    }
-                };
-            } else {
-                return res.status(400).json({ success: false, message: 'Invalid query parameters' });
+                query.createdAt = { $gte: new Date(from), $lte: new Date(to) };
             }
+
+            // Ensure conditionalParams is an array and iterate over it
+            if (Array.isArray(conditionalParams)) {
+                for (const param of conditionalParams) {
+                    const { field, operator, value } = param;
+
+                    if (!field || !operator || value === undefined) {
+                        return res.status(400).json({
+                            success: false,
+                            message: 'Each conditionalParam must include a field, operator, and value',
+                        });
+                    }
+
+                    if (!query[field]) query[field] = {};
+
+                    // Refined type detection
+                    let parsedValue;
+                    if (typeof value === 'string') {
+                        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z?$/.test(value)) {
+                            parsedValue = new Date(value); // ISO-8601 date
+                        } else if (!isNaN(value)) {
+                            parsedValue = parseFloat(value); // Numeric string
+                        } else {
+                            parsedValue = value; // Default string
+                        }
+                    } else {
+                        parsedValue = value; // Preserve original type
+                    }
+
+                    switch (operator) {
+                        case 'equals':
+                            query[field] = parsedValue;
+                            break;
+                        case 'not equals':
+                            query[field] = { $ne: parsedValue };
+                            break;
+                        case 'greater than':
+                            query[field] = { $gt: parsedValue };
+                            break;
+                        case 'less than':
+                            query[field] = { $lt: parsedValue };
+                            break;
+                        case 'greater than or equal to':
+                            query[field] = { $gte: parsedValue };
+                            break;
+                        case 'less than or equal to':
+                            query[field] = { $lte: parsedValue };
+                            break;
+                        default:
+                            return res.status(400).json({
+                                success: false,
+                                message: `Unsupported operator: ${operator}`,
+                            });
+                    }
+                }
+            }
+
+            console.log("query", query);
 
             const collectionData = await db.collection(collection).find(query, { projection }).toArray();
             data = data.concat(collectionData);
         }
 
-        res.json({ success: true, data: data });
+        res.json({ success: true, data });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
     }
 });
+
 
 router.get('/availableKeys', async (req, res) => {
     const { collection } = req.query;
