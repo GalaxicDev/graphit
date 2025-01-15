@@ -67,36 +67,36 @@ const ChartCardComponent = ({ projectId }) => {
         }
 
         fetchGraphs()
-    }, [projectId])
+    }, [projectId]);
 
     // Save layout to localStorage whenever it changes
     useEffect(() => {
         if (layoutsInitialized.current) {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(layouts))
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(layouts));
         }
-    }, [layouts])
+    }, [layouts]);
 
     // Update layout state on drag or resize stop
     const onDragStop = useCallback((layout, allLayouts) => {
-        setLayouts(allLayouts)
-    }, [])
+        setLayouts(allLayouts);
+    }, []);
 
     const onResizeStop = useCallback((layout, allLayouts) => {
-        setLayouts(allLayouts)
-    }, [])
+        setLayouts(allLayouts);
+    }, []);
 
     const handleDelete = (id) => {
-        const updatedLayouts = { ...layouts }
+        const updatedLayouts = { ...layouts };
         for (const breakpoint in updatedLayouts) {
-            updatedLayouts[breakpoint] = updatedLayouts[breakpoint].filter(item => item.i !== id)
+            updatedLayouts[breakpoint] = updatedLayouts[breakpoint].filter(item => item.i !== id);
         }
-        setLayouts(updatedLayouts)
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedLayouts))
-    }
+        setLayouts(updatedLayouts);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedLayouts));
+    };
 
     const handleEdit = (id) => {
-        console.log(`Edit item ${id}`)
-    }
+        console.log(`Edit item ${id}`);
+    };
 
 
     return (
@@ -130,7 +130,7 @@ const ChartCardComponent = ({ projectId }) => {
                 </div>
             ))}
         </ResponsiveGridLayout>
-    )
+    );
 }
 
-export default ChartCardComponent
+export default ChartCardComponent;
