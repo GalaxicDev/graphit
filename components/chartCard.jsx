@@ -175,14 +175,14 @@ const ChartCard = ({ id, graph, onDelete, onEdit }) => {
             return (
                 <ScatterChart className="flex-grow">
                   <XAxis
-                      dataKey={elements[0]?.xAxisKey}
+                      dataKey={graph.elements[0]?.xAxisKey}
                       tickFormatter={(tick) => format(new Date(tick), 'dd/MM HH:mm')}
                   />
                   <YAxis domain={yAxisDomain} />
-                  {options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
+                  {graph.options.showGrid && <CartesianGrid strokeDasharray="3 3" />}
                   <Tooltip content={<CustomTooltip />} />
                   <Legend />
-                  {elements.map((element) => (
+                  {graph.elements.map((element) => (
                       <Scatter key={element.id} dataKey={element.yAxisKey} fill={element.color} />
                   ))}
                 </ScatterChart>
@@ -271,7 +271,7 @@ const ChartCard = ({ id, graph, onDelete, onEdit }) => {
         <>
             <Card className="shadow-lg h-full flex flex-col resizable-indicator">
                 <CardHeader
-                    className="flex flex-row items-center justify-between space-y-0 py-2"
+                    className="flex flex-row items-center justify-between space-y-0 py-2 rounded-t-md"
                     style={{ backgroundColor: graph?.options?.cardColor }}
                 >
                     <h3 className="font-semibold text-white">{graph?.options?.title}</h3>

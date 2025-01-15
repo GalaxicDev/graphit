@@ -4,8 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="removed unnecessary import">
+    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="fixed chartCard.jsx and chartCreator.jsx with new innovative way of displaying data">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/page.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/chartCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/chartCreator.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCreator.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/chartCreator/elementConfig.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCreator/elementConfig.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/dashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/dashboard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/projectSelection.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/projectSelection.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,6 +144,8 @@
       <workItem from="1736754460560" duration="43000" />
       <workItem from="1736772635902" duration="16000" />
       <workItem from="1736772740180" duration="10000" />
+      <workItem from="1736844116384" duration="1711000" />
+      <workItem from="1736929897999" duration="4784000" />
     </task>
     <task id="LOCAL-00001" summary="added the default files">
       <option name="closed" value="true" />
@@ -315,7 +323,15 @@
       <option name="project" value="LOCAL" />
       <updated>1736516102753</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="fixed chartCard.jsx and chartCreator.jsx with new innovative way of displaying data">
+      <option name="closed" value="true" />
+      <created>1736844407467</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1736844407467</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -364,6 +380,7 @@
     <MESSAGE value="fixed type error" />
     <MESSAGE value="changed create graph button" />
     <MESSAGE value="removed unnecessary import" />
-    <option name="LAST_COMMIT_MESSAGE" value="removed unnecessary import" />
+    <MESSAGE value="fixed chartCard.jsx and chartCreator.jsx with new innovative way of displaying data" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed chartCard.jsx and chartCreator.jsx with new innovative way of displaying data" />
   </component>
 </project>
