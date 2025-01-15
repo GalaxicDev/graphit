@@ -23,7 +23,7 @@ import { PacmanLoader } from 'react-spinners'
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']; // Define the COLORS array
 
-const ChartCard = ({ id, graph, onDelete, onEdit }) => {
+const ChartCard = ({ graph, onDelete, onEdit }) => {
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [graphData, setGraphData] = useState([]);
     const [selectedTimeframe, setSelectedTimeframe] = useState('1D');
@@ -80,7 +80,7 @@ const ChartCard = ({ id, graph, onDelete, onEdit }) => {
 
         fetchGraphData();
 
-    }, [id, graph, selectedTimeframe]);
+    }, [graph, selectedTimeframe]);
 
 
     // render the chart based on the chart type
@@ -314,11 +314,11 @@ const ChartCard = ({ id, graph, onDelete, onEdit }) => {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => onEdit(id)}>
+                                <DropdownMenuItem onClick={() => onEdit(graph._id)}>
                                     <Edit className="mr-2 h-4 w-4" />
                                     Edit
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => onDelete(id)}>
+                                <DropdownMenuItem onClick={() => onDelete(graph._id)}>
                                     <Trash2 className="mr-2 h-4 w-4" />
                                     Delete
                                 </DropdownMenuItem>
