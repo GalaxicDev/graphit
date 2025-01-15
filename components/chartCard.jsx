@@ -40,7 +40,7 @@ const ChartCard = ({ graph, onDelete, onEdit }) => {
             try {
                 setIsLoading(true);
                 let params = {
-                    collections: graph.elements.map(el => el.collection).join(','),
+                    collections: graph.elements.map(el => el.collection).join(','), // el staat voor element, dit is geen spaans
                     fields: graph.elements.map(el => `${el.xAxisKey},${el.yAxisKey}`).join(',')
                 };
 
