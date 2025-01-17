@@ -4,8 +4,10 @@ import { getDB } from './connectDB.js';
 import mongoose from 'mongoose';
 import {verifyToken} from "./utils/jwt.js";
 import { subDays, subMonths, subYears } from 'date-fns';
+import NodeCache from 'node-cache';
 
 const router = express.Router();
+const cache = new NodeCache({ stdTTL: 60 * 60 }); // 1 hour cache
 
 // Helper function for handling validation errors
 const handleValidationErrors = (req, res, next) => {
@@ -43,6 +45,14 @@ router.get('/data', async (req, res) => {
 
     if (!collections || !fields) {
         return res.status(400).json({ success: false, message: 'Collections and fields parameters are required' });
+    }
+
+    const cacheKey = JSON.stringify(req.query);
+    const cachedData = cache.get(cacheKey);
+
+    if (cachedData) {
+        console.log("returning cached data");
+        return res.json({ success: true, data: cachedData });
     }
 
     try {
@@ -143,6 +153,8 @@ router.get('/data', async (req, res) => {
             const collectionData = await db.collection(collection).find(query, { projection }).toArray();
             data = data.concat(collectionData);
         }
+
+        cache.set(cacheKey, data); // Cache the data for future requests
 
         res.json({ success: true, data });
     } catch (error) {
