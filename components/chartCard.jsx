@@ -75,6 +75,19 @@ const ChartCard = ({ graph, onDelete, onEdit }) => {
                     params.to = toDate.toISOString();
                 }
 
+                // add conditionalParams to the params object
+                graph.elements.forEach(element => {
+                    if (Array.isArray(element.conditionalParams)) {
+                        element.conditionalParams.forEach((param, index) => {
+                            params[`conditionalParams[${index}][field]`] = param.field;
+                            params[`conditionalParams[${index}][operator]`] = param.operator;
+                            params[`conditionalParams[${index}][value]`] = param.value;
+                        });
+                    } else {
+                        console.log("no conditional params");
+                    }
+                })
+
                 const dataResponse = await axios.get(`${process.env.API_URL}/mqtt/data`, {
                     params,
                     headers: {
@@ -282,7 +295,7 @@ const ChartCard = ({ graph, onDelete, onEdit }) => {
         <>
             <Card className="shadow-lg h-full flex flex-col resizable-indicator">
                 <CardHeader
-                    className="flex flex-row items-center justify-between space-y-0 py-2 rounded-t-md"
+                    className="flex flex-row items-center justify-between space-y-0 py-2 rounded-t-lg"
                     style={{ backgroundColor: graph?.options?.cardColor }}
                 >
                     <h3 className="font-semibold text-white">{graph?.options?.title}</h3>
