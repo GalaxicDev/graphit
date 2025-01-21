@@ -17,6 +17,7 @@ export function Sidebar({ sidebarOpen, toggleSidebar }) {
 
     return (
         <aside
+            id="sidebar"
             className={`${sidebarOpen ? 'translate-x-0' : 'transition-transform duration-500 ease-in-out -translate-x-full'} fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg`}>
             <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
                 <Image

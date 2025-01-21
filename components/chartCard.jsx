@@ -30,7 +30,18 @@ const ChartCard = ({ graph, onDelete, onEdit }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleToggleFullScreen = () => {
+        const currentUrl = new URL(window.location.href);
+        const graphIdPath = `/${graph._id}`;
+
+        if (currentUrl.pathname.endsWith(graphIdPath)) {
+            currentUrl.pathname = currentUrl.pathname.replace(graphIdPath, '');
+        } else {
+            currentUrl.pathname += graphIdPath;
+        }
+
+        window.history.pushState({}, '', currentUrl);
         setIsFullScreen(!isFullScreen);
+        window.location.reload();
     };
 
     useEffect(() => {
@@ -234,8 +245,8 @@ const ChartCard = ({ graph, onDelete, onEdit }) => {
         }
       };
 
-    // Define the renderCustomizedLabel function
-    const RADIAN = Math.PI / 180;
+    
+    const RADIAN = Math.PI / 180; // Is for important pie graph
     const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
       const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
       const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -276,32 +287,13 @@ const ChartCard = ({ graph, onDelete, onEdit }) => {
                 >
                     <h3 className="font-semibold text-white">{graph?.options?.title}</h3>
                     <div className="flex items-center space-x-2 justify-center mx-5 my-5">
-                        <Dialog open={isFullScreen} onOpenChange={handleToggleFullScreen}>
-                            <DialogTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                    {isFullScreen ? (
-                                        <Minimize2 className="h-4 w-4 text-white" />
-                                    ) : (
-                                        <Maximize2 className="h-4 w-4 text-white" />
-                                    )}
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="fixed inset-0 flex items-center justify-center p-4 bg-white dark:bg-gray-800">
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={handleToggleFullScreen}
-                                    className="absolute top-4 right-4"
-                                >
-                                    <Minimize2 className="h-6 w-6 text-gray-800 dark:text-white" />
-                                </Button>
-                                <div className="w-full h-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        {renderChart()}
-                                    </ResponsiveContainer>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleToggleFullScreen}
+                        >
+                            <Maximize2 className="h-4 w-4 text-white"/>
+                        </Button>
 
                         <Button variant="ghost" size="icon" className="drag-handle">
                             <Move className="h-4 w-4 text-white" />

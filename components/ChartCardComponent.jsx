@@ -7,14 +7,15 @@ import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import axios from 'axios'
 
+// Create a Responsive Grid Layout component
 const ResponsiveGridLayout = WidthProvider(Responsive)
 const LOCAL_STORAGE_KEY = 'dashboard-layouts'
 
 const ChartCardComponent = ({ projectId }) => {
     const [layouts, setLayouts] = useState({ lg: [], xs: [] })
     const [graphs, setGraphs] = useState([])
-    const layoutsInitialized = useRef(false) // Prevents double initialization in Next.js
-    const fetchRef = useRef(false)
+    const layoutsInitialized = useRef(false)    // Prevents double initialization in Next.js
+    const fetchRef = useRef(false)              // Prevents multiple fetches
 
     useEffect(() => {
         // Load layout from localStorage if it exists and is not initialized
@@ -32,6 +33,7 @@ const ChartCardComponent = ({ projectId }) => {
             fetchRef.current = true;
 
             try {
+                // Fetch graphs from the API
                 const res = await axios.get(process.env.API_URL + `/graphs/project/${projectId}`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
