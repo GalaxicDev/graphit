@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/sidebar';
 import { Navbar } from '@/components/navbar';
+import axios from "axios";
+import Cookies from 'js-cookie';
 
 export default function RootLayout({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);

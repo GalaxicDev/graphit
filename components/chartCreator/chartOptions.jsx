@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils"
 import TimePicker from 'react-time-picker'
 import 'react-time-picker/dist/TimePicker.css'
 
-const chartTypes = ["Line", "Bar", "Area", "Scatter", "Pie", "Radar"]
+const chartTypes = ["Line", "Bar", "Area", "Scatter", "Pie", "Radar", "Info"];
 
 export function ChartOptions({ chartType, setChartType, options, handleOptionChange, elements }) {
     return (
@@ -69,34 +69,40 @@ export function ChartOptions({ chartType, setChartType, options, handleOptionCha
                     className={"dark:bg-gray-700"}
                 />
             </div>
-            <div className="flex items-center space-x-2">
-                <Switch
-                    id="showGrid"
-                    checked={options.showGrid}
-                    onCheckedChange={(checked) => handleOptionChange("showGrid", checked)}
-                />
-                <Label htmlFor="showGrid">Show Grid</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-                <Switch
-                    id="dynamicTime"
-                    checked={options.dynamicTime}
-                    onCheckedChange={(checked) => handleOptionChange("dynamicTime", checked)}
-                />
-                <Label htmlFor="dynamicTime">Dynamic Time</Label>
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
+            {chartType !== "Info" && (
+                <>
+                    <div className="flex items-center space-x-2">
+                        <Switch
+                            id="showGrid"
+                            checked={options.showGrid}
+                            onCheckedChange={(checked) => handleOptionChange("showGrid", checked)}
+                        />
+                        <Label htmlFor="showGrid">Show Grid</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Switch
+                            id="dynamicTime"
+                            checked={options.dynamicTime}
+                            onCheckedChange={(checked) => handleOptionChange("dynamicTime", checked)}
+                        />
+                        <Label htmlFor="dynamicTime">Dynamic Time</Label>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
                             <span className="cursor-pointer">
                                 <Info className="h-4 w-4 text-gray-500 dark:text-gray-400"/>
                             </span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>Enable dynamic time to show a timepicker (1D, 7D, ...) to choose the range of data you want to display.</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Enable dynamic time to show a timepicker (1D, 7D, ...) to choose the range of
+                                        data
+                                        you want to display.</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
+                </>
+            )}
             {chartType === "Bar" && (
                 <div className="flex items-center space-x-2">
                     <Switch
@@ -119,7 +125,7 @@ export function ChartOptions({ chartType, setChartType, options, handleOptionCha
                                         !options.xRange && "text-muted-foreground"
                                     )}
                                 >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    <CalendarIcon className="mr-2 h-4 w-4"/>
                                     {options.xRange?.from ? (
                                         options.xRange.to ? (
                                             <>
@@ -180,24 +186,28 @@ export function ChartOptions({ chartType, setChartType, options, handleOptionCha
                     </div>
                 </div>
             )}
-            <div>
-                <Label>Y-Axis Range</Label>
-                <div className="flex items-center space-x-2">
-                    <Input
-                        type="number"
-                        value={options.yRange.min}
-                        onChange={(e) => handleOptionChange("yRange", {...options.yRange, min: e.target.value})}
-                        placeholder="Min"
-                        className="w-20 dark:bg-gray-700"/>
-                    <span>to</span>
-                    <Input
-                        type="number"
-                        value={options.yRange.max}
-                        onChange={(e) => handleOptionChange("yRange", {...options.yRange, max: e.target.value})}
-                        placeholder="Max"
-                        className="w-20 dark:bg-gray-700"/>
+            {chartType !== "Info" && (
+                <>
+                <div>
+                    <Label>Y-Axis Range</Label>
+                    <div className="flex items-center space-x-2">
+                        <Input
+                            type="number"
+                            value={options.yRange.min}
+                            onChange={(e) => handleOptionChange("yRange", {...options.yRange, min: e.target.value})}
+                            placeholder="Min"
+                            className="w-20 dark:bg-gray-700"/>
+                        <span>to</span>
+                        <Input
+                            type="number"
+                            value={options.yRange.max}
+                            onChange={(e) => handleOptionChange("yRange", {...options.yRange, max: e.target.value})}
+                            placeholder="Max"
+                            className="w-20 dark:bg-gray-700"/>
+                    </div>
                 </div>
-            </div>
+                </>
+                )}
         </div>
     );
 }

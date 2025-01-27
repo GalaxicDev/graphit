@@ -4,14 +4,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="fixed chartCard.jsx and chartCreator.jsx with new innovative way of displaying data">
+    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="added edit graph function (loading chartcreator with graph options to let the user edit it)&#10;TODO: actually save the edditted data and not creating a new graph.&#10;Made the dashboard and projectselection server sided.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/layout.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/layout.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(root)/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/page.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/projects/[project]/chartcreator/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/projects/[project]/chartcreator/page.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/projects/[project]/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/projects/[project]/page.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ChartCardComponent.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ChartCardComponent.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/chartCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCard.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/chartCreator.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCreator.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/chartCreator/chartOptions.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCreator/chartOptions.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/chartCreator/conditionalParams.jsx" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/components/chartCreator/elementConfig.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCreator/elementConfig.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/dashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/dashboard.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/projectSelection.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/projectSelection.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/lib/api.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/sidebarUtils.js" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sidebarUtils.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -145,7 +153,12 @@
       <workItem from="1736772635902" duration="16000" />
       <workItem from="1736772740180" duration="10000" />
       <workItem from="1736844116384" duration="1711000" />
-      <workItem from="1736929897999" duration="4784000" />
+      <workItem from="1736929897999" duration="6671000" />
+      <workItem from="1737099884304" duration="1831000" />
+      <workItem from="1737117768628" duration="3293000" />
+      <workItem from="1737358577843" duration="5044000" />
+      <workItem from="1737445463061" duration="4888000" />
+      <workItem from="1737721348841" duration="4436000" />
     </task>
     <task id="LOCAL-00001" summary="added the default files">
       <option name="closed" value="true" />
@@ -331,7 +344,23 @@
       <option name="project" value="LOCAL" />
       <updated>1736844407467</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="implemented conditionalParams into the chartCreator">
+      <option name="closed" value="true" />
+      <created>1736937035006</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1736937035006</updated>
+    </task>
+    <task id="LOCAL-00025" summary="fixed adding conditionalParams in chartCard">
+      <option name="closed" value="true" />
+      <created>1736937851751</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1736937851751</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -381,6 +410,9 @@
     <MESSAGE value="changed create graph button" />
     <MESSAGE value="removed unnecessary import" />
     <MESSAGE value="fixed chartCard.jsx and chartCreator.jsx with new innovative way of displaying data" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed chartCard.jsx and chartCreator.jsx with new innovative way of displaying data" />
+    <MESSAGE value="implemented conditionalParams into the chartCreator" />
+    <MESSAGE value="fixed adding conditionalParams in chartCard" />
+    <MESSAGE value="added edit graph function (loading chartcreator with graph options to let the user edit it)&#10;TODO: actually save the edditted data and not creating a new graph.&#10;Made the dashboard and projectselection server sided." />
+    <option name="LAST_COMMIT_MESSAGE" value="added edit graph function (loading chartcreator with graph options to let the user edit it)&#10;TODO: actually save the edditted data and not creating a new graph.&#10;Made the dashboard and projectselection server sided." />
   </component>
 </project>

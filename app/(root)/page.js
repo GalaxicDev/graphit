@@ -1,4 +1,4 @@
-import { DashboardComponent } from "@/components/dashboard";
+import DashboardComponent from "@/components/dashboard";
 import { cookies } from 'next/headers';
 
 export default async function Home() {
@@ -18,6 +18,8 @@ export default async function Home() {
     } catch (error) {
         console.error('Failed to fetch projects:', error);
     }
+
+    console.log('Projects:', projects);
 
     return (
         <DashboardComponent initialProjects={projects}/>

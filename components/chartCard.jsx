@@ -20,6 +20,7 @@ import { LineChart, BarChart, PieChart, ScatterChart, AreaChart, RadarChart, Lin
 import axios from 'axios';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PacmanLoader } from 'react-spinners'
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']; // Define the COLORS array
 
@@ -40,9 +41,15 @@ const ChartCard = ({ graph, onDelete, onEdit }) => {
             try {
                 setIsLoading(true);
                 let params = {
-                    collections: graph.elements.map(el => el.collection).join(','), // el staat voor element, dit is geen spaans
-                    fields: graph.elements.map(el => `${el.xAxisKey},${el.yAxisKey}`).join(',')
+                    collections: graph.elements.map(el => el.collection).join(','),
                 };
+
+                if (graph.chartType === "Info") {
+                    params.fields = graph.elements.map(el => el.dataKey).join(',');
+                    params.fetchMethods = graph.elements.map(el => el.fetchMethod).join(',');
+                } else {
+                    params.fields = graph.elements.map(el => `${el.xAxisKey},${el.yAxisKey}`).join(',');
+                }
 
                 if (graph.options.dynamicTime) {
                     params.timeframe = selectedTimeframe;
@@ -83,6 +90,7 @@ const ChartCard = ({ graph, onDelete, onEdit }) => {
                         "Authorization": `Bearer ${localStorage.getItem("token")}`
                     }
                 });
+
                 setGraphData(dataResponse.data.data);
             } catch (error) {
                 console.error('Failed to fetch graph data:', error);
@@ -95,12 +103,48 @@ const ChartCard = ({ graph, onDelete, onEdit }) => {
 
     }, [graph, selectedTimeframe]);
 
+    // function to render text-based information ("Info" chartType)
+    const renderInfo = () => {
+        if (!graph.elements?.length) {
+            return <p>No data available for rendering the information.</p>;
+        }
+
+        return (
+            <ScrollArea className="h-64"> {/* Adjust the height as needed */}
+                <div className="space-y-4">
+                    {graph.elements.map((element) => {
+                        const dataValue = graphData[0]?.[element.dataKey]; // Assuming graphData contains the fetched data
+                        return (
+                            <div key={element.id}>
+                                <h3 className="text-lg font-semibold text-black dark:text-white p-1">
+                                    {element.name}: {dataValue !== undefined ? dataValue : 'N/A'}
+                                </h3>
+                            </div>
+                        );
+                    })}
+                </div>
+            </ScrollArea>
+        );
+    };
+
 
     // render the chart based on the chart type
       const renderChart = () => {
         if (!graph.chartType || !graph.elements?.length || !graphData?.length) {
           return <p>No data available for rendering the chart.</p>;
         }
+
+        if (graph.chartType === "Info") {
+            return renderInfo();
+        }
+
+          // Add a check to ensure chartType is valid
+          if (!["Line", "Bar", "Area", "Scatter", "Pie", "Radar", "Info"].includes(graph.chartType)) {
+              return <p>Invalid chart type.</p>;
+          }
+
+          console.log("Rendering chart", graph.chartType);
+          console.log("Graph data", graphData);
     
         const yValues = graph.elements.flatMap(element => graphData.map(data => data[element.yAxisKey]));
       const yMin = graph.options.yRange.min;
@@ -351,10 +395,10 @@ const ChartCard = ({ graph, onDelete, onEdit }) => {
                         <TabsContent value={selectedTimeframe}>
                             {isLoading ? (
                                 <div className="flex items-center justify-center h-full pt-2">
-                                    <PacmanLoader color={graph?.options?.cardColor} />
+                                    <PacmanLoader color={graph.options.cardColor}/>
                                 </div>
                             ) : (
-                                <ResponsiveContainer width="100%" height={200}>
+                                <ResponsiveContainer width="100%" height={190}>
                                     {renderChart()}
                                 </ResponsiveContainer>
                             )}

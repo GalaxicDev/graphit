@@ -1,4 +1,3 @@
-// TODO: every time we change an option to the element it resubmits a API request and fetches all the data. if we select 30D range then this is a LOT! how can we optimise the data fetching so we don't overload the api, be more efficient while still being responsive and serving the right data.
 "use client"
 
 import {useState, useEffect} from "react"
@@ -29,8 +28,8 @@ import { useRouter } from "next/navigation"
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']; // Define the COLORS array
 
-export function ChartCreator({ token, projectData }) {
-  const [chartType, setChartType] = useState("Line")
+export function ChartCreator({ token, projectData, chartData }) {
+  const [chartType, setChartType] = useState("Line");
   const [options, setOptions] = useState({
     title: "Chart Title",
     cardColor: "#4C51BF",
@@ -39,64 +38,116 @@ export function ChartCreator({ token, projectData }) {
     stacked: false,
     yRange: { min: "", max: "" },
     xRange: { from: new Date(), to: new Date() },
-  })
-  const [elements, setElements] = useState([])
-  const [graphData, setGraphData] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [selectedTimeframe, setSelectedTimeframe] = useState('1D')
-  const [isFullScreen, setIsFullScreen] = useState(false)
-  const [error, setError] = useState(false) // boolean to see if error message should be displayed, used for validation
+  });
+  const [elements, setElements] = useState([]);
+  const [graphData, setGraphData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedTimeframe, setSelectedTimeframe] = useState('1D');
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [error, setError] = useState(false); // boolean to see if error message should be displayed, used for validation
 
   const router = useRouter()
 
   // fetch the data for the graph preview, runs everytime the elements or options change
+  useEffect(() => {
+    // Sync state with chartData when chartData is provided or updated
+    if (chartData) {
+      setChartType(chartData.chartType || "Line");
+      setOptions(chartData.options || {
+        title: "Chart Title",
+        cardColor: "#4C51BF",
+        showGrid: true,
+        dynamicTime: true,
+        stacked: false,
+        yRange: { min: "", max: "" },
+        xRange: { from: new Date(), to: new Date() },
+      });
+      setElements(chartData.elements || []);
+
+      // Fetch initial graph data
+      const fetchInitialGraphData = async () => {
+        if (!chartData.elements || chartData.elements.length === 0) return;
+
+        try {
+          setIsLoading(true);
+          const params = {
+            collections: chartData.elements.map(el => el.collection).join(','),
+            ...(chartData.chartType === "Info"
+                ? {
+                  fields: chartData.elements.map(el => el.dataKey).join(','),
+                  fetchMethods: chartData.elements.map(el => el.fetchMethod).join(','),
+                }
+                : {
+                  fields: chartData.elements.map(el => `${el.xAxisKey},${el.yAxisKey}`).join(','),
+                }),
+          };
+
+          if (chartData.options?.dynamicTime) {
+            params.timeframe = selectedTimeframe;
+          } else {
+            params.from = new Date(chartData.options?.xRange?.from).toISOString();
+            params.to = new Date(chartData.options?.xRange?.to).toISOString();
+          }
+
+          chartData.elements.forEach((el, index) => {
+            el.conditionalParams?.forEach((param) => {
+              params[`conditionalParams[${index}][field]`] = param.field;
+              params[`conditionalParams[${index}][operator]`] = param.operator;
+              params[`conditionalParams[${index}][value]`] = param.value;
+            });
+          });
+
+          const response = await axios.get(`${process.env.API_URL}/mqtt/data`, {
+            params,
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          setGraphData(response.data.data);
+        } catch (error) {
+          console.error('Failed to fetch initial graph data:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchInitialGraphData();
+    }
+  }, [chartData, token, selectedTimeframe]);
+
+
   useEffect(() => {
     const fetchGraphData = async () => {
       if (elements.length === 0) return;
 
       try {
         setIsLoading(true);
-        let params = {
+        const params = {
           collections: elements.map(el => el.collection).join(','),
-          fields: elements.map(el => `${el.xAxisKey},${el.yAxisKey}`).join(',')
+          ...(chartType === "Info"
+              ? { fields: elements.map(el => el.dataKey).join(','), fetchMethods: elements.map(el => el.fetchMethod).join(',') }
+              : { fields: elements.map(el => `${el.xAxisKey},${el.yAxisKey}`).join(',') }),
         };
 
         if (options.dynamicTime) {
           params.timeframe = selectedTimeframe;
         } else {
-          const fromDate = new Date(options.xRange.from);
-          const toDate = new Date(options.xRange.to);
-
-          if (options.xRange.fromTime) {
-            const [fromHours, fromMinutes] = options.xRange.fromTime.split(':');
-            fromDate.setHours(parseInt(fromHours, 10), parseInt(fromMinutes, 10));
-          }
-
-          if (options.xRange.toTime) {
-            const [toHours, toMinutes] = options.xRange.toTime.split(':');
-            toDate.setHours(parseInt(toHours, 10), parseInt(toMinutes, 10));
-          }
-
-          params.from = fromDate.toISOString();
-          params.to = toDate.toISOString();
+          params.from = new Date(options.xRange.from).toISOString();
+          params.to = new Date(options.xRange.to).toISOString();
         }
 
-        elements.forEach(el => {
-          if (el.conditionalParams.length > 0) {
-            el.conditionalParams.forEach((param, index) => {
-              params[`conditionalParams[${index}][field]`] = param.field;
-              params[`conditionalParams[${index}][operator]`] = param.operator;
-              params[`conditionalParams[${index}][value]`] = param.value;
-            });
-          }
+        elements.forEach((el, index) => {
+          el.conditionalParams.forEach((param) => {
+            params[`conditionalParams[${index}][field]`] = param.field;
+            params[`conditionalParams[${index}][operator]`] = param.operator;
+            params[`conditionalParams[${index}][value]`] = param.value;
+          });
         });
 
         const dataResponse = await axios.get(`${process.env.API_URL}/mqtt/data`, {
           params,
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          headers: { Authorization: `Bearer ${token}` },
         });
+
         setGraphData(dataResponse.data.data);
       } catch (error) {
         console.error('Failed to fetch graph data:', error);
@@ -105,18 +156,25 @@ export function ChartCreator({ token, projectData }) {
       }
     };
 
-    fetchGraphData();
-  }, [elements, selectedTimeframe, options.dynamicTime, options.xRange, options.yRange, token]);
+    const debounceTimeout = setTimeout(fetchGraphData, 500);
+    return () => clearTimeout(debounceTimeout);
+  }, [elements, selectedTimeframe, options.dynamicTime, options.xRange, options.yRange, token, chartType]);
 
   // handle the change of the options
   const handleOptionChange = (key, value) => {
     setOptions(prev => ({ ...prev, [key]: value }))
   }
 
-  // handle the change of an element
+  // Ensure elements are updated immutably
   const handleElementChange = (id, key, value) => {
-    setElements(prev => prev.map(el => el.id === id ? { ...el, [key]: value } : el))
-  }
+    setElements((prev) => {
+      const updatedElements = prev.map((el) =>
+          el.id === id ? { ...el, [key]: value } : el
+      );
+      console.log("Updated elements:", updatedElements); // Debugging
+      return updatedElements;
+    });
+  };
 
   // add a new element to the elements array (lines, bars, ...)
   const addElement = () => {
@@ -148,14 +206,21 @@ export function ChartCreator({ token, projectData }) {
       chartType,
       options,
       elements,
-    }
+    };
 
-    // validate if every element has a collection, xAxisKey and yAxisKey. If they are missing return
+    // Validate elements based on chartType
     for (let i = 0; i < elements.length; i++) {
-        if (!elements[i].collection || !elements[i].xAxisKey || !elements[i].yAxisKey) {
-            setError(true)
-            return
+      if (chartType === "Info") {
+        if (!elements[i].collection || !elements[i].dataKey) {
+          setError(true);
+          return;
         }
+      } else {
+        if (!elements[i].collection || !elements[i].xAxisKey || !elements[i].yAxisKey) {
+          setError(true);
+          return;
+        }
+      }
     }
 
     try {
@@ -163,19 +228,48 @@ export function ChartCreator({ token, projectData }) {
         headers: {
           'Authorization': `Bearer ${token}`
         }
-      })
+      });
 
-      // navigate back to project view
-        router.push(`/projects/${projectData._id}`)
+      // Navigate back to project view
+      router.push(`/projects/${projectData._id}`);
     } catch (error) {
-      console.error('Failed to create graph:', error)
-  }
-}
+      console.error('Failed to create graph:', error);
+    }
+  };
+
+// function to render text-based information ("Info" chartType)
+  const renderInfo = () => {
+    if (!elements?.length) {
+      return <p>No data available for rendering the information.</p>;
+    }
+
+    return (
+        <ScrollArea className="h-64"> {/* Adjust the height as needed */}
+          <div className="space-y-4">
+            {elements.map((element) => {
+              const dataValue = graphData[0]?.[element.dataKey]; // Assuming graphData contains the fetched data
+              return (
+                  <div key={element.id} className="p-1">
+                    <h3 className="text-lg font-semibold text-black dark:text-white">
+                      {element.name}: {dataValue !== undefined ? dataValue : 'N/A'}
+                    </h3>
+                  </div>
+              );
+            })}
+          </div>
+        </ScrollArea>
+    );
+  };
 
   // render the chart based on the chart type
   const renderChart = () => {
     if (!chartType || !elements?.length || !graphData?.length) {
       return <p>No data available for rendering the chart.</p>;
+    }
+
+    // Add a check to ensure chartType is valid
+    if (!["Line", "Bar", "Area", "Scatter", "Pie", "Radar", "Info"].includes(chartType)) {
+      return <p>Invalid chart type.</p>;
     }
 
     const yValues = elements.flatMap(element => graphData.map(data => data[element.yAxisKey]));
@@ -409,9 +503,31 @@ export function ChartCreator({ token, projectData }) {
                             <Minimize2 className="h-6 w-6 text-gray-800 dark:text-white"/>
                           </Button>
                           <div className="w-full h-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                              {renderChart()}
-                            </ResponsiveContainer>
+                            {chartType === "Info" ? (
+                                <>
+                                    {isLoading ? (
+                                        <div className="flex items-center justify-center h-full pt-2">
+                                            <PacmanLoader color={options.cardColor}/>
+                                        </div>
+                                    ) : (
+                                        <div className="p-4">
+                                            {renderInfo()}
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                              <>
+                                {isLoading ? (
+                                    <div className="flex items-center justify-center h-full pt-2">
+                                      <PacmanLoader color={options.cardColor}/>
+                                    </div>
+                                ) : (
+                                    <ResponsiveContainer width="100%" height="100%">
+                                      {renderChart()}
+                                    </ResponsiveContainer>
+                                )}
+                              </>
+                              )}
                           </div>
                         </DialogContent>
                       </Dialog>
@@ -440,26 +556,42 @@ export function ChartCreator({ token, projectData }) {
                     </div>
                   </CardHeader>
                   <CardContent className="flex-grow p-4 no-drag">
-                    {options.dynamicTime && (
-                        <Tabs defaultValue="1D" onValueChange={setSelectedTimeframe}>
-                          <TabsList>
-                            {['1D', '7D', '30D', '6M', '1Y', 'Max'].map((key) => (
-                                <TabsTrigger key={key} value={key}>
-                                  {key}
-                                </TabsTrigger>
-                            ))}
-                          </TabsList>
-                        </Tabs>
-                    )}
-                    {isLoading ? (
-                        <div className="flex items-center justify-center h-full pt-2">
-                          <PacmanLoader color={options.cardColor}/>
-                        </div>
-                    ) : (
-                        <ResponsiveContainer width="100%" height={200}>
-                          {renderChart()}
-                        </ResponsiveContainer>
-                    )}
+                    {chartType === "Info" ? (
+                        <>
+                            {isLoading ? (
+                                <div className="flex items-center justify-center h-full pt-2">
+                                    <PacmanLoader color={options.cardColor}/>
+                                </div>
+                            ) : (
+                                <div className="p-4">
+                                    {renderInfo()}
+                                </div>
+                            )}
+                        </>
+                    ):(
+                       <>
+                         {options.dynamicTime && (
+                             <Tabs defaultValue="1D" onValueChange={setSelectedTimeframe}>
+                               <TabsList>
+                                 {['1D', '7D', '30D', '6M', '1Y', 'Max'].map((key) => (
+                                     <TabsTrigger key={key} value={key}>
+                                       {key}
+                                     </TabsTrigger>
+                                 ))}
+                               </TabsList>
+                             </Tabs>
+                         )}
+                         {isLoading ? (
+                             <div className="flex items-center justify-center h-full pt-2">
+                               <PacmanLoader color={options.cardColor}/>
+                             </div>
+                         ) : (
+                             <ResponsiveContainer width="100%" height={200}>
+                               {renderChart()}
+                             </ResponsiveContainer>
+                         )}
+                      </>
+                      )}
                   </CardContent>
                 </Card>
                 {/* chart options */}
@@ -478,7 +610,13 @@ export function ChartCreator({ token, projectData }) {
                       />
                       {/* add lines/bars/.... */}
                       <Separator className="my-4 dark:bg-gray-700"/>
-                      <h3 className="text-sm font-medium text-black mb-2 dark:text-white">{chartType}s</h3>
+                      {/* elements */}
+                      {chartType === "Info" ? (
+                          <h3 className="text-sm font-medium text-black mb-2 dark:text-white">Fields</h3>
+                      ): (
+                          <h3 className="text-sm font-medium text-black mb-2 dark:text-white">{chartType}s</h3>
+                      )}
+
                       <Accordion type="single" collapsible className="w-full">
                         {elements.map((el) => (
                             <AccordionItem value={el.id} key={el.id}>

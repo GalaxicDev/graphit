@@ -1,36 +1,15 @@
-'use client'
+import { cookies } from 'next/headers';
+import { ProjectView } from '@/components/projectView';
+import { fetchProject } from '@/lib/api';
 
-import { useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { ProjectView } from '@/components/projectView'
-
-export default   function ProjectPage() {
-    const { project } = useParams()
-    const [projectData, setProjectData] = useState(null)
-
-    useEffect(() => {
-        if (project) {
-            const fetchProject = async () => {
-                try {
-                    const res = await fetch(`${process.env.API_URL}/projects/${project}`, {
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('token')}`
-                        }
-                    })
-                    const data = await res.json()
-                    setProjectData(data)
-                } catch (error) {
-                    console.error('Failed to fetch project:', error)
-                }
-            }
-
-            fetchProject()
-        }
-    }, [project])
+export default async function ProjectPage({ params }) {
+    const { project } = params;
+    const token = cookies().get('token')?.value;
+    const projectData = await fetchProject(token, project);
 
     if (!projectData) {
-        return <div>Loading...</div>
+        return <div>Loading...</div>;
     }
 
-    return <ProjectView project={projectData} />
+    return <ProjectView project={projectData} />;
 }

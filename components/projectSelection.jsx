@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -14,14 +14,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { ProjectCard } from './projectCard'
-import { Plus } from 'lucide-react'
+} from "@/components/ui/dialog";
+import { ProjectCard } from './projectCard';
+import { Plus } from 'lucide-react';
 
-export function ProjectSelection({ projects, setProjects }) {
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const router = useRouter()
+export function ProjectSelection({ projects }) {
+  const [projectList, setProjectList] = useState(projects);
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const router = useRouter();
 
   // Function to handle creating a new project
   const handleCreateProject = async () => {
@@ -35,10 +36,9 @@ export function ProjectSelection({ projects, setProjects }) {
         body: JSON.stringify({ name, description })
       });
       const result = await res.json();
-      console.log('API response:', result);
       if (result._id) {
         // Add the new project to the list of projects
-        setProjects(prevProjects => [...prevProjects, result]);
+        setProjectList(prevProjects => [...prevProjects, result]);
         setName('');
         setDescription('');
       } else {
@@ -47,12 +47,12 @@ export function ProjectSelection({ projects, setProjects }) {
     } catch (error) {
       console.error('Failed to create project:', error);
     }
-  }
+  };
 
   // Function to handle viewing a project
   const handleViewProject = (projectId) => {
-    router.push(`/projects/${projectId}`)
-  }
+    router.push(`/projects/${projectId}`);
+  };
 
   return (
       <>
@@ -103,7 +103,7 @@ export function ProjectSelection({ projects, setProjects }) {
 
         {/* Project cards grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map(project => (
+          {projectList.map(project => (
               <ProjectCard
                   key={project._id}
                   project={project}
@@ -112,5 +112,5 @@ export function ProjectSelection({ projects, setProjects }) {
           ))}
         </div>
       </>
-  )
+  );
 }
