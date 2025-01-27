@@ -48,7 +48,18 @@ const getCollections = async (dbName, userId) => {
     const db = await getDB(dbName);
     const userDb = await getDB("data");
     const user = await userDb.collection("users").findOne({ _id: new mongoose.Types.ObjectId(userId) });
-    if (!user || !user.ownedCollections) {
+    
+    if(user.role === 'admin') {
+        console.log("admin");
+        const ownedCollections = await db.db.listCollections().toArray();
+        console.log(ownedCollections);
+        const collectionData = await Promise.all(ownedCollections.map(async (collection) => {
+            return {
+                name: collection.name
+            };
+        }));
+        return collectionData;
+    } else if (!user || !user.ownedCollections) {
         return [];
     }
 
@@ -57,9 +68,7 @@ const getCollections = async (dbName, userId) => {
 
     const collectionData = await Promise.all(ownedCollections.map(async (collection) => {
         return {
-            name: collection.name,
-            //size: formatSize(stats.size),
-            //count: stats.count,
+            name: collection.name
         };
     }));
     return collectionData;
