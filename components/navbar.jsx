@@ -24,7 +24,7 @@ export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode })
                     variant="ghost"
                     size="icon"
                     onClick={toggleSidebar}
-                    className="mr-2 lg:block hidden text-gray-800 dark:text-white flex items-center justify-center">
+                    className="mr-2 lg:block text-gray-800 dark:text-white flex items-center justify-center">
                   <Menu className="h-6 w-6" />
                 </Button>
                 <Image
@@ -38,13 +38,6 @@ export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode })
                 />
               </>
           )}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <Input
-                type="search"
-                placeholder="Search projects..."
-                className="pl-10 pr-4 py-2 w-64 rounded-md bg-gray-100 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" />
-          </div>
         </div>
         <div className="flex items-center">
           <Button variant="ghost" size="icon" className="mr-4 text-gray-800 dark:text-white">
