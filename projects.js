@@ -19,7 +19,6 @@ const handleValidationErrors = (req, res, next) => {
 const extractUserId = (req, res, next) => {
     const authToken = req.headers['authorization'];
     if (!authToken) return res.status(403).json({ success: false, message: 'Token required' });
-
     try {
         const token = authToken.split(' ')[1];
         const decoded = verifyToken(token);
@@ -58,7 +57,6 @@ router.get('/:id', param('id').isMongoId(), handleValidationErrors, async (req, 
     }
 });
 
-// Create a new project
 // Create a new project
 router.post('/',
     body('name').isString().isLength({ min: 3 }),
