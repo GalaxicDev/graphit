@@ -36,7 +36,15 @@ router.use(extractUserId);
 router.get('/', async (req, res) => {
     try {
         const db = await getDB('data');
-        const projects = await db.collection('projects').find({ userId: new mongoose.Types.ObjectId(req.userId) }).toArray();
+        const userDb = await getDB("data");
+        const user = await userDb.collection("users").findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
+        if(user.role === 'admin'){
+            const projects = await db.collection('projects').find({}).toArray();
+            res.json(projects);
+        } else {
+            const projects = await db.collection('projects').find({ userId: new mongoose.Types.ObjectId(req.userId) }).toArray();
+            res.json(projects);
+        }
         res.json(projects);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
