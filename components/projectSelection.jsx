@@ -79,6 +79,28 @@ export function ProjectSelection({ projects }) {
                   Enter the details for your new project.
                 </DialogDescription>
               </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right dark:text-white">
+                    Name
+                  </Label>
+                  <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="col-span-3 dark:bg-gray-700 dark:text-white dark:border-gray-600" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="description" className="text-right dark:text-white">
+                    Description
+                  </Label>
+                  <Textarea
+                      id="description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      className="col-span-3 dark:bg-gray-700 dark:text-white dark:border-gray-600" />
+                </div>
+              </div>
               <DialogFooter>
                 <Button onClick={handleCreateProject}>Create Project</Button>
               </DialogFooter>
