@@ -33,7 +33,6 @@ const extractUserId = (req, res, next) => {
 // Apply extractUserId middleware to all routes
 router.use(extractUserId);
 
-
 // Utility function to format size
 const formatSize = (size) => {
     const units = ['B', 'kiB', 'MiB', 'GiB'];
@@ -45,14 +44,31 @@ const formatSize = (size) => {
     return `${size.toFixed(2)} ${units[index]}`;
 };
 
-const getCollections = async (dbName) => {
+const getCollections = async (dbName, userId) => {
     const db = await getDB(dbName);
+    const userDb = await getDB("data");
+    const user = await userDb.collection("users").findOne({ _id: new mongoose.Types.ObjectId(userId) });
+    
+    if(user.role === 'admin') {
+        console.log("admin");
+        const ownedCollections = await db.db.listCollections().toArray();
+        console.log(ownedCollections);
+        const collectionData = await Promise.all(ownedCollections.map(async (collection) => {
+            return {
+                name: collection.name
+            };
+        }));
+        return collectionData;
+    } else if (!user || !user.ownedCollections) {
+        return [];
+    }
+
     const collections = await db.db.listCollections().toArray();
-    const collectionData = await Promise.all(collections.map(async (collection) => {
+    const ownedCollections = collections.filter(collection => user.ownedCollections.includes(collection.name));
+
+    const collectionData = await Promise.all(ownedCollections.map(async (collection) => {
         return {
-            name: collection.name,
-            //size: formatSize(stats.size),
-            //count: stats.count,
+            name: collection.name
         };
     }));
     return collectionData;
@@ -72,7 +88,7 @@ const getDocuments = async (collectionName, page, pageSize) => {
 // GET /api/collections
 router.get('/', async (req, res) => {
     try {
-        const collections = await getCollections("mqtt");
+        const collections = await getCollections("mqtt", req.userId);
         res.json(collections);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
