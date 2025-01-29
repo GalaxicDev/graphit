@@ -187,7 +187,7 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
                         <Label className="font-bold">Pinpoints</Label>
                         <div className="space-y-4">
                             {(el.pinpoints || []).map((point, index) => (
-                                <div key={index} className="space-y-2 border p-4 rounded-lg">
+                                <div key={index} className="space-y-2 p-2">
                                     <Label>Point {index + 1}</Label>
                                     {el.manualEntry ? (
                                         <>

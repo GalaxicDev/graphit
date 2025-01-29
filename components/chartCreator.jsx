@@ -21,13 +21,11 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { MoreHorizontal, Edit, Trash2, Maximize2, Minimize2, Move, Plus } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useRouter } from "next/navigation"
-import 'leaflet/dist/leaflet.css';
 
 import { renderChart } from "@/lib/renderChart";
 import { renderOther } from "@/lib/renderOther";
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']; // Define the COLORS array
-const generalChartTypes = ["Line", "Bar", "Area", "Scatter", "Pie", "Radar"]; // rechart charts that need renderChart
+const generalChartTypes = ["Line", "Bar", "Area", "Scatter", "Pie", "Radar"];
 
 export function ChartCreator({ token, projectData, chartData }) {
   const [chartType, setChartType] = useState("Line");
@@ -45,13 +43,11 @@ export function ChartCreator({ token, projectData, chartData }) {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTimeframe, setSelectedTimeframe] = useState('1D');
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [error, setError] = useState(false); // boolean to see if error message should be displayed, used for validation
+  const [error, setError] = useState(false);
 
-  const router = useRouter()
+  const router = useRouter();
 
-  // fetch the data for the graph preview, runs everytime the elements or options change
   useEffect(() => {
-    // Sync state with chartData when chartData is provided or updated
     if (chartData) {
       setChartType(chartData.chartType || "Line");
       setOptions(chartData.options || {
@@ -65,7 +61,6 @@ export function ChartCreator({ token, projectData, chartData }) {
       });
       setElements(chartData.elements || []);
 
-      // Fetch initial graph data
       const fetchInitialGraphData = async () => {
         if (!chartData.elements || chartData.elements.length === 0) return;
 
@@ -115,7 +110,6 @@ export function ChartCreator({ token, projectData, chartData }) {
     }
   }, [chartData, token, selectedTimeframe]);
 
-
   useEffect(() => {
     const fetchGraphData = async () => {
       if (elements.length === 0) return;
@@ -161,25 +155,26 @@ export function ChartCreator({ token, projectData, chartData }) {
     return () => clearTimeout(debounceTimeout);
   }, [elements, selectedTimeframe, options.dynamicTime, options.xRange, options.yRange, token, chartType]);
 
-  // handle the change of the options
   const handleOptionChange = (key, value) => {
-    setOptions(prev => ({ ...prev, [key]: value }))
-  }
+    setOptions(prev => ({ ...prev, [key]: value }));
+  };
 
-  // Ensure elements are updated immutably
   const handleElementChange = (id, key, value) => {
     setElements((prev) => {
       const updatedElements = prev.map((el) =>
           el.id === id ? { ...el, [key]: value } : el
       );
-      console.log("Updated elements:", updatedElements); // Debugging
       return updatedElements;
     });
   };
 
-  // add a new element to the elements array (lines, bars, ...)
   const addElement = () => {
-    const newId = (elements.length + 1).toString()
+    if (["Map", "Map Trajectory"].includes(chartType) && elements.some(el => ["Map", "Map Trajectory"].includes(el.chartType))) {
+      alert("You can only create one Map or Map Trajectory.");
+      return;
+    }
+
+    const newId = (elements.length + 1).toString();
     setElements(prev => [...prev, {
       id: newId,
       collection: "",
@@ -193,14 +188,14 @@ export function ChartCreator({ token, projectData, chartData }) {
       showDots: true,
       dotSize: 5,
       conditionalParams: [],
-    }])
-  }
+      chartType: chartType
+    }]);
+  };
 
   const removeElement = (id) => {
-    setElements(prev => prev.filter(el => el.id !== id))
-  }
+    setElements(prev => prev.filter(el => el.id !== id));
+  };
 
-  // handle the creating of the chart
   const createGraph = async () => {
     const newGraph = {
       projectId: projectData._id,
@@ -209,7 +204,6 @@ export function ChartCreator({ token, projectData, chartData }) {
       elements,
     };
 
-    // Validate elements based on chartType
     for (let i = 0; i < elements.length; i++) {
       if (chartType === "Info") {
         if (!elements[i].collection || !elements[i].dataKey) {
@@ -231,13 +225,11 @@ export function ChartCreator({ token, projectData, chartData }) {
         }
       });
 
-      // Navigate back to project view
       router.push(`/projects/${projectData._id}`);
     } catch (error) {
       console.error('Failed to create graph:', error);
     }
   };
-
 
   return (
       <div className="container mx-auto py-10 px-4">
@@ -261,7 +253,6 @@ export function ChartCreator({ token, projectData, chartData }) {
             </div>
         }
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-4">
-          {/* chart preview */}
           <Card className="col-span-1 md:col-span-2 bg-white dark:bg-gray-800">
             <CardHeader
                 className="flex flex-row items-center justify-between space-y-0 py-2"
@@ -331,7 +322,6 @@ export function ChartCreator({ token, projectData, chartData }) {
               )}
             </CardContent>
           </Card>
-          {/* chart options */}
           <Card className={"bg-white dark:bg-gray-800"}>
             <CardHeader>
               <h3 className="font-semibold text-black dark:text-white">Chart Options</h3>
@@ -345,9 +335,7 @@ export function ChartCreator({ token, projectData, chartData }) {
                     handleOptionChange={handleOptionChange}
                     elements={elements}
                 />
-                {/* add lines/bars/.... */}
                 <Separator className="my-4 dark:bg-gray-700"/>
-                {/* elements */}
                 {chartType === "Info" ? (
                     <h3 className="text-sm font-medium text-black mb-2 dark:text-white">Fields</h3>
                 ): (
@@ -373,7 +361,6 @@ export function ChartCreator({ token, projectData, chartData }) {
                 <Button onClick={addElement}>
                   <Plus className="mr-2 h-4 w-4"/> Add {chartType}
                 </Button>
-                {/* create graph button */}
                 <Separator className="my-4 dark:bg-gray-700"/>
                 <Button className="w-full" onClick={() => createGraph()}>
                   Create Graph
@@ -383,5 +370,5 @@ export function ChartCreator({ token, projectData, chartData }) {
           </Card>
         </div>
       </div>
-  )
+  );
 }
