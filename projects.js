@@ -45,7 +45,6 @@ router.get('/', async (req, res) => {
             const projects = await db.collection('projects').find({ userId: new mongoose.Types.ObjectId(req.userId) }).toArray();
             res.json(projects);
         }
-        res.json(projects);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
