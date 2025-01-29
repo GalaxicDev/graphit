@@ -25,24 +25,24 @@ export default function RootLayout({ children }) {
     }
 
     return (
-        <div className={`flex h-screen max-h-screen overflow-hidden ${darkMode ? 'dark' : ''}`}>
-            {/* Sidebar with fixed height to screen and overflow auto */}
-            <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+            <div className={`flex h-screen max-h-screen overflow-hidden ${darkMode ? 'dark' : ''}`}>
+                {/* Sidebar with fixed height to screen and overflow auto */}
+                <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar}/>
 
-            {/* Main content area */}
-            <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-64' : ''} h-screen max-h-screen`}>
-                <Navbar
-                    sidebarOpen={sidebarOpen}
-                    toggleSidebar={toggleSidebar}
-                    darkMode={darkMode}
-                    toggleDarkMode={toggleDarkMode}
-                />
+                {/* Main content area */}
+                <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-64' : ''} h-screen max-h-screen`}>
+                    <Navbar
+                        sidebarOpen={sidebarOpen}
+                        toggleSidebar={toggleSidebar}
+                        darkMode={darkMode}
+                        toggleDarkMode={toggleDarkMode}
+                    />
 
-                {/* Main section with scrollable content */}
-                <main className="flex-1 overflow-y-auto p-6 bg-gray-100 dark:bg-gray-900">
-                    {children}
-                </main>
+                    {/* Main section with scrollable content */}
+                    <main className="flex-1 overflow-y-auto p-6 bg-gray-100 dark:bg-gray-900">
+                        {children}
+                    </main>
+                </div>
             </div>
-        </div>
     );
 }

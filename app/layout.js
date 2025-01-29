@@ -19,12 +19,16 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+      <html lang="en">
+      <head>
+          <script src="//unpkg.com/react-scan/dist/auto.global.js"/>
+          {/* rest of your scripts go under */}
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+      {children}
       </body>
-    </html>
+      </html>
   );
 }

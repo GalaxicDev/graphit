@@ -8,6 +8,8 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus } from 'lucide-react';
 
+const generalChartTypes = ["Line", "Bar", "Area", "Scatter", "Pie", "Radar"];
+
 export function ElementConfig({ el, collections, handleElementChange, removeElement, chartType }) {
     const [availableKeys, setAvailableKeys] = useState([]);
 
@@ -65,9 +67,16 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
         handleElementChange(el.id, "fields", updatedFields);
     };
 
+    const updatePinpoint = (index, key, value) => {
+        const updatedPinpoints = el.pinpoints.map((point, i) =>
+            i === index ? { ...point, [key]: value } : point
+        );
+        handleElementChange(el.id, "pinpoints", updatedPinpoints);
+    };
+
     return (
         <div className="space-y-4">
-            {chartType === "Info" ? (
+            {chartType === "Info" && (
                 <>
                     <div>
                         <Label htmlFor={`collection-${el.id}`}>Collection</Label>
@@ -137,7 +146,144 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
                         <Minus className="mr-2 h-4 w-4" /> Remove Field
                     </Button>
                 </>
-            ) : (
+            )}
+
+            {(chartType === "Map" || chartType === "Map Trajectory") && (
+                <>
+                    <div className="flex items-center space-x-4">
+                        <Label htmlFor={`manual-entry-${el.id}`} className="font-bold">
+                            Manual Entry
+                        </Label>
+                        <Switch
+                            id={`manual-entry-${el.id}`}
+                            checked={el.manualEntry}
+                            onCheckedChange={(checked) => handleElementChange(el.id, "manualEntry", checked)}
+                        />
+                    </div>
+
+                    {!el.manualEntry && (
+                        <div>
+                            <Label htmlFor={`collection-${el.id}`}>Collection</Label>
+                            <Select
+                                value={el.collection}
+                                onValueChange={(value) => handleElementChange(el.id, "collection", value)}
+                                className="dark:bg-gray-700"
+                            >
+                                <SelectTrigger id={`collection-${el.id}`} className="dark:bg-gray-700">
+                                    <SelectValue placeholder="Select collection" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {collections.map((col) => (
+                                        <SelectItem key={col.name} value={col.name}>
+                                            {col.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
+
+                    <div>
+                        <Label className="font-bold">Pinpoints</Label>
+                        <div className="space-y-4">
+                            {(el.pinpoints || []).map((point, index) => (
+                                <div key={index} className="space-y-2 border p-4 rounded-lg">
+                                    <Label>Point {index + 1}</Label>
+                                    {el.manualEntry ? (
+                                        <>
+                                            <Input
+                                                placeholder="Latitude"
+                                                value={point.latitude}
+                                                onChange={(e) => updatePinpoint(index, "latitude", e.target.value)}
+                                                className="dark:bg-gray-700"
+                                            />
+                                            <Input
+                                                placeholder="Longitude"
+                                                value={point.longitude}
+                                                onChange={(e) => updatePinpoint(index, "longitude", e.target.value)}
+                                                className="dark:bg-gray-700"
+                                            />
+                                            <Input
+                                                placeholder="Label"
+                                                value={point.label}
+                                                onChange={(e) => updatePinpoint(index, "label", e.target.value)}
+                                                className="dark:bg-gray-700"
+                                            />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Select
+                                                value={point.latitude}
+                                                onValueChange={(value) => updatePinpoint(index, "latitude", value)}
+                                                className="dark:bg-gray-700"
+                                            >
+                                                <SelectTrigger className="dark:bg-gray-700">
+                                                    <SelectValue placeholder="Select Latitude Key" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {availableKeys.map((key) => (
+                                                        <SelectItem key={key} value={key}>
+                                                            {key}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <Select
+                                                value={point.longitude}
+                                                onValueChange={(value) => updatePinpoint(index, "longitude", value)}
+                                                className="dark:bg-gray-700"
+                                            >
+                                                <SelectTrigger className="dark:bg-gray-700">
+                                                    <SelectValue placeholder="Select Longitude Key" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {availableKeys.map((key) => (
+                                                        <SelectItem key={key} value={key}>
+                                                            {key}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <Input
+                                                placeholder="Label"
+                                                value={point.label}
+                                                onChange={(e) => updatePinpoint(index, "label", e.target.value)}
+                                                className="dark:bg-gray-700"
+                                            />
+                                        </>
+                                    )}
+                                    <Button
+                                        variant="destructive"
+                                        onClick={() =>
+                                            handleElementChange(
+                                                el.id,
+                                                "pinpoints",
+                                                el.pinpoints.filter((_, i) => i !== index)
+                                            )
+                                        }
+                                        className="mt-2"
+                                    >
+                                        <Minus className="mr-2 h-4 w-4" /> Remove Point
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+                        <Button
+                            onClick={() =>
+                                handleElementChange(el.id, "pinpoints", [
+                                    ...(el.pinpoints || []),
+                                    { latitude: "", longitude: "", label: "" },
+                                ])
+                            }
+                            className="mt-4"
+                        >
+                            <Plus className="mr-2 h-4 w-4" /> Add Pinpoint
+                        </Button>
+                    </div>
+                </>
+            )}
+
+            {generalChartTypes.includes(chartType) && (
                 <>
                     <div>
                         <Label className="font-bold" htmlFor={`collection-${el.id}`}>Collection</Label>
