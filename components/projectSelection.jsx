@@ -62,10 +62,10 @@ export function ProjectSelection({ projects }) {
   );
 
   return (
-      <>
+      <div className="p-4">
         {/* Header section with title and create project button */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-semibold text-gray-800 dark:text-white">Projects</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold mb-4 dark:text-white">Projects</h1>
           <Dialog>
             <DialogTrigger asChild>
               <Button>
@@ -79,6 +79,28 @@ export function ProjectSelection({ projects }) {
                   Enter the details for your new project.
                 </DialogDescription>
               </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right dark:text-white">
+                    Name
+                  </Label>
+                  <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="col-span-3 dark:bg-gray-700 dark:text-white dark:border-gray-600" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="description" className="text-right dark:text-white">
+                    Description
+                  </Label>
+                  <Textarea
+                      id="description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      className="col-span-3 dark:bg-gray-700 dark:text-white dark:border-gray-600" />
+                </div>
+              </div>
               <DialogFooter>
                 <Button onClick={handleCreateProject}>Create Project</Button>
               </DialogFooter>
@@ -87,20 +109,20 @@ export function ProjectSelection({ projects }) {
         </div>
 
         {/* Search bar */}
-        <div className="mb-4">
-          <div className="relative">
-            <Input
-              type="text"
-              placeholder="Search projects..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 dark:bg-gray-700 dark:text-white"
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:bg-gray-700" />
+          <div className="mb-4" >
+            <div className="relative">
+              <Input
+                type="text"
+                placeholder="Search projects..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 dark:bg-gray-700 dark:text-white focus:outline-none focus:border-transparent"
+              />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:bg-gray-700" />
+            </div>
           </div>
-        </div>
 
-        {/* Project cards grid */}
+          {/* Project cards grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProjects.map(project => (
               <ProjectCard
@@ -110,6 +132,6 @@ export function ProjectSelection({ projects }) {
               />
           ))}
         </div>
-      </>
+      </div>
   );
 }

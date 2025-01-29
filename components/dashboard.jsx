@@ -8,8 +8,6 @@ export default async function DashboardComponent() {
     const initialProjects = await fetchAllProjects(token);
 
     return (
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-gray-900">
-            <ProjectSelection projects={initialProjects} />
-        </main>
+        <ProjectSelection projects={initialProjects} />
     );
 }
