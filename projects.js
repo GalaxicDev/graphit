@@ -57,6 +57,9 @@ router.get('/:id', param('id').isMongoId(), handleValidationErrors, async (req, 
         if (!project) {
             return res.status(404).json({ success: false, message: 'Project not found' });
         }
+        if (project.userId.toString() !== req.userId) {
+            return res.status(403).json({ success: false, message: 'Access denied' });
+        }
         res.json(project);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -241,7 +244,7 @@ router.post('/:projectId/access',
                     return res.status(404).json({ success: false, message: 'Project not found' });
                 }
     
-                res.status(200).json({ success: true, message: 'Access updated successfully' });
+                res.json({ success: true, message: 'Access updated successfully' });
 
             }else{
                 //Remove the user from viewer and editor list and then add them to the desired list
@@ -262,7 +265,7 @@ router.post('/:projectId/access',
                     return res.status(404).json({ success: false, message: 'Project not found' });
                 }
     
-                res.status(200).json({ success: true, message: 'Access updated successfully' });
+                res.json({ success: true, message: 'Access updated successfully' });
             }
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });

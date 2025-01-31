@@ -37,9 +37,13 @@ router.use(extractUserId);
 router.get('/project/:projectId', async (req, res) => {
     try {
         const db = await getDB('data');
-
-        const graphs2 = await db.collection('graphs').find({ userId: new mongoose.Types.ObjectId(req.userId), projectId: new mongoose.Types.ObjectId(req.params.projectId) }).toArray();
-        res.json(graphs2);
+        const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.params.projectId) });
+        if (!project) {
+            return res.status(404).json({ success: false, message: 'Project not found' });
+        }
+        const graphs = await db.collection('graphs').find({ userId: new mongoose.Types.ObjectId(req.userId), projectId: new mongoose.Types.ObjectId(req.params.projectId) }).toArray();
+        
+        res.json(graphs);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
