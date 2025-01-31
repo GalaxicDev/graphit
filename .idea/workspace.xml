@@ -4,15 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="added edit graph function (loading chartcreator with graph options to let the user edit it)&#10;TODO: actually save the edditted data and not creating a new graph.&#10;Made the dashboard and projectselection server sided.">
-      <change afterPath="$PROJECT_DIR$/lib/renderChart.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/renderOther.js" afterDir="false" />
+    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="&#10;TODO: actually save the edditted data and not creating a new graph.&#10;Made the dashboard and projectselection server sided.&#10;ERROR: Map and Map Trajectory return an rendering error.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(root)/layout.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/layout.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/layout.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/layout.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/chartCreator.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCreator.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/chartCreator/chartOptions.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCreator/chartOptions.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/chartCreator/elementConfig.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/chartCreator/elementConfig.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/renderOther.js" beforeDir="false" afterPath="$PROJECT_DIR$/lib/renderOther.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
@@ -156,7 +152,7 @@
       <workItem from="1737721348841" duration="4436000" />
       <workItem from="1737963434632" duration="5127000" />
       <workItem from="1738049601745" duration="5608000" />
-      <workItem from="1738139447578" duration="3110000" />
+      <workItem from="1738139447578" duration="6919000" />
     </task>
     <task id="LOCAL-00001" summary="added the default files">
       <option name="closed" value="true" />
@@ -366,7 +362,15 @@
       <option name="project" value="LOCAL" />
       <updated>1737963718532</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="&#10;TODO: actually save the edditted data and not creating a new graph.&#10;Made the dashboard and projectselection server sided.&#10;ERROR: Map and Map Trajectory return an rendering error.">
+      <option name="closed" value="true" />
+      <created>1738143130749</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1738143130749</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -419,6 +423,7 @@
     <MESSAGE value="implemented conditionalParams into the chartCreator" />
     <MESSAGE value="fixed adding conditionalParams in chartCard" />
     <MESSAGE value="added edit graph function (loading chartcreator with graph options to let the user edit it)&#10;TODO: actually save the edditted data and not creating a new graph.&#10;Made the dashboard and projectselection server sided." />
-    <option name="LAST_COMMIT_MESSAGE" value="added edit graph function (loading chartcreator with graph options to let the user edit it)&#10;TODO: actually save the edditted data and not creating a new graph.&#10;Made the dashboard and projectselection server sided." />
+    <MESSAGE value="&#10;TODO: actually save the edditted data and not creating a new graph.&#10;Made the dashboard and projectselection server sided.&#10;ERROR: Map and Map Trajectory return an rendering error." />
+    <option name="LAST_COMMIT_MESSAGE" value="&#10;TODO: actually save the edditted data and not creating a new graph.&#10;Made the dashboard and projectselection server sided.&#10;ERROR: Map and Map Trajectory return an rendering error." />
   </component>
 </project>
