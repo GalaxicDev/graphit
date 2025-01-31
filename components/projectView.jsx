@@ -3,10 +3,11 @@
 
 import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
-import { ChartArea } from 'lucide-react'
+import { ChartArea, Edit, Plus } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import ChartCardComponent from './chartCardComponent'
 import { useRouter } from "next/navigation"
+
 
 export function ProjectView({ project }) {
     const [projectName, setProjectName] = useState(project.name)
@@ -46,13 +47,20 @@ export function ProjectView({ project }) {
                     <p className="text-gray-500 dark:text-gray-400">{projectDescription}</p>
                 </div>
                 <div className="flex items-center">
-                    <Button className="mr-2" onClick={() => router.push(`/projects/${project._id}/chartcreator`)}> 
-                        <ChartArea className="h-4 w-4 mr-2" /> Add Graph
+                    <Button 
+                        className="mr-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300" 
+                        onClick={() => router.push(`/projects/${project._id}/chartcreator`)}> 
+                        <Plus className="h-4 w-4 mr-2" /> Add Graph
+                    </Button>
+                    <Button 
+                        className="mr-2 px-4 py-2 rounded  transition duration-300" 
+                        onClick={() => router.push(`/projects/${project._id}/settings`)}>
+                        <Edit className="h-4 w-4 mr-2" /> Edit Project
                     </Button>
                     <Button
                         variant="outline"
                         onClick={() => router.push('/')}
-                        className="dark:border-gray-600 dark:text-gray-300">
+                        className="mr-2 px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 transition duration-300">
                         Back to projects
                     </Button>
                 </div>
