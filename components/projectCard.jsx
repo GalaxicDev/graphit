@@ -68,19 +68,17 @@ export function ProjectCard({ project, onViewProject, setProjects }) {
                                 <DialogHeader>
                                     <DialogTitle className="sm:text-center">Final confirmation</DialogTitle>
                                     <DialogDescription className="sm:text-center">
-                                        This action cannot be undone. To confirm, please enter the project name{" "}
-                                        <span className="text-foreground">{project.name}</span>.
+                                        This action cannot be undone.
                                     </DialogDescription>
                                 </DialogHeader>
                             </div>
 
                             <form className="space-y-5">
                                 <div className="space-y-2">
-                                    <Label htmlFor={id}>Project name</Label>
+                                    <Label htmlFor={id} className="font-bold">To confirm, type "<span className="text-foreground font-bold">{project.name}</span>"</Label>
                                     <Input
                                         id={id}
                                         type="text"
-                                        placeholder={`Type ${project.name} to confirm`}
                                         value={inputValue}
                                         onChange={(e) => setInputValue(e.target.value)}
                                     />

@@ -209,13 +209,13 @@ export function ProjectSettings({ initialProjectData }) {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          This action cannot be undone. This will permanently delete your project and remove all
+                          This action cannot be undone. This will permanently delete your project and all
                           associated data.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteProject}>Delete</AlertDialogAction>
+                        <AlertDialogAction onClick={handleDeleteProject} className="bg-red-600">Delete</AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
