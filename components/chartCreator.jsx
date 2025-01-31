@@ -76,6 +76,10 @@ export function ChartCreator({ token, projectData, chartData }) {
                 : {
                   fields: chartData.elements.map(el => `${el.xAxisKey},${el.yAxisKey}`).join(','),
                 }),
+            ...(chartData.chartType === "Map" || chartData.chartType === "Map Trajectory"
+                && {
+                    fields: chartData.elements.map(el => `${el.longitudeKey},${el.latitudeKey},${el.timestampKey}`).join(','),
+                }),
           };
 
           if (chartData.options?.dynamicTime) {
@@ -121,6 +125,9 @@ export function ChartCreator({ token, projectData, chartData }) {
           ...(chartType === "Info"
               ? { fields: elements.map(el => el.dataKey).join(','), fetchMethods: elements.map(el => el.fetchMethod).join(',') }
               : { fields: elements.map(el => `${el.xAxisKey},${el.yAxisKey}`).join(',') }),
+          ...(chartType === "Map" || chartType === "Map Trajectory" && {
+            fields: elements.map(el => `${el.longitudeKey},${el.latitudeKey},${el.timestampKey}`).join(','),
+          })
         };
 
         if (options.dynamicTime) {
@@ -234,6 +241,7 @@ export function ChartCreator({ token, projectData, chartData }) {
   return (
       <div className="container mx-auto py-10 px-4">
         <h1 className="text-3xl font-bold mb-8 text-black dark:text-white">Chart Creator</h1>
+        { /* Error Message */ }
         {error &&
             <div className="rounded-lg border border-red-500/50 px-4 py-3 text-red-600">
               <div className="flex gap-3">
@@ -253,7 +261,8 @@ export function ChartCreator({ token, projectData, chartData }) {
             </div>
         }
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-4">
-          <Card className="col-span-1 md:col-span-2 bg-white dark:bg-gray-800">
+          {/* preview chart*/}
+          <Card className="col-span-1 md:col-span-2 bg-white dark:bg-gray-800 h-[calc(100vh-500px)]">
             <CardHeader
                 className="flex flex-row items-center justify-between space-y-0 py-2"
                 style={{backgroundColor: options.cardColor}}
@@ -322,12 +331,14 @@ export function ChartCreator({ token, projectData, chartData }) {
               )}
             </CardContent>
           </Card>
-          <Card className={"bg-white dark:bg-gray-800"}>
+
+          { /* Chart Options */}
+          <Card className={"bg-white dark:bg-gray-800 h-[calc(100vh-330px)] flex flex-col"}>
             <CardHeader>
               <h3 className="font-semibold text-black dark:text-white">Chart Options</h3>
             </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[calc(100vh-200px)] pr-4">
+            <CardContent className="flex flex-col h-[calc(100vh-400px)]">
+              <ScrollArea className="flex-grow pr-4">
                 <ChartOptions
                     chartType={chartType}
                     setChartType={setChartType}
@@ -358,14 +369,16 @@ export function ChartCreator({ token, projectData, chartData }) {
                       </AccordionItem>
                   ))}
                 </Accordion>
-                <Button onClick={addElement}>
-                  <Plus className="mr-2 h-4 w-4"/> Add {chartType}
-                </Button>
+                {!["Map", "Map Trajectory"].includes(chartType) || !elements.some(el => ["Map", "Map Trajectory"].includes(el.chartType)) ? (
+                    <Button onClick={addElement}>
+                      <Plus className="mr-2 h-4 w-4"/> Add {chartType}
+                    </Button>
+                ) : null}
                 <Separator className="my-4 dark:bg-gray-700"/>
-                <Button className="w-full" onClick={() => createGraph()}>
-                  Create Graph
-                </Button>
               </ScrollArea>
+              <Button className="w-full" onClick={() => createGraph()}>
+                Create Graph
+              </Button>
             </CardContent>
           </Card>
         </div>

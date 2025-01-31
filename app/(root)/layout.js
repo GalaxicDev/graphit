@@ -24,6 +24,12 @@ export default function RootLayout({ children }) {
         return null;
     }
 
+    const userToken = localStorage.getItem('token').valueOf();
+    console.log(userToken);
+    if (!userToken) {
+        window.location.href = '/login';
+    }
+
     return (
             <div className={`flex h-screen max-h-screen overflow-hidden ${darkMode ? 'dark' : ''}`}>
                 {/* Sidebar with fixed height to screen and overflow auto */}

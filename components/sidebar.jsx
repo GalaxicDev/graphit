@@ -22,10 +22,10 @@ export function Sidebar({ sidebarOpen, toggleSidebar }) {
             <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
                 <Image
                     src={logo}
-                    alt={"Graphit logo"}
+                    alt={"Graphity logo"}
                     height={100}
                     width={"100%"}
-                    className={"flex justify-center content-center"}
+                    className={"flex justify-center content-center invert dark:invert-0"}
                     onClick={() => window.location.href = '/'}
                 />
                 <Button variant="ghost" size="icon" onClick={toggleSidebar} className="text-gray-800 dark:text-white">

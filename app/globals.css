@@ -127,3 +127,7 @@ body {
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+.invert-dark-mode {
+  filter: invert(1);
+}
