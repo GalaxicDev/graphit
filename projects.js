@@ -36,8 +36,7 @@ router.use(extractUserId);
 router.get('/', async (req, res) => {
     try {
         const db = await getDB('data');
-        const userDb = await getDB("data");
-        const user = await userDb.collection("users").findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
+        const user = await db.collection("users").findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
         if(user.role === 'admin'){
             const projects = await db.collection('projects').find({}).toArray();
             res.json(projects);
@@ -58,6 +57,9 @@ router.get('/:id', param('id').isMongoId(), handleValidationErrors, async (req, 
         if (!project) {
             return res.status(404).json({ success: false, message: 'Project not found' });
         }
+        if (project.userId.toString() !== req.userId) {
+            return res.status(403).json({ success: false, message: 'Access denied' });
+        }
         res.json(project);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -72,6 +74,8 @@ router.post('/',
             const db = await getDB('data');
             const newProjectData = {
                 userId: new mongoose.Types.ObjectId(req.userId),
+                editor: [],
+                viewer: [],
                 name: req.body.name,
                 description: req.body.description,
                 collections: [],
@@ -82,52 +86,55 @@ router.post('/',
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
-    });
+    }
+);
 
 
 router.put('/:id',
-param('id').isMongoId(),
-body('name').isString().isLength({ min: 3 }),
-handleValidationErrors, async (req, res) => {
-    try {
-        const db = await getDB('data');
-        const { _id, userId, ...updateData } = req.body; // Exclude _id and userId from req.body
-        const updateProject = await db.collection('projects').findOneAndUpdate(
-            { _id: new mongoose.Types.ObjectId(req.params.id), userId: new mongoose.Types.ObjectId(req.userId) },
-            { $set: updateData },
-            { returnDocument: 'after' }
-        );
+    param('id').isMongoId(),
+    body('name').isString().isLength({ min: 3 }),
+    handleValidationErrors, async (req, res) => {
+        try {
+            const db = await getDB('data');
+            const { _id, userId, ...updateData } = req.body; // Exclude _id and userId from req.body
+            const updateProject = await db.collection('projects').findOneAndUpdate(
+                { _id: new mongoose.Types.ObjectId(req.params.id), userId: new mongoose.Types.ObjectId(req.userId) },
+                { $set: updateData },
+                { returnDocument: 'after' }
+            );
 
-        res.json(updateProject);
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+            res.json(updateProject);
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
     }
-});
+);
 
 // Delete a project by ID
 router.delete('/:id', param('id').isMongoId(),
     handleValidationErrors, async (req, res) => {
-    try {
-        const db = await getDB('data');
-        const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
+        try {
+            const db = await getDB('data');
+            const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
 
-        if (!project) {
-            return res.status(404).json({ success: false, message: 'Project not found' });
-        }
+            if (!project) {
+                return res.status(404).json({ success: false, message: 'Project not found' });
+            }
 
-        if (project.userId.toString() !== req.userId) {
-            return res.status(403).json({ success: false, message: 'Access denied' });
-        }
+            if (project.userId.toString() !== req.userId) {
+                return res.status(403).json({ success: false, message: 'Access denied' });
+            }
 
-        const result = await db.collection('projects').deleteOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
-        if (result.deletedCount === 0) {
-            return res.status(404).json({ success: false, message: 'Project not found' });
+            const result = await db.collection('projects').deleteOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
+            if (result.deletedCount === 0) {
+                return res.status(404).json({ success: false, message: 'Project not found' });
+            }
+            res.json({ success: true, message: 'Project deleted successfully' });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
         }
-        res.json({ success: true, message: 'Project deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
     }
-});
+);
 
 // add a collection to a project
 router.post('/:id/collections',
@@ -164,7 +171,106 @@ router.post('/:id/collections',
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
-    });
+    }
+);
 
+// change the access of a project
+router.post('/:projectId/access',
+    param('projectId').isMongoId(),
+    body('name').isString(),
+    handleValidationErrors, async (req, res) => {
+        try {
+            const db = await getDB('data');
+            const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.params.projectId) });
+            if (!project) {
+                return res.status(404).json({ success: false, message: 'Project not found' });
+            }
+            // Only the project owner can change access
+            if (project.userId.toString() !== req.userId) {
+                return res.status(403).json({ success: false, message: 'Access denied' });
+            }
+
+            const { name, role } = req.body;
+            //verify if the role is valid
+            if (!['admin','editor', 'viewer', 'none'].includes(role)) {
+                return res.status(400).json({ success: false, message: 'Invalid role' });
+            }
+
+            // Check if user exists
+            const user = await db.collection('users').findOne({ name });
+            if (!user) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+            // Check if the user already has the role
+            if (project.editor.includes(user._id) && role === 'editor') {
+                return res.status(400).json({ success: false, message: 'User already has editor access' });
+            }else if(project.viewer.includes(user._id) && role === 'viewer'){
+                return res.status(400).json({ success: false, message: 'User already has viewer access' });
+            }
+
+            // If the role is admin, change the project owner
+            if (role === 'admin') {
+                // Make the previous owner an editor
+                await db.collection('projects').updateOne(
+                    { _id: new mongoose.Types.ObjectId(req.params.projectId) },
+                    { $addToSet: { editor: project.userId } }
+                );
+                // Remove the new owner from editor and viewer
+                await db.collection('projects').updateOne(
+                    { _id: new mongoose.Types.ObjectId(req.params.projectId) },
+                    { $pull: { editor: user._id, viewer: user._id } }
+                );
+                // Update the project owner
+                const result = await db.collection('projects').updateOne(
+                    { _id: new mongoose.Types.ObjectId(req.params.projectId) },
+                    { $set: { userId: user._id } }
+                );
+                
+                if (result.modifiedCount === 0) {
+                    return res.status(404).json({ success: false, message: 'Project not found' });
+                }
+                return res.json({ success: true, message: 'Access updated successfully' });
+            }else if(role === 'none'){
+                const updateData = {
+                    $pull: { editor: user._id, viewer: user._id },
+                };
+    
+                const result = await db.collection('projects').updateOne(
+                    { _id: new mongoose.Types.ObjectId(req.params.projectId) },
+                    updateData
+                );
+    
+                if (result.modifiedCount === 0) {
+                    return res.status(404).json({ success: false, message: 'Project not found' });
+                }
+    
+                res.json({ success: true, message: 'Access updated successfully' });
+
+            }else{
+                //Remove the user from viewer and editor list and then add them to the desired list
+                await db.collection('projects').updateOne(
+                    { _id: new mongoose.Types.ObjectId(req.params.projectId) },
+                    { $pull: { editor: user._id, viewer: user._id } }
+                );
+
+                const updateData = {
+                    $addToSet: { [role]: user._id },
+                };
+
+                const result = await db.collection('projects').updateOne(
+                    { _id: new mongoose.Types.ObjectId(req.params.projectId) },
+                    updateData
+                );
+                if (result.modifiedCount === 0) {
+                    return res.status(404).json({ success: false, message: 'Project not found' });
+                }
+    
+                res.json({ success: true, message: 'Access updated successfully' });
+            }
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+);
+    
 export default router;
-
