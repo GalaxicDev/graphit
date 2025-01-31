@@ -18,15 +18,14 @@ const handleValidationErrors = (req, res, next) => {
 // Middleware to extract userId from token
 const extractUserId = (req, res, next) => {
     const authToken = req.headers['authorization'];
-    if (!authToken) return res.status(401).json({ success: false, message: 'Unauthorized' });
-
+    if (!authToken) return res.status(403).json({ success: false, message: 'Token required' });
     try {
         const token = authToken.split(' ')[1];
         const decoded = verifyToken(token);
         req.userId = decoded.userId;
         next();
     } catch (error) {
-        res.status(401).json({ success: false, message: 'Token invalid or expired' });
+        res.status(403).json({ success: false, message: 'Invalid token' });
     }
 };
 

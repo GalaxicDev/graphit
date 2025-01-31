@@ -1,5 +1,5 @@
 import express from 'express';
-import { body, param, validationResult } from 'express-validator';
+import { body, param, validationResult, query } from 'express-validator';
 import { getDB } from './connectDB.js';
 import mongoose from 'mongoose';
 import {verifyToken} from "./utils/jwt.js";
@@ -37,7 +37,15 @@ const extractUserId = (req, res, next) => {
 router.use(extractUserId);
 
 
-router.get('/data', async (req, res) => {
+router.get('/data',
+    [
+        query('collections').isString().withMessage('Collections parameter is required'),
+        query('fields').isString().withMessage('Fields parameter is required'),
+        query('timeframe').optional().isString(),
+        query('from').optional().isISO8601(),
+        query('to').optional().isISO8601(),
+        handleValidationErrors
+    ], async (req, res) => {
     const { collections, fields, timeframe, from, to } = req.query;
     const conditionalParams = req.query.conditionalParams;
 
@@ -166,6 +174,19 @@ router.get('/data', async (req, res) => {
 
 router.get('/availableKeys', async (req, res) => {
     const { collection } = req.query;
+
+    if (!collection) {
+        return res.status(400).json({ success: false, message: 'Collection parameter is required' });
+    }
+
+    // add caching to prevent multiple requests
+    const cacheKey = `availableKeys-${collection}`;
+    const cachedData = cache.get(cacheKey);
+
+    if (cachedData) {
+        return res.json({ success: true, availableKeys: cachedData });
+    }
+
     try {
         const db = await getDB('mqtt');
 
@@ -176,26 +197,51 @@ router.get('/availableKeys', async (req, res) => {
             Object.keys(doc).forEach(key => availableKeys.add(key));
         });
 
+        cache.set(cacheKey, Array.from(availableKeys)); // Cache the data for future requests
+
         res.json({ success: true, availableKeys: Array.from(availableKeys) });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
-//////// This is still the code for deleting a graph, not an entry of a mqtt. ////////
 
-// router.delete('/:id', param('id').isMongoId(),
-//     handleValidationErrors, async (req, res) => {
-//     try {
-//         const db = await getDB('mqtt');
-//         const graph = await db.collection('graphs').findOneAndDelete({ _id: new mongoose.Types.ObjectId(req.params.id) });
-//         if (!graph.value) {
-//             return res.status(404).json({ success: false, message: 'Graph not found' });
-//         }
-//         res.json(graph.value);
-//     } catch (error) {
-//         res.status(500).json({ success: false, message: error.message });
-//     }
-// });
+// cache listener, remove cache when new data is added, only remove cache for the specific collection (availableKeys and mqttData)
+// we use changeStream to listen to changes in the collection and remove the cache
+const setupChangeStreams = async () => {
+    const db = await getDB('mqtt');
+    const collections = await db.listCollections().toArray();
+
+    collections.forEach(({ name }) => {
+        const collectionChangeStream = db.collection(name).watch();
+
+        collectionChangeStream.on('change', (change) => {
+            console.log(`Change stream event in collection ${name}: ${change.operationType}`);
+            cache.del(`availableKeys-${name}`);
+            cache.keys((err, keys) => {
+                if (err) {
+                    console.error(err);
+                } else {
+                    keys.forEach(key => {
+                        try {
+                            const parsedKey = JSON.parse(key);
+                            if (parsedKey.collections && parsedKey.collections.includes(name)) {
+                                cache.del(key);
+                            }
+                        } catch (e) {
+                            console.error(`Error parsing cache key: ${key}`, e);
+                        }
+                    });
+                }
+            });
+        });
+    });
+};
+
+// Initialize change streams for all collections
+//setupChangeStreams().catch(console.error);
+// TODO: when setting it up the code crashes
+
+
 
 export default router;

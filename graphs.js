@@ -65,9 +65,9 @@ router.post('/',
     body('chartType').isString().withMessage('Chart Type is required'),
     body('options').isObject().withMessage('Options must be an object'),
     body('elements').isArray().withMessage('Elements must be an array'),
-    body('conditionalParams').isObject().optional().withMessage('Conditional Params must be an object'),
     handleValidationErrors,
     async (req, res) => {
+        console.log("Creating new graph", req.body);
         try {
             const db = await getDB('data');
             const newGraphData = {
@@ -76,7 +76,6 @@ router.post('/',
                 chartType: req.body.chartType,
                 options: req.body.options,
                 elements: req.body.elements,
-                conditionalParams: req.body.conditionalParams,
             };
             const result = await db.collection('graphs').insertOne(newGraphData);
             // Return the full graph object including the inserted ID
