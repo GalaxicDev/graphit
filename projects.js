@@ -18,7 +18,7 @@ const handleValidationErrors = (req, res, next) => {
 // Middleware to extract userId from token
 const extractUserId = (req, res, next) => {
     const authToken = req.headers['authorization'];
-    if (!authToken) return res.status(403).json({ success: false, message: 'Token required' });
+    if (!authToken) return res.status(401).json({ success: false, message: 'Token required' });
     try {
         const token = authToken.split(' ')[1];
         const decoded = verifyToken(token);
@@ -41,7 +41,13 @@ router.get('/', async (req, res) => {
             const projects = await db.collection('projects').find({}).toArray();
             res.json(projects);
         } else {
-            const projects = await db.collection('projects').find({ userId: new mongoose.Types.ObjectId(req.userId) }).toArray();
+            const projects = await db.collection('projects').find({
+                $or: [
+                    { userId: new mongoose.Types.ObjectId(req.userId) },
+                    { viewer: new mongoose.Types.ObjectId(req.userId) },
+                    { editor: new mongoose.Types.ObjectId(req.userId) }
+                ]
+            }).toArray();
             res.json(projects);
         }
     } catch (error) {
