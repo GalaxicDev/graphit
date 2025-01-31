@@ -5,6 +5,7 @@ import axios from 'axios'
 import { Search, Database, Download, Edit, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import nextConfig from '@/next.config.mjs';
 
 
 export default function MongoDBViewer() {
@@ -18,7 +19,7 @@ export default function MongoDBViewer() {
 
   useEffect(() => {
     // Fetch all collections
-    axios.get(process.env.API_URL + '/collections', {
+    axios.get(nextConfig.env.API_URL + '/collections', {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
@@ -35,7 +36,7 @@ export default function MongoDBViewer() {
   useEffect(() => {
     if (selectedCollection) {
       // Fetch documents of the selected collection
-      axios.get(process.env.API_URL + `/collections/${selectedCollection}`, {
+      axios.get(nextConfig.env.API_URL + `/collections/${selectedCollection}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },

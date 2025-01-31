@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus } from 'lucide-react';
+import nextConfig from '@/next.config.mjs';
 
 const generalChartTypes = ["Line", "Bar", "Area", "Scatter", "Pie", "Radar"];
 
@@ -17,7 +18,7 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
         const fetchAvailableKeys = async () => {
             if (el.collection) {
                 try {
-                    const response = await axios.get(`${process.env.API_URL}/mqtt/availableKeys`, {
+                    const response = await axios.get(`${nextConfig.env.API_URL}/mqtt/availableKeys`, {
                         params: { collection: el.collection },
                         headers: {
                             "Authorization": `Bearer ${localStorage.getItem("token")}`

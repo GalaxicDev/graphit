@@ -21,6 +21,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { MoreHorizontal, Edit, Trash2, Maximize2, Minimize2, Move, Plus } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useRouter } from "next/navigation"
+import nextConfig from '@/next.config.mjs';
 
 import { renderChart } from "@/lib/renderChart";
 import { renderOther } from "@/lib/renderOther";
@@ -97,7 +98,7 @@ export function ChartCreator({ token, projectData, chartData }) {
             });
           });
 
-          const response = await axios.get(`${process.env.API_URL}/mqtt/data`, {
+          const response = await axios.get(`${nextConfig.env.API_URL}/mqtt/data`, {
             params,
             headers: { Authorization: `Bearer ${token}` },
           });
@@ -145,7 +146,7 @@ export function ChartCreator({ token, projectData, chartData }) {
           });
         });
 
-        const dataResponse = await axios.get(`${process.env.API_URL}/mqtt/data`, {
+        const dataResponse = await axios.get(`${nextConfig.env.API_URL}/mqtt/data`, {
           params,
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -226,7 +227,7 @@ export function ChartCreator({ token, projectData, chartData }) {
     }
 
     try {
-      const res = await axios.post(`${process.env.API_URL}/graphs`, newGraph, {
+      const res = await axios.post(`${nextConfig.env.API_URL}/graphs`, newGraph, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

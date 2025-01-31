@@ -7,6 +7,7 @@ import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import nextConfig from '@/next.config.mjs';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 const LOCAL_STORAGE_KEY = "dashboard-layouts";
@@ -34,7 +35,7 @@ const ChartCardComponent = ({ projectId }) => {
         const fetchGraphs = async () => {
             try {
                 const response = await axios.get(
-                    `${process.env.API_URL}/graphs/project/${projectId}`,
+                    `${nextConfig.env.API_URL}/graphs/project/${projectId}`,
                     {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem("token")}`,

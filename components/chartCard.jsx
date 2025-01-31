@@ -21,6 +21,7 @@ import axios from 'axios';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PacmanLoader } from 'react-spinners'
 import { ScrollArea } from "@/components/ui/scroll-area";
+import nextConfig from '@/next.config.mjs';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']; // Define the COLORS array
 
@@ -95,7 +96,7 @@ const ChartCard = ({ graph, onDelete, onEdit }) => {
                     }
                 })
 
-                const dataResponse = await axios.get(`${process.env.API_URL}/mqtt/data`, {
+                const dataResponse = await axios.get(`${nextConfig.env.API_URL}/mqtt/data`, {
                     params,
                     headers: {
                         "Authorization": `Bearer ${localStorage.getItem("token")}`

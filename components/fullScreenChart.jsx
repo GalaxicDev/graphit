@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import ChartCard from './chartCard';
 import axios from 'axios';
 import { PacmanLoader } from 'react-spinners';
+import nextConfig from '@/next.config.mjs';
 
 const FullScreenChart = ({ graphId }) => {
     const router = useRouter();
@@ -17,8 +18,8 @@ const FullScreenChart = ({ graphId }) => {
             if (!graphId) return;
 
             try {
-                console.log('API URL:', process.env.API_URL);
-                const res = await axios.get(`${process.env.API_URL}/graphs/${graphId}`, {
+                console.log('API URL:', nextConfig.env.API_URL);
+                const res = await axios.get(`${nextConfig.env.API_URL}/graphs/${graphId}`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }

@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Cookies from 'js-cookie'
+import nextConfig from '@/next.config.mjs';
 
 const LoginForm = () => {
   const [email, setEmail] = useState("")
@@ -26,7 +27,7 @@ const LoginForm = () => {
     }
 
     try {
-      const res = await fetch(process.env.API_URL + '/auth/login', {
+      const res = await fetch(nextConfig.env.API_URL + '/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

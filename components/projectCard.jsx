@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import nextConfig from '@/next.config.mjs';
 
 export function ProjectCard({ project, onViewProject, setProjects }) {
     const [inputValue, setInputValue] = useState("");
@@ -25,7 +26,7 @@ export function ProjectCard({ project, onViewProject, setProjects }) {
 
     const handleDeleteProject = async (projectId) => {
         try {
-            const res = await axios.delete(`${process.env.API_URL}/projects/${projectId}`, {
+            const res = await axios.delete(`${nextConfig.env.API_URL}/projects/${projectId}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }

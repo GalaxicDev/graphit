@@ -1,15 +1,17 @@
 import axios from 'axios';
 import { ProjectSettings } from "@/components/projectSettings";
 import { cookies } from "next/headers";
+import nextConfig from '@/next.config.mjs';
 
-export default async function SettingsPage({ params }) {
+export default async function SettingsPage(props) {
+    const params = await props.params;
     const { project } = params;
     let projectData = null;
-    const token = cookies().get("token")?.value;
+    const token = (await cookies()).get("token")?.value;
     console.log("token:", token);
 
     try {
-        const response = await axios.get(process.env.API_URL + `/projects/${project}`, {
+        const response = await axios.get(nextConfig.env.API_URL + `/projects/${project}`, {
             headers: {
                 "Authorization": `Bearer ${token}`
             }

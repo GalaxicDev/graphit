@@ -3,7 +3,7 @@ import { fetchAllProjects } from '@/lib/api';
 import { ProjectSelection } from '@/components/projectSelection';
 
 export default async function DashboardComponent() {
-    const token = cookies().get('token')?.value;
+    const token = (await cookies()).get('token')?.value;
     console.log('Token:', token);
     const initialProjects = await fetchAllProjects(token);
 

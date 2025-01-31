@@ -19,6 +19,7 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert"
+import nextConfig from '@/next.config.mjs';
 
 export function ProjectSettings({ initialProjectData }) {
   const [projectData, setProjectData] = useState(initialProjectData);
@@ -28,7 +29,7 @@ export function ProjectSettings({ initialProjectData }) {
 
   const handleProjectUpdate = async () => {
     try {
-      await axios.put(process.env.API_URL + `/projects/${projectData._id}`,
+      await axios.put(nextConfig.env.API_URL + `/projects/${projectData._id}`,
           projectData,
           {
             headers: {
@@ -62,7 +63,7 @@ export function ProjectSettings({ initialProjectData }) {
   const handleAddCollection = async () => {
     if (newCollection) {
       try {
-        const response = await axios.post(process.env.API_URL + `/projects/${projectData._id}/collections`,
+        const response = await axios.post(nextConfig.env.API_URL + `/projects/${projectData._id}/collections`,
             { name: newCollection },
             {
               headers: {

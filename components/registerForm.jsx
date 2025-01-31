@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import nextConfig from '@/next.config.mjs';
 
 export function RegisterForm() {
   const [name, setName] = useState("")
@@ -26,7 +27,7 @@ export function RegisterForm() {
     }
 
     try {
-      const res = await fetch(process.env.API_URL + '/auth/signup', {
+      const res = await fetch(nextConfig.env.API_URL + '/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

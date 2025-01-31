@@ -18,6 +18,7 @@ import {
 import { ProjectCard } from './projectCard';
 import { Plus } from 'lucide-react';
 import { Search } from 'lucide-react';
+import nextConfig from '@/next.config.mjs';
 
 export function ProjectSelection({ projects }) {
   const [projectList, setProjectList] = useState(projects);
@@ -29,7 +30,7 @@ export function ProjectSelection({ projects }) {
   // Function to handle creating a new project
   const handleCreateProject = async () => {
     try {
-      const res = await fetch(process.env.API_URL + '/projects', {
+      const res = await fetch(nextConfig.env.API_URL + '/projects', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

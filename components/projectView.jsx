@@ -5,8 +5,9 @@ import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { ChartArea, Edit, Plus } from 'lucide-react'
 import { Button } from "@/components/ui/button"
-import ChartCardComponent from './chartCardComponent'
+import ChartCardComponent from '@/components/ChartCardComponent'
 import { useRouter } from "next/navigation"
+import nextConfig from '@/next.config.mjs';
 
 
 export function ProjectView({ project }) {
@@ -23,7 +24,7 @@ export function ProjectView({ project }) {
 
         const fetchGraphs = async () => {
             try {
-                const res = axios.get(process.env.API_URL + `/graphs/project/${project._id}`, {
+                const res = axios.get(nextConfig.env.API_URL + `/graphs/project/${project._id}`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
