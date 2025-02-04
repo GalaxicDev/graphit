@@ -20,11 +20,12 @@ import { Plus } from 'lucide-react';
 import { Search } from 'lucide-react';
 import nextConfig from '@/next.config.mjs';
 
-export function ProjectSelection({ projects }) {
-  const [projectList, setProjectList] = useState(projects);
+export function ProjectSelection({ initialProjects }) {
+  const [projectList, setProjectList] = useState(initialProjects);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+        
   const router = useRouter();
 
   // Function to handle creating a new project
@@ -57,10 +58,11 @@ export function ProjectSelection({ projects }) {
     router.push(`/projects/${projectId}`);
   };
 
+
   // Filter projects based on search term
-  const filteredProjects = projectList.filter(project =>
-    project.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProjects = projectList?.length 
+        ? projectList.filter(project => project?.name?.toLowerCase().includes(searchTerm.toLowerCase()))
+        : [];
 
   return (
       <>
