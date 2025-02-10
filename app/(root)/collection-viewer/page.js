@@ -19,18 +19,20 @@ export default function MongoDBViewer() {
 
   useEffect(() => {
     // Fetch all collections
-    axios.get(nextConfig.env.API_URL + '/collections', {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    })
-      .then(response => {
-        const collectionList = response.data.map(collection => collection.name); // Extract collection names and put them in a list
-        setCollections(collectionList);
+    if(typeof window !== 'undefined'){
+      axios.get(nextConfig.env.API_URL + '/collections', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
       })
-      .catch(error => {
-        console.error('Error fetching collections:', error)
-      })
+        .then(response => {
+          const collectionList = response.data.map(collection => collection.name); // Extract collection names and put them in a list
+          setCollections(collectionList);
+        })
+        .catch(error => {
+          console.error('Error fetching collections:', error)
+        })
+    }
   }, [])
 
   useEffect(() => {
