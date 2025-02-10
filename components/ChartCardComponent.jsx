@@ -57,7 +57,7 @@ const ChartCardComponent = ({ projectId }) => {
         };
 
         fetchGraphs();
-    }, [projectId]);
+    }, [projectId, layouts]);
 
     // Save layouts to localStorage whenever they change
     const onLayoutChange = useCallback((currentLayout, allLayouts) => {

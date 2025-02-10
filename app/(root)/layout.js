@@ -1,15 +1,17 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Sidebar } from '@/components/sidebar';
 import { Navbar } from '@/components/navbar';
 import axios from "axios";
 import Cookies from 'js-cookie';
+import nextConfig from '@/next.config.mjs';
 
 export default function RootLayout({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [darkMode, setDarkMode] = useState(false);
     const [isClient, setIsClient] = useState(false);
+    const userRef = useRef(null);
 
     useEffect(() => {
         const darkModePreference = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -20,14 +22,32 @@ export default function RootLayout({ children }) {
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
     const toggleDarkMode = () => setDarkMode(!darkMode);
 
+    let userToken = null;
+    if(typeof window !== 'undefined'){
+        userToken = localStorage.getItem('token').valueOf();
+        console.log(userToken);
+        if (!userToken) {
+            window.location.href = '/login';
+        }
+    }   
+
+    { /* // fetch user data
+    useEffect(() => {
+        axios.get(`${nextConfig.env.API_URL}/auth/verify`, {
+            headers: {
+                Authorization: `Bearer ${userToken}`
+            }
+        }).then(response => {
+            userRef.current = response.data.user;
+            console.log("set useRef:", userRef.current);
+        }
+        ).catch(error => {
+            console.log(error);
+        })
+    }, [userToken]); */} 
+
     if (!isClient) {
         return null;
-    }
-
-    const userToken = localStorage.getItem('token').valueOf();
-    console.log(userToken);
-    if (!userToken) {
-        window.location.href = '/login';
     }
 
     return (

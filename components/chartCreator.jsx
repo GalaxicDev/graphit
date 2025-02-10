@@ -1,26 +1,25 @@
-"use client"
+"use client";
 
-import {useState, useEffect} from "react"
-import axios from 'axios'
-import { format } from 'date-fns'
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { PacmanLoader } from 'react-spinners'
-import { CircleAlert } from 'lucide-react'
+import { useState, useEffect } from "react";
+import axios from 'axios';
+import { format } from 'date-fns';
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PacmanLoader } from 'react-spinners';
+import { CircleAlert } from 'lucide-react';
 import {
   LineChart, Line, BarChart, Bar, AreaChart, Area, ScatterChart, Scatter,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis
-} from "recharts"
-import { ChartOptions } from "@/components/chartCreator/chartOptions"
-import { ElementConfig } from "@/components/chartCreator/elementConfig"
-import { Separator } from "@/components/ui/separator"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
-import { MoreHorizontal, Edit, Trash2, Maximize2, Minimize2, Move, Plus } from 'lucide-react'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { useRouter } from "next/navigation"
+} from "recharts";
+import { ChartOptions } from "@/components/chartCreator/chartOptions";
+import { ElementConfig } from "@/components/chartCreator/elementConfig";
+import { Separator } from "@/components/ui/separator";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { MoreHorizontal, Edit, Trash2, Maximize2, Minimize2, Move, Plus } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 import nextConfig from '@/next.config.mjs';
 
 import { renderChart } from "@/lib/renderChart";
@@ -49,6 +48,55 @@ export function ChartCreator({ token, projectData, chartData }) {
   const router = useRouter();
 
   useEffect(() => {
+    const fetchInitialGraphData = async () => {
+      if (!chartData?.elements || chartData.elements.length === 0) return;
+  
+      try {
+        setIsLoading(true);
+        const params = {
+          collections: chartData.elements.map(el => el.collection).join(','),
+          ...(chartData.chartType === "Info"
+              ? {
+                fields: chartData.elements.map(el => el.dataKey).join(','),
+                fetchMethods: chartData.elements.map(el => el.fetchMethod).join(','),
+              }
+              : {
+                fields: chartData.elements.map(el => `${el.xAxisKey},${el.yAxisKey}`).join(','),
+              }),
+          ...(chartData.chartType === "Map" || chartData.chartType === "Map Trajectory"
+              && {
+                  fields: chartData.elements.map(el => `${el.longitudeKey},${el.latitudeKey},${el.timestampKey}`).join(','),
+              }),
+        };
+  
+        if (chartData.options?.dynamicTime) {
+          params.timeframe = selectedTimeframe;
+        } else {
+          params.from = new Date(chartData.options?.xRange?.from).toISOString();
+          params.to = new Date(chartData.options?.xRange?.to).toISOString();
+        }
+  
+        chartData.elements.forEach((el, index) => {
+          el.conditionalParams?.forEach((param) => {
+            params[`conditionalParams[${index}][field]`] = param.field;
+            params[`conditionalParams[${index}][operator]`] = param.operator;
+            params[`conditionalParams[${index}][value]`] = param.value;
+          });
+        });
+  
+        const response = await axios.get(`${nextConfig.env.API_URL}/mqtt/data`, {
+          params,
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
+        setGraphData(response.data.data);
+      } catch (error) {
+        console.error('Failed to fetch initial graph data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
     if (chartData) {
       setChartType(chartData.chartType || "Line");
       setOptions(chartData.options || {
@@ -61,56 +109,6 @@ export function ChartCreator({ token, projectData, chartData }) {
         xRange: { from: new Date(), to: new Date() },
       });
       setElements(chartData.elements || []);
-
-      const fetchInitialGraphData = async () => {
-        if (!chartData.elements || chartData.elements.length === 0) return;
-
-        try {
-          setIsLoading(true);
-          const params = {
-            collections: chartData.elements.map(el => el.collection).join(','),
-            ...(chartData.chartType === "Info"
-                ? {
-                  fields: chartData.elements.map(el => el.dataKey).join(','),
-                  fetchMethods: chartData.elements.map(el => el.fetchMethod).join(','),
-                }
-                : {
-                  fields: chartData.elements.map(el => `${el.xAxisKey},${el.yAxisKey}`).join(','),
-                }),
-            ...(chartData.chartType === "Map" || chartData.chartType === "Map Trajectory"
-                && {
-                    fields: chartData.elements.map(el => `${el.longitudeKey},${el.latitudeKey},${el.timestampKey}`).join(','),
-                }),
-          };
-
-          if (chartData.options?.dynamicTime) {
-            params.timeframe = selectedTimeframe;
-          } else {
-            params.from = new Date(chartData.options?.xRange?.from).toISOString();
-            params.to = new Date(chartData.options?.xRange?.to).toISOString();
-          }
-
-          chartData.elements.forEach((el, index) => {
-            el.conditionalParams?.forEach((param) => {
-              params[`conditionalParams[${index}][field]`] = param.field;
-              params[`conditionalParams[${index}][operator]`] = param.operator;
-              params[`conditionalParams[${index}][value]`] = param.value;
-            });
-          });
-
-          const response = await axios.get(`${nextConfig.env.API_URL}/mqtt/data`, {
-            params,
-            headers: { Authorization: `Bearer ${token}` },
-          });
-
-          setGraphData(response.data.data);
-        } catch (error) {
-          console.error('Failed to fetch initial graph data:', error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
       fetchInitialGraphData();
     }
   }, [chartData, token, selectedTimeframe]);
@@ -317,7 +315,7 @@ export function ChartCreator({ token, projectData, chartData }) {
                         </ResponsiveContainer>
                     )}
                   </>
-              ):(
+              ):( 
                   <>
                     {isLoading ? (
                         <div className="flex items-center justify-center h-full pt-2">
