@@ -6,6 +6,7 @@ const nextConfig = {
     },
     images: {
         domains: ['placeholder.pics'],
+        dangerouslyAllowSVG: true,
     },
 };
 
