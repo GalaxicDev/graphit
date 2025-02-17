@@ -21,8 +21,10 @@
     "express-validator": "^7.2.0",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
+    "leaflet": "^1.9.4",
     "mongoose": "^8.9.3",
     "node-cache": "^5.1.2",
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "react-leaflet": "^5.0.0"
   }
 }

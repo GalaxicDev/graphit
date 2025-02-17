@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="0e535b2c-1327-46a2-8eb9-3d114a046a8f" name="Changes" comment="incorrect merge fix">
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;GalaxicDev&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/GalaxicDev/graphit.git&quot;,
+    &quot;accountId&quot;: &quot;9b89795f-f58c-4c2c-a158-4776b05dadd1&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2nSlKp7uHjtAGJ5VMXJphbgyeLc" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;api&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/vw070310/WebstormProjects/2Wire&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;vcs.Git&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\vw070310\\AppData\\Local\\Programs\\WebStorm\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-WS-243.22562.222" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0e535b2c-1327-46a2-8eb9-3d114a046a8f" name="Changes" comment="" />
+      <created>1728974297247</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1728974297247</updated>
+      <workItem from="1728974298424" duration="4100000" />
+      <workItem from="1728978708519" duration="474000" />
+      <workItem from="1728981569106" duration="2081000" />
+      <workItem from="1729064159710" duration="5781000" />
+      <workItem from="1729097656078" duration="1436000" />
+      <workItem from="1729249467901" duration="2046000" />
+      <workItem from="1729251898424" duration="2198000" />
+      <workItem from="1729579179913" duration="706000" />
+      <workItem from="1729668534170" duration="6164000" />
+      <workItem from="1729854818665" duration="4119000" />
+      <workItem from="1730795126221" duration="1765000" />
+      <workItem from="1730882213818" duration="5650000" />
+      <workItem from="1731059747191" duration="396000" />
+      <workItem from="1731067491575" duration="4347000" />
+      <workItem from="1731397056550" duration="4297000" />
+      <workItem from="1731486700485" duration="2540000" />
+      <workItem from="1731492856668" duration="342000" />
+      <workItem from="1731493252163" duration="1413000" />
+      <workItem from="1731672834258" duration="3860000" />
+      <workItem from="1732001868388" duration="3237000" />
+      <workItem from="1732260906453" duration="3476000" />
+      <workItem from="1732277015257" duration="401000" />
+      <workItem from="1732277433675" duration="596000" />
+      <workItem from="1732606472156" duration="1633000" />
+      <workItem from="1732608784275" duration="1757000" />
+      <workItem from="1732882142418" duration="3571000" />
+      <workItem from="1733211847655" duration="3564000" />
+      <workItem from="1733301019849" duration="4054000" />
+      <workItem from="1736149016383" duration="3011000" />
+      <workItem from="1736235461398" duration="141000" />
+      <workItem from="1736235658029" duration="4295000" />
+      <workItem from="1736324947422" duration="65000" />
+      <workItem from="1736325050080" duration="4391000" />
+      <workItem from="1736494702972" duration="884000" />
+      <workItem from="1736510643796" duration="3643000" />
+      <workItem from="1736754367460" duration="89000" />
+      <workItem from="1736844189169" duration="1078000" />
+      <workItem from="1736929884808" duration="6593000" />
+      <workItem from="1737099858888" duration="1988000" />
+      <workItem from="1737116061227" duration="2545000" />
+      <workItem from="1737358600212" duration="4665000" />
+      <workItem from="1737444971409" duration="273000" />
+      <workItem from="1737445773254" duration="3203000" />
+      <workItem from="1737720187197" duration="8000" />
+      <workItem from="1737721365484" duration="2811000" />
+      <workItem from="1737963462271" duration="1211000" />
+      <workItem from="1738049618552" duration="1738000" />
+      <workItem from="1738139343844" duration="59000" />
+      <workItem from="1738139434571" duration="3358000" />
+      <workItem from="1738309063090" duration="1455000" />
+      <workItem from="1738316156419" duration="948000" />
+      <workItem from="1738325301682" duration="1272000" />
+    </task>
+    <task id="LOCAL-00001" summary="added first API code">
+      <option name="closed" value="true" />
+      <created>1728974754170</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1728974754170</updated>
+    </task>
+    <task id="LOCAL-00002" summary="added first API code">
+      <option name="closed" value="true" />
+      <created>1728974883930</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1728974883930</updated>
+    </task>
+    <task id="LOCAL-00003" summary="added first API code">
+      <option name="closed" value="true" />
+      <created>1728974988578</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1728974988578</updated>
+    </task>
+    <task id="LOCAL-00004" summary="added first API code">
+      <option name="closed" value="true" />
+      <created>1729067980581</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1729067980581</updated>
+    </task>
+    <task id="LOCAL-00005" summary="added graph api">
+      <option name="closed" value="true" />
+      <created>1729255090779</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1729255090779</updated>
+    </task>
+    <task id="LOCAL-00006" summary="added graph api">
+      <option name="closed" value="true" />
+      <created>1729858482745</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1729858482745</updated>
+    </task>
+    <task id="LOCAL-00007" summary="fixed data fetching from mqtt">
+      <option name="closed" value="true" />
+      <created>1730883548678</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1730883548678</updated>
+    </task>
+    <task id="LOCAL-00008" summary="fixed data fetching from mqtt">
+      <option name="closed" value="true" />
+      <created>1730886767036</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1730886767036</updated>
+    </task>
+    <task id="LOCAL-00009" summary="updated files push">
+      <option name="closed" value="true" />
+      <created>1732606615611</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1732606615611</updated>
+    </task>
+    <task id="LOCAL-00010" summary="updated files push">
+      <option name="closed" value="true" />
+      <created>1732611832941</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1732611832941</updated>
+    </task>
+    <task id="LOCAL-00011" summary="updated files push">
+      <option name="closed" value="true" />
+      <created>1733216948574</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1733216948574</updated>
+    </task>
+    <task id="LOCAL-00012" summary="updated files push">
+      <option name="closed" value="true" />
+      <created>1733309805705</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1733309805705</updated>
+    </task>
+    <task id="LOCAL-00013" summary="implemented X range and better mqtt api fetching">
+      <option name="closed" value="true" />
+      <created>1736241028779</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1736241028779</updated>
+    </task>
+    <task id="LOCAL-00014" summary="mqtt api check added back">
+      <option name="closed" value="true" />
+      <created>1736329384653</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1736329384653</updated>
+    </task>
+    <task id="LOCAL-00015" summary="multiple elements support">
+      <option name="closed" value="true" />
+      <created>1736754414915</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1736754414915</updated>
+    </task>
+    <task id="LOCAL-00016" summary="integrating conditionalParams">
+      <option name="closed" value="true" />
+      <created>1736931863887</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1736931863887</updated>
+    </task>
+    <task id="LOCAL-00017" summary="integrated conditionalParams">
+      <option name="closed" value="true" />
+      <created>1736937326425</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1736937326425</updated>
+    </task>
+    <task id="LOCAL-00018" summary="implemented caching">
+      <option name="closed" value="true" />
+      <created>1737100866661</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1737100866661</updated>
+    </task>
+    <task id="LOCAL-00019" summary="idk tbh xD">
+      <option name="closed" value="true" />
+      <created>1738142999218</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1738142999218</updated>
+    </task>
+    <task id="LOCAL-00020" summary="incorrect merge fix">
+      <option name="closed" value="true" />
+      <created>1738143308240</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1738143308240</updated>
+    </task>
+    <task id="LOCAL-00021" summary="incorrect merge fix">
+      <option name="closed" value="true" />
+      <created>1738143327159</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1738143327159</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="true" />
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="added first API code" />
+    <MESSAGE value="added graph api" />
+    <MESSAGE value="fixed data fetching from mqtt" />
+    <MESSAGE value="updated files push" />
+    <MESSAGE value="implemented X range and better mqtt api fetching" />
+    <MESSAGE value="mqtt api check added back" />
+    <MESSAGE value="multiple elements support" />
+    <MESSAGE value="integrating conditionalParams" />
+    <MESSAGE value="integrated conditionalParams" />
+    <MESSAGE value="implemented caching" />
+    <MESSAGE value="idk tbh xD" />
+    <MESSAGE value="incorrect merge fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="incorrect merge fix" />
+  </component>
+</project>
