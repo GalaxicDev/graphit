@@ -46,8 +46,10 @@ export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode })
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center text-gray-800 dark:text-white">
-                <img
+                <Image
                     src="https://placeholder.pics/svg/300?height=32&width=32" // Placeholder image for user avatar
+                    width={32}
+                    height={32}
                     alt="User avatar"
                     className="w-8 h-8 rounded-full mr-2" />
                 <span>John Doe</span>
