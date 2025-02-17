@@ -68,7 +68,7 @@ const ChartCard = ({ graph, onDelete, onEdit, token }) => {
 
         fetchGraphData();
 
-    }, [graph, selectedTimeframe]);
+    }, [graph, selectedTimeframe, token]);
 
     console.log("graphData:", graph.chartType, graph.elements, graphData, graph.options);
 

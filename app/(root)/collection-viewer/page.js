@@ -110,7 +110,7 @@ export default function MongoDBViewer() {
             {filteredCollections.map(collection => (
               <li key={collection}>
                 <Button
-                  variant={selectedCollection === collection ? "default" : "outline"}
+                  variant={selectedCollection === collection ? "default" : "unselected"}
                   className="w-full justify-start dark:bg-gray-700 dark:text-white"
                   onClick={() => handleCollectionClick(collection)}
                 >
@@ -133,7 +133,7 @@ export default function MongoDBViewer() {
               </div>
               <div className="space-y-4">
                 {filteredDocuments.map(doc => (
-                  <div key={doc.id} className="bg-gray-100 p-4 rounded-lg dark:bg-gray-700 dark:text-white">
+                  <div key={doc.id} className="bg-gray-200 p-4 rounded-lg dark:bg-gray-700 dark:text-white">
                     <div className="flex justify-between items-start mb-2">
                       <pre className="text-sm overflow-x-auto">
                         {JSON.stringify(doc, null, 2)}
@@ -154,6 +154,7 @@ export default function MongoDBViewer() {
                 <Button
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
+                  className="bg-blue-600 text-white"
                 >
                   Previous
                 </Button>
@@ -175,6 +176,7 @@ export default function MongoDBViewer() {
                 <Button
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
+                  className="bg-blue-600 text-white"
                 >
                   Next
                 </Button>
