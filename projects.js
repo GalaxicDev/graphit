@@ -63,10 +63,35 @@ router.get('/:id', param('id').isMongoId(), handleValidationErrors, async (req, 
         if (!project) {
             return res.status(404).json({ success: false, message: 'Project not found' });
         }
-        if (project.userId.toString() !== req.userId) {
+        const userIdObject = new mongoose.Types.ObjectId(req.userId);
+        
+        if (project.userId.toString() !== req.userId && !project.viewer.map(id => id.toString()).includes(userIdObject.toString()) && !project.editor.map(id => id.toString()).includes(userIdObject.toString())) {
             return res.status(403).json({ success: false, message: 'Access denied' });
         }
         res.json(project);
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Get your own role
+router.get('/:id/role', param('id').isMongoId(), handleValidationErrors, async (req, res) => {
+    try {
+        const db = await getDB('data');
+        const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
+        if (!project) {
+            return res.status(404).json({ success: false, message: 'Project not found' });
+        }
+        if (project.userId.toString() === req.userId) {
+            return res.json({ role: 'admin' });
+        }
+        if (project.editor.includes(req.userId)) {
+            return res.json({ role: 'editor' });
+        }
+        if (project.viewer.includes(req.userId)) {
+            return res.json({ role: 'viewer' });
+        }
+        res.json({ role: 'none' });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
