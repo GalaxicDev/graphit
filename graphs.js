@@ -33,7 +33,7 @@ const extractUserId = (req, res, next) => {
 // Apply extractUserId middleware to all routes
 router.use(extractUserId);
 
-
+//Get all graphs for a project
 router.get('/project/:projectId', async (req, res) => {
     try {
         const db = await getDB('data');
