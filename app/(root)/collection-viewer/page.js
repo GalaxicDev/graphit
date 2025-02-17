@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import { Search, Database, Download, Edit, Trash2 } from 'lucide-react'
+import { Search, Database, SquareArrowOutUpRight, Edit, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import nextConfig from '@/next.config.mjs';
@@ -125,7 +125,7 @@ export default function MongoDBViewer() {
               <div className="flex justify-between items-center mb-4 dark:text-white">
                 <h2 className="text-xl font-semibold">{selectedCollection}</h2>
                 <Button onClick={handleExport}>
-                  <Download className="mr-2 h-4 w-4" />
+                  <SquareArrowOutUpRight className="mr-2 h-4 w-4"/>
                   Export
                 </Button>
               </div>

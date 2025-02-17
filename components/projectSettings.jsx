@@ -1,7 +1,7 @@
 "use client"
 
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
 import { Plus, X, Save, Trash2, Eye, EyeOff, Info, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,30 +13,31 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert"
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { CircleAlert } from "lucide-react";
 import nextConfig from '@/next.config.mjs';
 
 export function ProjectSettings({ initialProjectData }) {
-  const [projectData, setProjectData] = useState(initialProjectData);
+  const [project, setProject] = useState(initialProjectData);
   const [newUser, setNewUser] = useState({ email: "", role: "Viewer" });
   const [newCollection, setNewCollection] = useState("");
   const [alert, setAlert] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const id = useId();
+  
 
   const handleProjectUpdate = async () => {
     try {
-      await axios.put(nextConfig.env.API_URL + `/projects/${projectData._id}`,
-          projectData,
+      await axios.put(nextConfig.env.API_URL + `/projects/${project._id}`,
+          project,
           {
             headers: {
               "Authorization": `Bearer ${localStorage.getItem("token")}`
             }
           },
-          projectData);
+          project);
       setAlert(true);
     } catch (error) {
       console.error("Failed to update project data:", error);
@@ -45,7 +46,7 @@ export function ProjectSettings({ initialProjectData }) {
 
   const handleAddUser = () => {
     if (newUser.email) {
-      setProjectData(prev => ({
+      setProject(prev => ({
         ...prev,
         users: [...prev.users, { id: Date.now().toString(), name: newUser.email.split('@')[0], ...newUser }]
       }));
@@ -54,7 +55,7 @@ export function ProjectSettings({ initialProjectData }) {
   };
 
   const handleRemoveUser = (userId) => {
-    setProjectData(prev => ({
+    setProject(prev => ({
       ...prev,
       users: prev.users.filter(user => user.id !== userId)
     }));
@@ -63,7 +64,7 @@ export function ProjectSettings({ initialProjectData }) {
   const handleAddCollection = async () => {
     if (newCollection) {
       try {
-        const response = await axios.post(nextConfig.env.API_URL + `/projects/${projectData._id}/collections`,
+        const response = await axios.post(nextConfig.env.API_URL + `/projects/${project._id}/collections`,
             { name: newCollection },
             {
               headers: {
@@ -71,7 +72,7 @@ export function ProjectSettings({ initialProjectData }) {
               }
             }
         );
-        setProjectData(prev => ({
+        setProject(prev => ({
           ...prev,
           collections: [...prev.collections, response.data]
         }));
@@ -83,14 +84,14 @@ export function ProjectSettings({ initialProjectData }) {
   };
 
   const handleRemoveCollection = (collectionId) => {
-    setProjectData(prev => ({
+    setProject(prev => ({
       ...prev,
       collections: prev.collections.filter(collection => collection.id !== collectionId)
     }));
   };
 
   const handleToggleCollectionPublic = (collectionId) => {
-    setProjectData(prev => ({
+    setProject(prev => ({
       ...prev,
       collections: prev.collections.map(collection =>
           collection.id === collectionId ? { ...collection, isPublic: !collection.isPublic } : collection
@@ -98,14 +99,24 @@ export function ProjectSettings({ initialProjectData }) {
     }));
   };
 
-  const handleDeleteProject = async () => {
+  const handleDeleteProject = async (projectId) => {
+    if (!isMounted) return;
     try {
-      await axios.delete(`/api/projects/${projectData._id}`);
-      console.log("Project deleted:", projectData.name);
+      const res = await axios.delete(`${nextConfig.env.API_URL}/projects/${projectId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (res.status === 200) {
+        setProject(prevProjects => prevProjects.filter(p => p._id !== projectId));
+        setDialogOpen(false);
+      } else {
+        console.error('Failed to delete project:', res.data);
+      }
     } catch (error) {
-      console.error("Failed to delete project:", error);
+      console.error('Failed to delete project:', error);
     }
-  };
+  }
 
   const renderAlert = () => {
     return (
@@ -157,8 +168,8 @@ export function ProjectSettings({ initialProjectData }) {
                     <Label htmlFor="projectName">Project Name</Label>
                     <Input
                         id="projectName"
-                        value={projectData.name}
-                        onChange={(e) => setProjectData({...projectData, name: e.target.value})}
+                        value={project.name}
+                        onChange={(e) => setProject({...project, name: e.target.value})}
                         className={"dark:bg-gray-700 dark:text-white dark:border-gray-600"}
                     />
                   </div>
@@ -166,8 +177,8 @@ export function ProjectSettings({ initialProjectData }) {
                     <Label htmlFor="projectDescription">Project Description</Label>
                     <Textarea
                         id="projectDescription"
-                        value={projectData.description}
-                        onChange={(e) => setProjectData({...projectData, description: e.target.value})}
+                        value={project.description}
+                        onChange={(e) => setProject({...project, description: e.target.value})}
                         rows={4}
                         className={"dark:bg-gray-700 dark:text-white dark:border-gray-600"}
                     />
@@ -175,8 +186,8 @@ export function ProjectSettings({ initialProjectData }) {
                   <div className="flex items-center space-x-2">
                     <Switch
                         id="public-project"
-                        checked={projectData.isPublic}
-                        onCheckedChange={(checked) => setProjectData({...projectData, isPublic: checked})}
+                        checked={project.isPublic}
+                        onCheckedChange={(checked) => setProject({...project, isPublic: checked})}
                         className={"data-[state=checked]:bg-blue-500 dark:data-[state=checked]:bg-blue-400 dark-data[state=no-checked]:bg-gray-600 dark:bg-gray-700"}
                     />
                     <Label htmlFor="public-project" className={"flex"}>
@@ -198,27 +209,57 @@ export function ProjectSettings({ initialProjectData }) {
                     <Save className="w-4 h-4 mr-2"/>
                     Save Changes
                   </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive">
-                        <Trash2 className="w-4 h-4 mr-2"/>
-                        Delete Project
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action cannot be undone. This will permanently delete your project and all
-                          associated data.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteProject} className="bg-red-600">Delete</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="destructive">
+                          <Trash2 className="w-4 h-4 mr-2"/>
+                          Delete Project
+                        </Button>
+                      </DialogTrigger>
+                        <DialogContent>
+                            <div className="flex flex-col items-center gap-2">
+                                <div
+                                    className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border"
+                                    aria-hidden="true"
+                                >
+                                    <CircleAlert className="opacity-80" size={16} strokeWidth={2} />
+                                </div>
+                                <DialogHeader>
+                                    <DialogTitle className="sm:text-center">Final confirmation</DialogTitle>
+                                    <DialogDescription className="sm:text-center">
+                                        This action cannot be undone.
+                                    </DialogDescription>
+                                </DialogHeader>
+                            </div>
+
+                            <form className="space-y-5">
+                                <div className="space-y-2">
+                                    <Label htmlFor={id} className="font-bold">To confirm, type "<span className="text-foreground font-bold">{project.name}</span>"</Label>
+                                    <Input
+                                        id={id}
+                                        type="text"
+                                        value={inputValue}
+                                        onChange={(e) => setInputValue(e.target.value)}
+                                    />
+                                </div>
+                                <DialogFooter>
+                                    <DialogClose asChild>
+                                        <Button type="button" variant="outline" className="flex-1">
+                                            Cancel
+                                        </Button>
+                                    </DialogClose>
+                                    <Button
+                                        type="button"
+                                        className="flex-1"
+                                        disabled={inputValue !== project.name}
+                                        onClick={() => handleDeleteProject(project._id)}
+                                    >
+                                        Delete
+                                    </Button>
+                                </DialogFooter>
+                            </form>
+                        </DialogContent>
+                    </Dialog>
                 </CardFooter>
               </Card>
             </TabsContent>
@@ -251,7 +292,7 @@ export function ProjectSettings({ initialProjectData }) {
                     </Button>
                   </div>
                   <ScrollArea className="h-[200px] w-full rounded-md border p-4 dark:border-gray-700">
-                    {projectData.users?.map(user => (
+                    {project.users?.map(user => (
                         <div key={user.id} className="flex items-center justify-between py-2">
                           <div className="flex items-center space-x-4">
                             <Avatar>
@@ -295,8 +336,8 @@ export function ProjectSettings({ initialProjectData }) {
                     </Button>
                   </div>
                   <ScrollArea className="h-[200px] w-full rounded-md border p-4 border-gray-600">
-                    {projectData.collections.length > 0 ? (
-                        projectData.collections.map(collection => (
+                    {project.collections.length > 0 ? (
+                        project.collections.map(collection => (
                             <div
                                 key={collection.id}
                                 className="flex items-center justify-between py-2 border-b last:border-b-0 border-gray-700">

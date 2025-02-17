@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
-import { ChartArea, Edit, Plus } from 'lucide-react'
+import { Plus, Settings} from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import ChartCardComponent from '@/components/ChartCardComponent'
 import { useRouter } from "next/navigation"
@@ -14,6 +14,7 @@ export function ProjectView({ project }) {
     const [projectName, setProjectName] = useState(project.name)
     const [projectDescription, setProjectDescription] = useState(project.description)
     const [graphs, setGraphs] = useState([])
+    const [role, setRole] = useState(null);
     const fetchRef = useRef(false)
 
     const router = useRouter()
@@ -35,7 +36,21 @@ export function ProjectView({ project }) {
             }
         }
 
+        const fetchRole = async () => {
+            try {
+                const res = await axios.get(nextConfig.env.API_URL + `/projects/${project._id}/role`, {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    }
+                });
+                setRole(res.data.role);
+            } catch (error) {
+                console.error('Failed to fetch role:', error);
+            }
+        };
+
         fetchGraphs()
+        fetchRole();
     }, [project._id])
 
 
@@ -48,16 +63,20 @@ export function ProjectView({ project }) {
                     <p className="text-gray-500 dark:text-gray-400">{projectDescription}</p>
                 </div>
                 <div className="flex items-center">
-                    <Button 
-                        className="mr-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300" 
-                        onClick={() => router.push(`/projects/${project._id}/chartcreator`)}> 
-                        <Plus className="h-4 w-4 mr-2" /> Add Graph
-                    </Button>
-                    <Button 
-                        className="mr-2 px-4 py-2 rounded  transition duration-300" 
-                        onClick={() => router.push(`/projects/${project._id}/settings`)}>
-                        <Edit className="h-4 w-4 mr-2" /> Edit Project
-                    </Button>
+                    {(role === 'admin' || role === 'editor') && (
+                        <Button 
+                            className="mr-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300" 
+                            onClick={() => router.push(`/projects/${project._id}/chartcreator`)}> 
+                            <Plus className="h-4 w-4 mr-2" /> Add Graph
+                        </Button>
+                    )}
+                    {role === 'admin' && (
+                        <Button 
+                            className="mr-2 px-4 py-2 rounded  transition duration-300" 
+                            onClick={() => router.push(`/projects/${project._id}/settings`)}>
+                            <Settings className="h-4 w-4 mr-2" /> Settings
+                        </Button>
+                    )}
                     <Button
                         variant="outline"
                         onClick={() => router.push('/')}

@@ -13,12 +13,20 @@ export default async function SettingsPage(props) {
     try {
         const response = await axios.get(nextConfig.env.API_URL + `/projects/${project}`, {
             headers: {
-                "Authorization": `Bearer ${token}`
+            "Authorization": `Bearer ${token}`
             }
         });
+
         projectData = response.data;
 
     } catch (error) {
+        if (error.status === 403) {
+            return (
+                <div className="flex items-center justify-center h-full">
+                    <h1 className="text-2xl font-bold mb-4 dark:text-white">403 | Access Denied</h1>
+                </div>
+            );
+        }
         console.error("Failed to fetch project data:", error);
     }
 
