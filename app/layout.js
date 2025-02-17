@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
           {/* rest of your scripts go under */}
       </head>
       <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          /* className={`${geistSans.variable} ${geistMono.variable} antialiased`} */
       >
       {children}
       </body>

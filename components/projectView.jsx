@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation"
 import nextConfig from '@/next.config.mjs';
 
 
-export function ProjectView({ project }) {
+export function ProjectView({ project, token }) {
     const [projectName, setProjectName] = useState(project.name)
     const [projectDescription, setProjectDescription] = useState(project.description)
     const [graphs, setGraphs] = useState([])
@@ -67,7 +67,7 @@ export function ProjectView({ project }) {
                 </div>
             </div>
 
-            <ChartCardComponent projectId={project._id}/>
+            <ChartCardComponent projectId={project._id} token={token} />
         </>
     )
 }

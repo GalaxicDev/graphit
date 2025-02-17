@@ -12,7 +12,7 @@ import nextConfig from '@/next.config.mjs';
 const ResponsiveGridLayout = WidthProvider(Responsive);
 const LOCAL_STORAGE_KEY = "dashboard-layouts";
 
-const ChartCardComponent = ({ projectId }) => {
+const ChartCardComponent = ({ projectId, token }) => {
     const [layouts, setLayouts] = useState({ lg: [], xs: [] });
     const [graphs, setGraphs] = useState([]);
     const isInitialRender = useRef(true);
@@ -124,7 +124,7 @@ const ChartCardComponent = ({ projectId }) => {
             layouts={layouts}
             breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
             cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
-            rowHeight={150}
+            rowHeight={255}
             onLayoutChange={onLayoutChange} // Capture layout changes
             isDraggable={true}
             isResizable={true}
@@ -140,6 +140,7 @@ const ChartCardComponent = ({ projectId }) => {
                         graph={graph}
                         onDelete={() => handleDelete(graph._id)}
                         onEdit={() => handleEdit(graph._id)}
+                        token={token}
                     />
                 </div>
             ))}

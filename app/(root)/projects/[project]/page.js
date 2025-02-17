@@ -12,5 +12,5 @@ export default async function ProjectPage(props) {
         return <div>Loading...</div>;
     }
 
-    return <ProjectView project={projectData} />;
+    return <ProjectView project={projectData} token={token} />;
 }
