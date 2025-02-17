@@ -44,6 +44,7 @@ export function ProjectView({ project, token }) {
                     }
                 });
                 setRole(res.data.role);
+                console.log("Role:", res.data.role);
             } catch (error) {
                 console.error('Failed to fetch role:', error);
             }
