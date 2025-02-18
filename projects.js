@@ -1,3 +1,5 @@
+//
+
 import express from 'express';
 import { body, param, validationResult } from 'express-validator';
 import { getDB } from './connectDB.js';
@@ -22,7 +24,7 @@ const extractUserId = (req, res, next) => {
     try {
         const token = authToken.split(' ')[1];
         const decoded = verifyToken(token);
-        req.userId = decoded.userId;
+        req.userId = decoded.userId
         next();
     } catch (error) {
         res.status(403).json({ success: false, message: 'Invalid token' });
@@ -63,9 +65,8 @@ router.get('/:id', param('id').isMongoId(), handleValidationErrors, async (req, 
         if (!project) {
             return res.status(404).json({ success: false, message: 'Project not found' });
         }
-        const userIdObject = new mongoose.Types.ObjectId(req.userId);
         
-        if (project.userId.toString() !== req.userId && !project.viewer.map(id => id.toString()).includes(userIdObject.toString()) && !project.editor.map(id => id.toString()).includes(userIdObject.toString())) {
+        if (project.userId.toString() !== req.userId.toString() && !project.viewer.map(id => id.toString()).includes(req.userId.toString()) && !project.editor.map(id => id.toString()).includes(req.userId.toString())) {
             return res.status(403).json({ success: false, message: 'Access denied' });
         }
         res.json(project);
@@ -82,7 +83,7 @@ router.get('/:id/role', param('id').isMongoId(), handleValidationErrors, async (
         if (!project) {
             return res.status(404).json({ success: false, message: 'Project not found' });
         }
-        if (project.userId.toString() === req.userId) {
+        if (project.userId.equals(new mongoose.Types.ObjectId(req.userId))) {
             return res.json({ role: 'admin' });
         }
         if (project.editor.includes(req.userId)) {
