@@ -144,7 +144,7 @@ const ChartCard = ({ graph, onDelete, onEdit, token }) => {
                                 </div>
                             ) : (
                                 <div className="p-4">
-                                    {renderOther({ chartType: graph.chartType, elements: graph.elements, graphData })}
+                                    {renderOther({ chartType: graph.chartType, elements: graph.elements, graphData, options: graph.options })}
                                 </div>
                             )}
                         </>
