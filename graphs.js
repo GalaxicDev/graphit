@@ -41,7 +41,7 @@ router.get('/project/:projectId', async (req, res) => {
         if (!project) {
             return res.status(404).json({ success: false, message: 'Project not found' });
         }
-        const graphs = await db.collection('graphs').find({ userId: new mongoose.Types.ObjectId(req.userId), projectId: new mongoose.Types.ObjectId(req.params.projectId) }).toArray();
+        const graphs = await db.collection('graphs').find({ projectId: new mongoose.Types.ObjectId(req.params.projectId) }).toArray();
         
         res.json(graphs);
     } catch (error) {
@@ -82,7 +82,6 @@ router.post('/',
             }
             // Create a new graph object
             const newGraphData = {
-                userId: new mongoose.Types.ObjectId(req.userId),
                 projectId: new mongoose.Types.ObjectId(req.body.projectId),
                 chartType: req.body.chartType,
                 options: req.body.options,

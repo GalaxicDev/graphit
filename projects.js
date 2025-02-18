@@ -147,17 +147,26 @@ router.delete('/:id', param('id').isMongoId(),
             const db = await getDB('data');
             const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
 
+            // If the project doesn't exist, return 404
             if (!project) {
                 return res.status(404).json({ success: false, message: 'Project not found' });
             }
 
+            // Only the project owner can delete the project
             if (project.userId.toString() !== req.userId) {
                 return res.status(403).json({ success: false, message: 'Access denied' });
             }
 
+            // try to delete the project, if it doesn't delete anything, return 404 and say project not found
             const result = await db.collection('projects').deleteOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
             if (result.deletedCount === 0) {
-                return res.status(404).json({ success: false, message: 'Project not found' });
+                return res.status(404).json({ success: false, message: 'Issue deleting the project' });
+            }
+
+            // delete all graphs associated with the project
+            const graphResults = await db.collection('graphs').deleteMany({ projectId: new mongoose.Types.ObjectId(req.params.id) });
+            if (graphResults.deletedCount === 0) {
+                return res.status(404).json({ success: false, message: 'Issue deleting the graphs' });
             }
             res.json({ success: true, message: 'Project deleted successfully' });
         } catch (error) {

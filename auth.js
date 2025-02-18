@@ -76,7 +76,7 @@ router.get('/verify', async (req, res, next) => {
 
         if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
-        res.json({ success: true, userId: decoded.userId });
+        res.json({ success: true, userId: decoded.userId, user: user });
     } catch (error) {
         next(error); // Pass the error to centralized error handler
     }
