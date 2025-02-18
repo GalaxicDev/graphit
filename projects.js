@@ -1,5 +1,3 @@
-//
-
 import express from 'express';
 import { body, param, validationResult } from 'express-validator';
 import { getDB } from './connectDB.js';
