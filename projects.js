@@ -78,18 +78,20 @@ router.get('/:id/role', param('id').isMongoId(), handleValidationErrors, async (
     try {
         const db = await getDB('data');
         const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
+        
         if (!project) {
             return res.status(404).json({ success: false, message: 'Project not found' });
         }
         if (project.userId.equals(new mongoose.Types.ObjectId(req.userId))) {
             return res.json({ role: 'admin' });
         }
-        if (project.editor.includes(req.userId)) {
+        if (project.editor.map(id => id.toString()).includes(req.userId.toString())) {
             return res.json({ role: 'editor' });
         }
-        if (project.viewer.includes(req.userId)) {
+        if (project.viewer.map(id => id.toString()).includes(req.userId.toString())) {
             return res.json({ role: 'viewer' });
         }
+        
         res.json({ role: 'none' });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
