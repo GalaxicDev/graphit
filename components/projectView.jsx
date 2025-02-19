@@ -10,14 +10,13 @@ import { useRouter } from "next/navigation"
 import nextConfig from '@/next.config.mjs';
 
 
-export async function ProjectView({ project, token, userRole }) {
+export function ProjectView({ project, token, userRole }) {
     const [projectName, setProjectName] = useState(project.name)
     const [projectDescription, setProjectDescription] = useState(project.description)
     const [graphs, setGraphs] = useState([])
     const [role, setRole] = useState(userRole);
 
     const router = useRouter()
-
 
     return (
         <>

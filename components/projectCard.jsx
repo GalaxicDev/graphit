@@ -18,17 +18,20 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import nextConfig from '@/next.config.mjs';
+import { useUser } from '@/lib/UserContext'
 
 export function ProjectCard({ project, onViewProject, setProjects }) {
     const [inputValue, setInputValue] = useState("");
     const [dialogOpen, setDialogOpen] = useState(false);
     const id = useId();
 
+    const { token } = useUser();
+
     const handleDeleteProject = async (projectId) => {
         try {
             const res = await axios.delete(`${nextConfig.env.API_URL}/projects/${projectId}`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${token}}`
                 }
             });
             if (res.status === 200) {

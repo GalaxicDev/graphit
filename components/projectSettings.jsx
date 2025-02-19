@@ -17,6 +17,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, Dialo
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { CircleAlert } from "lucide-react";
 import nextConfig from '@/next.config.mjs';
+import { useUser } from '@/lib/UserContext';
 
 export function ProjectSettings({ initialProjectData }) {
   const [project, setProject] = useState(initialProjectData);
@@ -26,6 +27,7 @@ export function ProjectSettings({ initialProjectData }) {
   const [inputValue, setInputValue] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const id = useId();
+  const { token } = useUser();
   
 
   const handleProjectUpdate = async () => {
@@ -104,7 +106,7 @@ export function ProjectSettings({ initialProjectData }) {
     try {
       const res = await axios.delete(`${nextConfig.env.API_URL}/projects/${projectId}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
       if (res.status === 200) {

@@ -18,6 +18,7 @@ import {
 import { ProjectCard } from './projectCard';
 import { Plus } from 'lucide-react';
 import { Search } from 'lucide-react';
+import { useUser } from '@/lib/UserContext';
 
 export function ProjectSelection({ initialProjects }) {
   const [projectList, setProjectList] = useState(initialProjects);
@@ -26,6 +27,7 @@ export function ProjectSelection({ initialProjects }) {
   const [searchTerm, setSearchTerm] = useState('');
         
   const router = useRouter();
+  const { token } = useUser();
 
   // Function to handle creating a new project
   const handleCreateProject = async () => {
@@ -34,7 +36,7 @@ export function ProjectSelection({ initialProjects }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ name, description })
       });

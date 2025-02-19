@@ -15,8 +15,13 @@ export default function RootLayout({ children }) {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            const darkModePreference = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            setDarkMode(darkModePreference);
+            const themePreference = Cookies.get('theme');
+            if (themePreference) {
+                setDarkMode(themePreference === 'dark');
+            } else {
+                const darkModePreference = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                setDarkMode(darkModePreference);
+            }
         }
     }, []);
 
@@ -45,10 +50,16 @@ export default function RootLayout({ children }) {
             }
         };
         checkAuth();
-    }, []);
+    }, [setToken, setUser]);
 
     const toggleSidebar = () => setSidebarOpen((prev) => !prev);
-    const toggleDarkMode = () => setDarkMode((prev) => !prev);
+    const toggleDarkMode = () => {
+        setDarkMode((prev) => {
+            const newDarkMode = !prev;
+            Cookies.set('theme', newDarkMode ? 'dark' : 'light', { expires: 365 });
+            return newDarkMode;
+        });
+    };
 
     if (isAuthenticated === null) {
         return <div className="flex items-center justify-center h-screen">Loading...</div>;

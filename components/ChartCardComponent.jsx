@@ -8,6 +8,7 @@ import "react-resizable/css/styles.css";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import nextConfig from '@/next.config.mjs';
+import { useUser } from '@/lib/UserContext';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 const LOCAL_STORAGE_KEY = "dashboard-layouts";
@@ -16,6 +17,7 @@ const ChartCardComponent = ({ projectId, token }) => {
     const [layouts, setLayouts] = useState({ lg: [], xs: [] });
     const [graphs, setGraphs] = useState([]);
     const isInitialRender = useRef(true);
+
 
     const router = useRouter();
 
@@ -38,7 +40,7 @@ const ChartCardComponent = ({ projectId, token }) => {
                     `${nextConfig.env.API_URL}/graphs/project/${projectId}`,
                     {
                         headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                            Authorization: `Bearer ${token}`,
                         },
                     }
                 );
@@ -57,7 +59,7 @@ const ChartCardComponent = ({ projectId, token }) => {
         };
 
         fetchGraphs();
-    }, [projectId, layouts]);
+    }, [projectId, layouts, token]);
 
     // Save layouts to localStorage whenever they change
     const onLayoutChange = useCallback((currentLayout, allLayouts) => {
