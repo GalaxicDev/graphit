@@ -25,7 +25,6 @@ export default function RootLayout({ children }) {
     let userToken = null;
     if(typeof window !== 'undefined'){
         userToken = localStorage.getItem('token').valueOf();
-        console.log(userToken);
         if (!userToken) {
             window.location.href = '/login';
         }
