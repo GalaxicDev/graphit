@@ -339,7 +339,7 @@ export function ChartCreator({ token, projectData, chartData }) {
                         </div>
                     ) : (
                         <div className="p-4">
-                          {renderOther({ chartType, elements, graphData })}
+                          {renderOther({ chartType, elements, graphData, options })}
                         </div>
                     )}
                   </>

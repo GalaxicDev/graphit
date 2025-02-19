@@ -234,7 +234,7 @@ export function ProjectSettings({ initialProjectData }) {
 
                             <form className="space-y-5">
                                 <div className="space-y-2">
-                                    <Label htmlFor={id} className="font-bold">To confirm, type "<span className="text-foreground font-bold">{project.name}</span>"</Label>
+                                    <Label htmlFor={id} className="font-bold">To confirm, type &quot;<span className="text-foreground font-bold">{project.name}</span>&quot;</Label>
                                     <Input
                                         id={id}
                                         type="text"

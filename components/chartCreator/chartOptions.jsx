@@ -208,6 +208,33 @@ export function ChartOptions({ chartType, setChartType, options, handleOptionCha
                 </div>
                 </>
                 )}
+            {chartType === "Map Trajectory" && (
+                <>
+                    {/* ask the user for a timeout (how often data should be received, and if there is a delay longer then timeout ignore the data point and know we have invalid data) also add a tooltip to explain it */}
+                    <div>
+                        <label htmlFor="timeout">Timeout (seconds)</label>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <span className="cursor-pointer">
+                                        <Info className="h-4 w-4 text-gray-500 dark:text-gray-400"/>
+                                    </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Timeout in seconds to ignore data points if the delay is longer than the timeout.</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                        <Input
+                            id="timeout"
+                            type="number"
+                            value={options.timeout}
+                            onChange={(e) => handleOptionChange("timeout", e.target.value)}
+                            className="w-20 dark:bg-gray-700"
+                        />
+                    </div>
+                </>
+            )}
         </div>
     );
 }
