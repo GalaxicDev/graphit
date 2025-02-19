@@ -39,7 +39,6 @@ const LoginForm = () => {
         setError(data.message)
       } else {
         setError("")
-        console.log("Login successful:", data)
         localStorage.setItem('token', data.token)
         Cookies.set('token', data.token)
         router.push('/') // Redirect to the main page

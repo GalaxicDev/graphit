@@ -1,74 +1,80 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/sidebar';
 import { Navbar } from '@/components/navbar';
-import axios from "axios";
+import { verifyToken } from '@/lib/api';
+import { UserProvider, useUser } from '@/lib/UserContext';
 import Cookies from 'js-cookie';
-import nextConfig from '@/next.config.mjs';
 
 export default function RootLayout({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [darkMode, setDarkMode] = useState(false);
-    const [isClient, setIsClient] = useState(false);
-    const userRef = useRef(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(null);
+    const { setUser, setToken } = useUser();
 
     useEffect(() => {
-        const darkModePreference = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        setDarkMode(darkModePreference);
-        setIsClient(true);
+        if (typeof window !== 'undefined') {
+            const darkModePreference = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            setDarkMode(darkModePreference);
+        }
     }, []);
 
-    const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-    const toggleDarkMode = () => setDarkMode(!darkMode);
-
-    let userToken = null;
-    if(typeof window !== 'undefined'){
-        userToken = localStorage.getItem('token').valueOf();
-        console.log(userToken);
-        if (!userToken) {
-            window.location.href = '/login';
-        }
-    }   
-
-    { /* // fetch user data
     useEffect(() => {
-        axios.get(`${nextConfig.env.API_URL}/auth/verify`, {
-            headers: {
-                Authorization: `Bearer ${userToken}`
+        const checkAuth = async () => {
+            if (typeof window === 'undefined') return; // Ensure this runs only on the client
+            
+            const userToken = Cookies.get('token');
+            if (!userToken) {
+                setIsAuthenticated(false);
+                return;
             }
-        }).then(response => {
-            userRef.current = response.data.user;
-            console.log("set useRef:", userRef.current);
-        }
-        ).catch(error => {
-            console.log(error);
-        })
-    }, [userToken]); */} 
 
-    if (!isClient) {
+            try {
+                const verifiedToken = await verifyToken(userToken);
+                if (verifiedToken.success) {
+                    setUser(verifiedToken.user);
+                    setToken(userToken);
+                    setIsAuthenticated(true);
+                } else {
+                    setIsAuthenticated(false);
+                }
+            } catch (error) {
+                console.error("Authentication Error: ", error);
+                setIsAuthenticated(false);
+            }
+        };
+        checkAuth();
+    }, []);
+
+    const toggleSidebar = () => setSidebarOpen((prev) => !prev);
+    const toggleDarkMode = () => setDarkMode((prev) => !prev);
+
+    if (isAuthenticated === null) {
+        return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    }
+
+    if (!isAuthenticated) {
+        if (typeof window !== 'undefined') window.location.href = '/login';
         return null;
     }
 
     return (
-            <div className={`flex h-screen max-h-screen overflow-hidden ${darkMode ? 'dark' : ''}`}>
-                {/* Sidebar with fixed height to screen and overflow auto */}
-                <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar}/>
-
-                {/* Main content area */}
-                <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-64' : ''} h-screen max-h-screen`}>
-                    <Navbar
+        <UserProvider>
+            <div className={`flex h-screen overflow-hidden ${darkMode ? 'dark' : ''}`}>
+                <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+                <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-64' : ''} h-screen`}>
+                    <Navbar 
                         sidebarOpen={sidebarOpen}
                         toggleSidebar={toggleSidebar}
                         darkMode={darkMode}
-                        toggleDarkMode={toggleDarkMode}
+                        toggleDarkMode={toggleDarkMode} 
                     />
-
-                    {/* Main section with scrollable content */}
                     <main className="flex-1 overflow-y-auto p-6 bg-gray-100 dark:bg-gray-900">
                         {children}
                     </main>
                 </div>
             </div>
+        </UserProvider>
     );
 }

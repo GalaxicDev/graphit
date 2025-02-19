@@ -39,7 +39,6 @@ export function RegisterForm() {
         setError(data.message)
       } else {
         setError("")
-        console.log("Registration successful:", data)
         localStorage.setItem('token', data.token)
         router.push('/') // Redirect to the main page
       }

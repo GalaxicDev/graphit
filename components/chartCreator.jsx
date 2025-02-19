@@ -204,8 +204,6 @@ export function ChartCreator({ token, projectData, chartData }) {
 
   const createGraph = async () => {
 
-    console.log('Creating graph:', { chartType, options, elements });
-
     const newGraph = {
       projectId: projectData._id,
       chartType,
@@ -213,7 +211,6 @@ export function ChartCreator({ token, projectData, chartData }) {
       elements,
     };
     
-    console.log('Creating graph:', newGraph);
 
     for (let i = 0; i < elements.length; i++) {
       if (chartType === "Info") {
@@ -240,7 +237,6 @@ export function ChartCreator({ token, projectData, chartData }) {
     }
 
     try {
-      console.log('Creating graph:', newGraph);
       const res = await axios.post(`${nextConfig.env.API_URL}/graphs`, newGraph, {
         headers: {
           'Authorization': `Bearer ${token}`

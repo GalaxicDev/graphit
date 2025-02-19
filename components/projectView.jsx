@@ -10,50 +10,13 @@ import { useRouter } from "next/navigation"
 import nextConfig from '@/next.config.mjs';
 
 
-export function ProjectView({ project, token }) {
+export async function ProjectView({ project, token, userRole }) {
     const [projectName, setProjectName] = useState(project.name)
     const [projectDescription, setProjectDescription] = useState(project.description)
     const [graphs, setGraphs] = useState([])
-    const [role, setRole] = useState(null);
-    const fetchRef = useRef(false)
+    const [role, setRole] = useState(userRole);
 
     const router = useRouter()
-
-    useEffect(() => {
-        if (fetchRef.current) return;
-        fetchRef.current = true;
-
-        const fetchGraphs = async () => {
-            try {
-                const res = axios.get(nextConfig.env.API_URL + `/graphs/project/${project._id}`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                })
-                setGraphs(res.data)
-            } catch (error) {
-                console.error('Failed to fetch graphs:', error)
-            }
-        }
-
-        const fetchRole = async () => {
-            try {
-                const res = await axios.get(nextConfig.env.API_URL + `/projects/${project._id}/role`, {
-                    headers: {
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`
-                    }
-                });
-                setRole(res.data.role);
-                console.log("Role:", res.data.role);
-            } catch (error) {
-                console.error('Failed to fetch role:', error);
-            }
-        };
-
-        fetchGraphs()
-        fetchRole();
-    }, [project._id])
-
 
 
     return (

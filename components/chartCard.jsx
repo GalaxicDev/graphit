@@ -50,7 +50,6 @@ const ChartCard = ({ graph, onDelete, onEdit, token }) => {
                 const fetchData = async () => {
                     try {
                         const dataResponse = await fetchGraphData(graph.chartType, graph.elements, graph.options, selectedTimeframe, token);
-                        console.log("dataResponse:", dataResponse);
                         setGraphData(dataResponse);
                     } catch (error) {
                         console.error('Failed to fetch graph data:', error);
@@ -70,7 +69,6 @@ const ChartCard = ({ graph, onDelete, onEdit, token }) => {
 
     }, [graph, selectedTimeframe, token]);
 
-    console.log("graphData:", graph.chartType, graph.elements, graphData, graph.options);
 
     return (
         <>

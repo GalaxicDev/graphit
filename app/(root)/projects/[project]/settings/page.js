@@ -8,7 +8,6 @@ export default async function SettingsPage(props) {
     const { project } = params;
     let projectData = null;
     const token = (await cookies()).get("token")?.value;
-    console.log("token:", token);
 
     try {
         const response = await axios.get(nextConfig.env.API_URL + `/projects/${project}`, {

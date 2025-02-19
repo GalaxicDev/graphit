@@ -18,7 +18,6 @@ const GraphPage = () => {
         };
     }, [router]);
 
-    console.log('Graph ID page:', graph);
 
     return (
         <FullScreenChart graphId={graph} />
