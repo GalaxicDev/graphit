@@ -231,7 +231,8 @@ router.post('/:projectId/access',
                 return res.status(403).json({ success: false, message: 'Access denied' });
             }
 
-            const { name, role } = req.body;
+            const name = req.body.name;
+            const role = req.body.role.toLowerCase();
             //verify if the role is valid
             if (!['admin','editor', 'viewer', 'none'].includes(role)) {
                 return res.status(400).json({ success: false, message: 'Invalid role' });
