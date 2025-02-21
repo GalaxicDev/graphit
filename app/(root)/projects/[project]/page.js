@@ -9,9 +9,11 @@ export default async function ProjectPage(props) {
     const projectData = await fetchProject(token, project);
     const userRole = await fetchUserRole(project, token);
 
+    let publicProject = projectData?.isPublic || false;
+
     if (!projectData) {
         return <div>Loading...</div>;
     }
 
-    return <ProjectView project={projectData} token={token} userRole={userRole} />;
+    return <ProjectView project={projectData} token={token} userRole={userRole} hasAccess={true} />;
 }
