@@ -1,17 +1,25 @@
 FROM node:22-alpine
 
-RUN mkdir -p /home/node22/app/node_modules && chown -R node:node /home/node22/app
+# Create app directory and set permissions
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
 
-WORKDIR /home/node22/app
+# Set working directory
+WORKDIR /home/node/app
 
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-USER node
-
+# Install dependencies as root user
 RUN npm install
 
+# Copy the rest of the application code
 COPY --chown=node:node . .
 
+# Switch to non-root user
+USER node
+
+# Expose the port the app runs on
 EXPOSE 8080
 
+# Command to run the application
 CMD [ "node", "main.js" ]
