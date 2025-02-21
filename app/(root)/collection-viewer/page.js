@@ -6,6 +6,7 @@ import { Search, Database, SquareArrowOutUpRight, Edit, Trash2 } from 'lucide-re
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import nextConfig from '@/next.config.mjs';
+import { useUser } from '@/lib/UserContext'
 
 
 export default function MongoDBViewer() {
@@ -17,12 +18,14 @@ export default function MongoDBViewer() {
   const [totalDocuments, setTotalDocuments] = useState(0)
   const itemsPerPage = 10
 
+  const { token } = useUser();
+
   useEffect(() => {
     // Fetch all collections
     if(typeof window !== 'undefined'){
       axios.get(nextConfig.env.API_URL + '/collections', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         }
       })
         .then(response => {
@@ -33,14 +36,14 @@ export default function MongoDBViewer() {
           console.error('Error fetching collections:', error)
         })
     }
-  }, [])
+  }, [token])
 
   useEffect(() => {
     if (selectedCollection) {
       // Fetch documents of the selected collection
       axios.get(nextConfig.env.API_URL + `/collections/${selectedCollection}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         params: {
           page: currentPage,
@@ -55,7 +58,7 @@ export default function MongoDBViewer() {
         console.error('Error fetching documents:', error)
       })
     }
-  }, [selectedCollection, currentPage, itemsPerPage])
+  }, [selectedCollection, currentPage, itemsPerPage, token])
 
   const handleCollectionClick = (collection) => {
     setSelectedCollection(collection)

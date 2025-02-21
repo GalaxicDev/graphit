@@ -6,11 +6,14 @@ import ChartCard from './chartCard';
 import axios from 'axios';
 import { PacmanLoader } from 'react-spinners';
 import nextConfig from '@/next.config.mjs';
+import { useUser } from '@/lib/UserContext';
 
 const FullScreenChart = ({ graphId }) => {
     const router = useRouter();
     const [graph, setGraph] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+
+    const { token } = useUser();
 
     useEffect(() => {
         const fetchGraph = async () => {
@@ -21,7 +24,7 @@ const FullScreenChart = ({ graphId }) => {
                 console.log('API URL:', nextConfig.env.API_URL);
                 const res = await axios.get(`${nextConfig.env.API_URL}/graphs/${graphId}`, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
                 setGraph(res.data);
@@ -34,7 +37,7 @@ const FullScreenChart = ({ graphId }) => {
         };
 
         fetchGraph();
-    }, [graphId]);
+    }, [graphId, token]);
 
     const handleDelete = (id) => {
         console.log(`Delete item ${id}`);

@@ -39,7 +39,11 @@ export function RegisterForm() {
         setError(data.message)
       } else {
         setError("")
-        localStorage.setItem('token', data.token)
+        Cookies.set('token', data.token, {
+                  expires: 31,
+                  secure: true,
+                  sameSite: 'Strict'
+                });
         router.push('/') // Redirect to the main page
       }
     } catch (error) {

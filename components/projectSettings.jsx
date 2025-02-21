@@ -17,15 +17,17 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, Dialo
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { CircleAlert } from "lucide-react";
 import nextConfig from '@/next.config.mjs';
+import { useUser } from '@/lib/UserContext';
 
 export function ProjectSettings({ initialProjectData }) {
   const [project, setProject] = useState(initialProjectData);
-  const [newUser, setNewUser] = useState({ email: "", role: "Viewer" });
+  const [newUser, setNewUser] = useState({ name: "", role: "Viewer" });
   const [newCollection, setNewCollection] = useState("");
   const [alert, setAlert] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const id = useId();
+  const { token } = useUser();
   
 
   const handleProjectUpdate = async () => {
@@ -34,7 +36,7 @@ export function ProjectSettings({ initialProjectData }) {
           project,
           {
             headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`
+              "Authorization": `Bearer ${token}`
             }
           },
           project);
@@ -44,33 +46,54 @@ export function ProjectSettings({ initialProjectData }) {
     }
   };
 
-  const handleAddUser = () => {
-    if (newUser.email) {
-      setProject(prev => ({
-        ...prev,
-        users: [...prev.users, { id: Date.now().toString(), name: newUser.email.split('@')[0], ...newUser }]
-      }));
-      setNewUser({ email: "", role: "Viewer" });
+  const handleAddUser = async () => {
+    try{
+      const res = await axios.post(nextConfig.env.API_URL + `/projects/${project._id}/access`,
+        {
+          "name": newUser.name,
+          "role": newUser.role
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          } 
+        }
+      );
+      
+    }catch(error){
+      console.error("Failed to add user:", error);
     }
+
   };
 
-  const handleRemoveUser = (userId) => {
-    setProject(prev => ({
-      ...prev,
-      users: prev.users.filter(user => user.id !== userId)
-    }));
+  const handleRemoveUser = async (username) => {
+    try{
+      const res = await axios.post(nextConfig.env.API_URL + `/projects/${project._id}/access`,
+        {
+          "name": username,
+          "role": none
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          } 
+        }
+      );      
+    }catch(error){
+      console.error("Failed to add user:", error);
+    }
   };
 
   const handleAddCollection = async () => {
     if (newCollection) {
       try {
         const response = await axios.post(nextConfig.env.API_URL + `/projects/${project._id}/collections`,
-            { name: newCollection },
-            {
-              headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-              }
+          { name: newCollection },
+          {
+            headers: {
+              "Authorization": `Bearer ${localStorage.getItem("token")}`
             }
+          }
         );
         setProject(prev => ({
           ...prev,
@@ -104,7 +127,7 @@ export function ProjectSettings({ initialProjectData }) {
     try {
       const res = await axios.delete(`${nextConfig.env.API_URL}/projects/${projectId}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
       if (res.status === 200) {
@@ -272,9 +295,9 @@ export function ProjectSettings({ initialProjectData }) {
                 <CardContent className="space-y-4">
                   <div className="flex space-x-2">
                     <Input
-                        placeholder="Email address"
-                        value={newUser.email}
-                        onChange={(e) => setNewUser(prev => ({...prev, email: e.target.value}))}
+                        placeholder="Username"
+                        value={newUser.name}
+                        onChange={(e) => setNewUser(prev => ({...prev, name: e.target.value}))}
                         className={"dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:placeholder-gray-400"}
                     />
                     <select
@@ -301,12 +324,11 @@ export function ProjectSettings({ initialProjectData }) {
                             </Avatar>
                             <div>
                               <p className="text-sm font-medium">{user.name}</p>
-                              <p className="text-sm text-gray-500">{user.email}</p>
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Badge>{user.role}</Badge>
-                            <Button variant="ghost" size="sm" onClick={() => handleRemoveUser(user.id)}>
+                            <Button variant="ghost" size="sm" onClick={() => handleRemoveUser(user.name)}>
                               <X className="w-4 h-4"/>
                             </Button>
                           </div>
