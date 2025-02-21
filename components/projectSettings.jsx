@@ -36,7 +36,7 @@ export function ProjectSettings({ initialProjectData }) {
           project,
           {
             headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`
+              "Authorization": `Bearer ${token}`
             }
           },
           project);
