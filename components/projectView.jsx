@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
-import { Plus, Settings} from 'lucide-react'
+import { Plus, Settings, Lock} from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import ChartCardComponent from '@/components/ChartCardComponent'
 import { useRouter } from "next/navigation"
@@ -23,10 +23,23 @@ export function ProjectView({ project, token, userRole, hasAccess }) {
         <>
             {!hasAccess ? (
                 <>
-                    <div>
-                        <h1 className="text-3xl font-semibold text-gray-800 dark:text-white">Private Project</h1>
-                        <p className="text-gray-500 dark:text-gray-400">This project is private. Only users with access can view it.</p>
+                    <div className="flex flex-col items-center justify-center h-screen">
+                    <div className="flex items-center mb-6">
+                        <h1 className="text-5xl font-semibold text-gray-800 dark:text-white">
+                            {projectName}
+                        </h1>
+                        <Lock className="h-12 w-12 ml-4 text-red-500" />
                     </div>
+                    <p className="text-2xl text-gray-500 dark:text-gray-400 mb-4">
+                        You do not have access to view this project.
+                    </p>
+                    <Button
+                        variant="outline"
+                        onClick={() => router.push('/')}
+                        className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 transition duration-300">
+                        Back to projects
+                    </Button>
+                </div>
                 </>
             ) : (
                 <>
@@ -58,10 +71,10 @@ export function ProjectView({ project, token, userRole, hasAccess }) {
                             </Button>
                         </div>
                     </div>
+                    <ChartCardComponent projectId={project._id} token={token} />
                 </>
             )}
 
-            <ChartCardComponent projectId={project._id} token={token} />
         </>
     )
 }

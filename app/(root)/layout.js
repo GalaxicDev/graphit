@@ -28,7 +28,7 @@ export default function RootLayout({ children }) {
     useEffect(() => {
         const checkAuth = async () => {
             if (typeof window === 'undefined') return; // Ensure this runs only on the client
-            
+
             const userToken = Cookies.get('token');
             if (!userToken) {
                 setIsAuthenticated(false);
