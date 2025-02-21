@@ -19,7 +19,7 @@ COPY --chown=node:node . .
 USER node
 
 # Expose the port the app runs on
-EXPOSE 8080
+EXPOSE 5000
 
 # Command to run the application
 CMD [ "node", "main.js" ]
