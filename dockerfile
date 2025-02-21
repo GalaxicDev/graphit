@@ -11,7 +11,7 @@ WORKDIR /home/node/app
 COPY package*.json ./
 
 # Install dependencies as root user
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copy the rest of the application code
 COPY --chown=node:node . .
