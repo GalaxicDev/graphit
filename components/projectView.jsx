@@ -14,9 +14,10 @@ export function ProjectView({ project, token, userRole }) {
     const [projectName, setProjectName] = useState(project.name)
     const [projectDescription, setProjectDescription] = useState(project.description)
     const [graphs, setGraphs] = useState([])
-    const [role, setRole] = useState(userRole);
+    const [role, setRole] = useState(userRole.role);
 
     const router = useRouter()
+    console.log("role: ", role)
 
     return (
         <>
@@ -26,7 +27,7 @@ export function ProjectView({ project, token, userRole }) {
                     <p className="text-gray-500 dark:text-gray-400">{projectDescription}</p>
                 </div>
                 <div className="flex items-center">
-                    {(role === 'admin' || role === 'editor') && (
+                    {(role === 'admin' || role === editor) && (
                         <Button 
                             className="mr-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300" 
                             onClick={() => router.push(`/projects/${project._id}/chartcreator`)}> 
