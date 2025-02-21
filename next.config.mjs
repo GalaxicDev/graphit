@@ -5,7 +5,12 @@ const nextConfig = {
         NEXT_PUBLIC_APP_URL: "http://localhost:3000",
     },
     images: {
-        domains: ['placeholder.pics'],
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'placeholder.pics',
+            },
+        ],
         dangerouslyAllowSVG: true,
     },
 };
