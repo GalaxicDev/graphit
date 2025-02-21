@@ -14,9 +14,10 @@ export function ProjectView({ project, token, userRole, hasAccess }) {
     const [projectName, setProjectName] = useState(project.name)
     const [projectDescription, setProjectDescription] = useState(project.description)
     const [graphs, setGraphs] = useState([])
-    const [role, setRole] = useState(userRole);
+    const [role, setRole] = useState(userRole.role);
 
     const router = useRouter()
+    console.log("role: ", role)
 
     return (
         <>
