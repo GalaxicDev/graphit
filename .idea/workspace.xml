@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="Worked on ChartCreator Map and Map Trajectory, not yet finished" />
+    <list default="true" id="7378793a-c492-4751-9223-33ea6f7c51a8" name="Changes" comment="Worked on ChartCreator Map and Map Trajectory, not yet finished">
+      <change beforePath="$PROJECT_DIR$/components/loginForm.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/loginForm.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -149,6 +152,7 @@
       <workItem from="1738309081901" duration="2248000" />
       <workItem from="1738316181728" duration="4934000" />
       <workItem from="1738325312579" duration="1857000" />
+      <workItem from="1740469024130" duration="42000" />
     </task>
     <task id="LOCAL-00001" summary="added the default files">
       <option name="closed" value="true" />
