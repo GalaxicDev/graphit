@@ -32,7 +32,8 @@ const LoginForm = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
+        credentials: 'include'
       });
       const data = await res.json();
       if (!data.success) {
@@ -43,6 +44,11 @@ const LoginForm = () => {
           expires: 31,
           secure: true,
           sameSite: 'Strict'
+        });
+        Cookies.set('user', JSON.stringify({ _id: data.user._id, name: data.user.name, email: data.user.email }), {
+          expires: 31,
+        secure: true,
+        sameSite: 'Strict'
         });
         router.push('/'); // Redirect to the main page
       }
