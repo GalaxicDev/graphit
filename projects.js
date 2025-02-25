@@ -35,6 +35,7 @@ router.use(extractUserId);
 // Get all projects
 router.get('/', async (req, res) => {
     try {
+        console.log("trying to pull projects", req.userId, req.headers['authorization']);
         const db = await getDB('data');
         const user = await db.collection("users").findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
         if(user.role === 'admin'){
@@ -48,6 +49,7 @@ router.get('/', async (req, res) => {
                     { editor: new mongoose.Types.ObjectId(req.userId) }
                 ]
             }).toArray();
+            console.log("projects", projects);
             res.json(projects);
         }
     } catch (error) {
