@@ -7,7 +7,7 @@ import { verifyToken } from '@/lib/api';
 import { UserProvider, useUser } from '@/lib/UserContext';
 import Cookies from 'js-cookie';
 
-export default function RootLayout({ children }) {
+function RootLayoutContent({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [darkMode, setDarkMode] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -74,21 +74,27 @@ export default function RootLayout({ children }) {
     }
 
     return (
-        <UserProvider>
-            <div className={`flex h-screen overflow-hidden ${darkMode ? 'dark' : ''}`}>
-                <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-                <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-64' : ''} h-screen`}>
-                    <Navbar 
-                        sidebarOpen={sidebarOpen}
-                        toggleSidebar={toggleSidebar}
-                        darkMode={darkMode}
-                        toggleDarkMode={toggleDarkMode} 
-                    />
-                    <main className="flex-1 overflow-y-auto p-6 bg-gray-100 dark:bg-gray-900">
-                        {children}
-                    </main>
-                </div>
+        <div className={`flex h-screen overflow-hidden ${darkMode ? 'dark' : ''}`}>
+            <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+            <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-64' : ''} h-screen`}>
+                <Navbar 
+                    sidebarOpen={sidebarOpen}
+                    toggleSidebar={toggleSidebar}
+                    darkMode={darkMode}
+                    toggleDarkMode={toggleDarkMode} 
+                />
+                <main className="flex-1 overflow-y-auto p-6 bg-gray-100 dark:bg-gray-900">
+                    {children}
+                </main>
             </div>
+        </div>
+    );
+}
+
+export default function RootLayout({ children }) {
+    return (
+        <UserProvider>
+            <RootLayoutContent>{children}</RootLayoutContent>
         </UserProvider>
     );
 }
