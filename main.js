@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import cors from 'cors';
+import morgan from 'morgan';
 import { connectDB } from './connectDB.js';
 import authRoutes from './auth.js';  // Authentication routes
 import projectRoutes from './projects.js';  // Project-related routes
@@ -17,13 +18,19 @@ const app = express();
 app.use(express.json());
 app.use(helmet());  // Secure headers
 
+// Log incoming requests
+app.use(morgan('combined'));
+
 // Enable CORS with proper security settings
 const allowedOrigins = JSON.parse(process.env.CORS_ORIGIN);
 app.use(cors({
     origin: (origin, callback) => {
+        console.log(`Incoming request from origin: ${origin}`);
         if (!origin || allowedOrigins.includes(origin)) {
+            console.log(`Origin ${origin} allowed by CORS`);
             callback(null, true);
         } else {
+            console.log(`Origin ${origin} not allowed by CORS`);
             callback(new Error('Not allowed by CORS'));
         }
     },
