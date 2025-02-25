@@ -43,6 +43,7 @@ router.post('/signup', async (req, res, next) => {
 // Login Route
 router.post('/login', async (req, res, next) => {
     const { email, password } = req.body;
+    console.log("login", email, password);
 
     try {
         const db = await getDB('data');
@@ -55,7 +56,8 @@ router.post('/login', async (req, res, next) => {
         if (!isMatch) return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
         const token = generateToken(user._id);
-        res.json({ success: true, message: 'Login successful', token });
+        console.log("login token", token);
+        res.json({ success: true, message: 'Login successful', token, user });
     } catch (error) {
         next(error); // Pass the error to centralized error handler
     }
@@ -64,6 +66,7 @@ router.post('/login', async (req, res, next) => {
 // Verify token Route
 router.get('/verify', async (req, res, next) => {
     const authToken = req.headers['authorization'];
+    console.log("verify", authToken);
     if (!authToken) return res.status(403).json({ success: false, message: 'Token required' });
 
     try {
