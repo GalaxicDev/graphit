@@ -25,6 +25,8 @@ const extractUserId = (req, res, next) => {
         req.userId = decoded.userId
         next();
     } catch (error) {
+        console.log("error", error);
+        console.log("invalid token in projects")
         res.status(403).json({ success: false, message: 'Invalid token' });
     }
 };
