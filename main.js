@@ -18,16 +18,24 @@ app.use(express.json());
 app.use(helmet());  // Secure headers
 
 // Enable CORS with proper security settings
+const allowedOrigins = JSON.parse(process.env.CORS_ORIGIN);
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
 }));
 
 // Rate limiting to prevent brute-force attacks
 const limiter = rateLimit({
-    windowMs: 1 * 60 * 1000, // 3 minutes
-    max: 300, // 100 requests per IP
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 300, // 300 requests per IP
 });
 app.use(limiter);
 
@@ -40,7 +48,6 @@ app.use('/api/projects', projectRoutes);  // Project-related routes
 app.use('/api/graphs', graphRoutes);  // Graph-related routes
 app.use('/api/mqtt', mqttRoutes);  // MQTT-related routes
 app.use('/api/collections', collectionRoutes);  // Collection-related routes
-
 
 // Centralized error handling
 app.use(errorHandler);
