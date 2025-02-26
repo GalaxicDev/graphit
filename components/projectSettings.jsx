@@ -26,6 +26,7 @@ export function ProjectSettings({ initialProjectData }) {
   const [alert, setAlert] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [usersInProject, setUsersInProject] = useState([]);
   const id = useId();
   const { token } = useUser();
   
@@ -47,7 +48,7 @@ export function ProjectSettings({ initialProjectData }) {
   };
 
   const handleAddUser = async () => {
-    try{
+    try {
       const res = await axios.post(nextConfig.env.API_URL + `/projects/${project._id}/access`,
         {
           "name": newUser.name,
@@ -56,31 +57,44 @@ export function ProjectSettings({ initialProjectData }) {
         {
           headers: {
             Authorization: `Bearer ${token}`
-          } 
+          }
         }
       );
-      
-    }catch(error){
+      // Fetch updated list of users
+      const updatedUsers = await axios.get(nextConfig.env.API_URL + `/projects/${project._id}/access`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+      });
+      setUsersInProject(updatedUsers.data);
+    } catch (error) {
       console.error("Failed to add user:", error);
     }
-
   };
 
   const handleRemoveUser = async (username) => {
-    try{
+    console.log("Removing user:", username);
+    try {
       const res = await axios.post(nextConfig.env.API_URL + `/projects/${project._id}/access`,
         {
           "name": username,
-          "role": none
+          "role": "none"
         },
         {
           headers: {
             Authorization: `Bearer ${token}`
-          } 
+          }
         }
-      );      
-    }catch(error){
-      console.error("Failed to add user:", error);
+      );
+      // Fetch updated list of users
+      const updatedUsers = await axios.get(nextConfig.env.API_URL + `/projects/${project._id}/access`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+      });
+      setUsersInProject(updatedUsers.data);
+    } catch (error) {
+      console.error("Failed to remove user:", error);
     }
   };
 
@@ -155,6 +169,17 @@ export function ProjectSettings({ initialProjectData }) {
         </Alert>
     );
   }
+
+  // If project changes, get new users
+  useEffect(() => async () => {
+    const res = await axios.get(nextConfig.env.API_URL + `/projects/${project._id}/access`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+    });
+    setUsersInProject(res.data);
+    console.log("Users in project:", res.data);
+  }, [project]);
 
   useEffect(() => {
     if (alert) {
@@ -315,8 +340,8 @@ export function ProjectSettings({ initialProjectData }) {
                     </Button>
                   </div>
                   <ScrollArea className="h-[200px] w-full rounded-md border p-4 dark:border-gray-700">
-                    {project.users?.map(user => (
-                        <div key={user.id} className="flex items-center justify-between py-2">
+                    {usersInProject?.map(user => (
+                        <div key={user._id} className="flex items-center justify-between py-2">
                           <div className="flex items-center space-x-4">
                             <Avatar>
                               <AvatarImage src={`https://api.dicebear.com/6.x/initials/svg?seed=${user.name}`}/>
