@@ -219,6 +219,8 @@ router.post('/:id/collections',
     }
 );
 
+
+
 // change the access of a project
 router.post('/:projectId/access',
     param('projectId').isMongoId(),
@@ -318,5 +320,31 @@ router.post('/:projectId/access',
         }
     }
 );
+
+// Get all people who have access
+router.get('/:projectId/access',
+    param('projectId').isMongoId(),
+    handleValidationErrors, async (req, res) => {
+        try {
+            const db = await getDB('data');
+            const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.params.projectId) });
+            if (!project) {
+                return res.status(404).json({ success: false, message: 'Project not found' });
+            }
+            // Only the project owner can view access
+            if (project.userId.toString() !== req.userId) {
+                return res.status(403).json({ success: false, message: 'Access denied' });
+            }
+
+            const users = await db.collection('users').find(
+                { _id: { $in: project.editor.concat(project.viewer) } },
+                { projection: { _id: 1, name: 1, role: 1, lastLogin: 1 } }
+            ).toArray();
+            res.json(users);
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+)
     
 export default router;
