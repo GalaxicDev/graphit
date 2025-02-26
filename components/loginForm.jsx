@@ -57,6 +57,8 @@ const LoginForm = () => {
       setError("Failed to login");
       console.error('Failed to login:', error);
     } finally {
+      console.log("redirecting to /");
+      console.log("Cookies.get('token'):", Cookies.get('token'));
       router.push('/'); // Redirect to the main page
     }
   };
