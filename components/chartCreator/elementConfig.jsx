@@ -8,11 +8,13 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus } from 'lucide-react';
 import nextConfig from '@/next.config.mjs';
+import { useUser } from '@/lib/UserContext';
 
 const generalChartTypes = ["Line", "Bar", "Area", "Scatter", "Pie", "Radar"];
 
 export function ElementConfig({ el, collections, handleElementChange, removeElement, chartType }) {
     const [availableKeys, setAvailableKeys] = useState([]);
+    const { token } = useUser();
 
     useEffect(() => {
         const fetchAvailableKeys = async () => {
@@ -21,7 +23,7 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
                     const response = await axios.get(`${nextConfig.env.API_URL}/mqtt/availableKeys`, {
                         params: { collection: el.collection },
                         headers: {
-                            "Authorization": `Bearer ${localStorage.getItem("token")}`
+                            "Authorization": `Bearer ${token}`
                         }
                     });
                     setAvailableKeys(response.data.availableKeys);

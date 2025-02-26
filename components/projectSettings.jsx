@@ -91,7 +91,7 @@ export function ProjectSettings({ initialProjectData }) {
           { name: newCollection },
           {
             headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`
+              "Authorization": `Bearer ${token}`
             }
           }
         );
