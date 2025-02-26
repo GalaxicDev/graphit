@@ -43,20 +43,23 @@ const LoginForm = () => {
         setError("");
         Cookies.set('token', data.token, {
           expires: 31,
-          secure: true,
+          secure: false,
           sameSite: 'Strict'
         });
         console.log("set cookie token to:", data.token);
         Cookies.set('user', JSON.stringify({ _id: data.user._id, name: data.user.name, email: data.user.email }), {
           expires: 31,
-        secure: true,
+        secure: false,
         sameSite: 'Strict'
         });
-        router.push('/'); // Redirect to the main page
       }
     } catch (error) {
       setError("Failed to login");
       console.error('Failed to login:', error);
+    } finally {
+      console.log("redirecting to /");
+      console.log("Cookies.get('token'):", Cookies.get('token'));
+      router.push('/'); // Redirect to the main page
     }
   };
 
