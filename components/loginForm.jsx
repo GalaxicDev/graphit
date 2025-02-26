@@ -52,11 +52,12 @@ const LoginForm = () => {
         secure: true,
         sameSite: 'Strict'
         });
-        router.push('/'); // Redirect to the main page
       }
     } catch (error) {
       setError("Failed to login");
       console.error('Failed to login:', error);
+    } finally {
+      router.push('/'); // Redirect to the main page
     }
   };
 
