@@ -1,4 +1,3 @@
-# Use the official Node.js image as the base image
 FROM node:22-alpine
 
 # Create app directory and set permissions
@@ -11,19 +10,14 @@ WORKDIR /home/node/app
 COPY package*.json ./
 
 # Install dependencies as root user
-RUN npm install --legacy-peer-deps
+RUN npm install
 
 # Copy the rest of the application code
 COPY --chown=node:node . .
 
-# Build the Next.js application
-RUN npm run build
-
 # Switch to non-root user
 USER node
 
-# Expose the port the app runs on
-EXPOSE 80
 
 # Command to run the application
-CMD [ "npm", "start" ]
+CMD [ "node", "databaseBroker_selfhosted.js" ]
