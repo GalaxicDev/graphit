@@ -1,12 +1,13 @@
 // Description: This file is responsible for connecting to the MQTT broker and MongoDB database.
-// Version: 1.6.0
-// Date: 28-1-2025
-// Last Change: Added registration system
+// Version: 1.6.1
+// Date: 28-2-2025
+// Last Change: Refactored message handling and added webhook support
 //
 
 require('dotenv').config();
 const mongoose = require('mongoose');
 const mqtt = require('mqtt');
+const axios = require('axios');
 
 // MongoDB connection
 const dbURI = process.env.MONGO_URI;
@@ -62,6 +63,62 @@ const getModelForTopic = (topic, message) => {
   return mongoose.model(collectionName, schema);
 };
 
+// Handle registration messages
+const handleRegistrationMessage = async (jsonMessage) => {
+  const { deviceId, user } = jsonMessage;
+  const User = mongoose.model('users', new mongoose.Schema({
+    name: String,
+    ownedCollections: [String]
+  }));
+
+  User.findOneAndUpdate(
+    { name: user },
+    { $addToSet: { ownedCollections: deviceId } },
+    { new: true, upsert: true },
+    (err, doc) => {
+      if (err) {
+        console.error('Error updating user document:', err);
+      } else {
+        console.log(`Device ID "${deviceId}" added to user "${user}"`);
+      }
+    }
+  );
+
+  // Send webhook to Next.js website
+  try {
+    await axios.post('https://your-nextjs-website.com/api/webhook', {
+      event: 'registration',
+      data: jsonMessage
+    });
+    console.log('Webhook sent for registration');
+  } catch (error) {
+    console.error('Error sending webhook:', error);
+  }
+};
+
+// Handle database messages
+const handleDatabaseMessage = async (topic, jsonMessage) => {
+  // Get or create the model for the current topic
+  const Model = getModelForTopic(topic, jsonMessage);
+
+  // Save the message to the MongoDB collection for this topic
+  const newMessage = new Model(jsonMessage);
+  await newMessage.save();
+  console.log(`Message saved to collection for topic "${topic}":`, jsonMessage);
+
+  // Send webhook to Next.js website
+  try {
+    await axios.post('https://your-nextjs-website.com/api/webhook', {
+      event: 'database',
+      topic,
+      data: jsonMessage
+    });
+    console.log('Webhook sent for database message');
+  } catch (error) {
+    console.error('Error sending webhook:', error);
+  }
+};
+
 // Connect to the MQTT broker
 const options = {
   protocol: 'mqtts',
@@ -96,45 +153,15 @@ client.on('close', () => {
 
 // Handle incoming messages
 client.on('message', async (topic, message) => {
-  // checks if the topic is a valid database topic
-  const collectionName = topic.replace(/\//g, '_'); // Replace '/' in topic with '_'
-  if (!collectionName.includes('db_') && topic !== 'registration') {
-    return;
-  }
-
   try {
     // Parse the JSON message
     const jsonMessage = JSON.parse(message.toString());
     console.log(`Message received on topic "${topic}":`, jsonMessage);
 
     if (topic === 'registration' && jsonMessage.deviceId && jsonMessage.user) {
-      // Handle registration topic
-      const { deviceId, user } = jsonMessage;
-      const User = mongoose.model('users', new mongoose.Schema({
-        name: String,
-        ownedCollections: [String]
-      }));
-
-      User.findOneAndUpdate(
-          { name: user },
-          { $addToSet: { ownedCollections: deviceId } },
-          { new: true, upsert: true },
-          (err, doc) => {
-            if (err) {
-              console.error('Error updating user document:', err);
-            } else {
-              console.log(`Device ID "${deviceId}" added to user "${user}"`);
-            }
-          }
-      );
-    } else {
-      // Get or create the model for the current topic
-      const Model = getModelForTopic(topic, jsonMessage);
-
-      // Save the message to the MongoDB collection for this topic
-      const newMessage = new Model(jsonMessage);
-      await newMessage.save();
-      console.log(`Message saved to collection for topic "${topic}":`, jsonMessage);
+      await handleRegistrationMessage(jsonMessage);
+    } else if (topic.startsWith('db/')) {
+      await handleDatabaseMessage(topic, jsonMessage);
     }
   } catch (err) {
     console.error('Failed to parse JSON message:', err);
