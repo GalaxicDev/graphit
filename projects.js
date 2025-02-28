@@ -22,12 +22,11 @@ const extractUserId = (req, res, next) => {
     try {
         const token = authToken.split(' ')[1];
         const decoded = verifyToken(token);
-        req.userId = decoded.userId
+        req.userId = decoded.userId;
+
         next();
     } catch (error) {
-        console.log("error", error);
-        console.log("invalid token in projects")
-        res.status(403).json({ success: false, message: 'Invalid token' });
+        res.status(401).json({ success: false, message: error.message });
     }
 };
 
@@ -338,13 +337,22 @@ router.get('/:projectId/access',
 
             const users = await db.collection('users').find(
                 { _id: { $in: project.editor.concat(project.viewer) } },
-                { projection: { _id: 1, name: 1, role: 1, lastLogin: 1 } }
+                { projection: { _id: 1, name: 1, lastLogin: 1 } }
             ).toArray();
-            res.json(users);
+
+            const usersWithRoles = users.map(user => {
+                let role = 'Viewer';
+                if (project.editor.includes(user._id)) {
+                    role = 'Editor';
+                }
+                return { ...user, role };
+            });
+
+            res.json(usersWithRoles);
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
     }
-)
-    
+);
+
 export default router;
