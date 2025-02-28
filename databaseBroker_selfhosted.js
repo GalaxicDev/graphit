@@ -85,15 +85,15 @@ const handleRegistrationMessage = async (jsonMessage) => {
   );
 
   // Send webhook to Next.js website
-  try {
-    await axios.post('https://your-nextjs-website.com/api/webhook', {
-      event: 'registration',
-      data: jsonMessage
-    });
-    console.log('Webhook sent for registration');
-  } catch (error) {
-    console.error('Error sending webhook:', error);
-  }
+  //try {
+  //  await axios.post('https://your-nextjs-website.com/api/webhook', {
+  //    event: 'registration',
+  //    data: jsonMessage
+  //  });
+  //  console.log('Webhook sent for registration');
+  //} catch (error) {
+  //  console.error('Error sending webhook:', error);
+  //}
 };
 
 // Handle database messages
