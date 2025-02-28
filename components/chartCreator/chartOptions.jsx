@@ -127,7 +127,7 @@ export function ChartOptions({ chartType, setChartType, options, handleOptionCha
                                 >
                                     <CalendarIcon className="mr-2 h-4 w-4"/>
                                     {options.xRange?.from ? (
-                                        options.xRange.to ? (
+                                        options.xRange?.to ? (
                                             <>
                                                 {format(options.xRange.from, "LLL dd, y HH:mm")} -{" "}
                                                 {format(options.xRange.to, "LLL dd, y HH:mm")}
