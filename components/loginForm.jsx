@@ -57,13 +57,13 @@ const LoginForm = () => {
         setError("");
         Cookies.set('token', data.token, {
           expires: 31,
-          secure: process.env.NODE_ENV === 'production', // Set secure to true only in production
+          secure: false, // Set secure to true only in production
           sameSite: 'Strict'
         });
         console.log("set cookie token to:", data.token);
         Cookies.set('user', JSON.stringify({ _id: data.user._id, name: data.user.name, email: data.user.email }), {
           expires: 31,
-          secure: process.env.NODE_ENV === 'production', // Set secure to true only in production
+          secure: false, // Set secure to true only in production
           sameSite: 'Strict'
         });
         console.log("redirecting to /");
