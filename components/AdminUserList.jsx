@@ -33,7 +33,7 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import nextConfig from "@/next.config.mjs"
 
-export function AdminUserList({ users }) {
+export function AdminUserList({ token, users }) {
   const id = useId()
   const [newUser, setNewUser] = useState({ name: "", email: "", password: "", role: "user" })
   const [error, setError] = useState("")
@@ -55,9 +55,10 @@ export function AdminUserList({ users }) {
     setError("")
 
     try {
-      const res = await fetch(nextConfig.env.API_URL + "/auth/admin/create-user", {
+      const res = await fetch(nextConfig.env.API_URL + "/users", {
         method: "POST",
         headers: {
+          "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(newUser),
@@ -87,7 +88,7 @@ export function AdminUserList({ users }) {
 
   const confirmRemoveUser = async () => {
     try {
-      const res = await fetch(nextConfig.env.API_URL + `/auth/admin/delete-user/${selectedUser._id}`, {
+      const res = await fetch(nextConfig.env.API_URL + `/users/${selectedUser._id}`, {
         method: "DELETE",
       })
 
@@ -114,7 +115,7 @@ export function AdminUserList({ users }) {
 
   const confirmResetPassword = async () => {
     try {
-      const res = await fetch(nextConfig.env.API_URL + `/auth/admin/reset-password/${selectedUser._id}`, {
+      const res = await fetch(nextConfig.env.API_URL + `/users/${selectedUser._id}`, {
         method: "POST",
       })
 

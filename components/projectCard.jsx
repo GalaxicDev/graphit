@@ -31,7 +31,7 @@ export function ProjectCard({ project, onViewProject, setProjects }) {
         try {
             const res = await axios.delete(`${nextConfig.env.API_URL}/projects/${projectId}`, {
                 headers: {
-                    'Authorization': `Bearer ${token}}`
+                    'Authorization': `Bearer ${token}`
                 }
             });
             if (res.status === 200) {
