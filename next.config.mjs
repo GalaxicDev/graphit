@@ -8,7 +8,7 @@ const nextConfig = {
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: 'placeholder.pics',
+                hostname: 'api.dicebear.com',
             },
         ],
         dangerouslyAllowSVG: true,

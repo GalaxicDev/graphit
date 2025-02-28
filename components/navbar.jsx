@@ -13,10 +13,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Image from "next/image";
 import logo from "@/images/logo.png";
-import { Cookies } from 'js-cookie';
+import Cookies from 'js-cookie';
 
 export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode }) {
-  export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode }) {
     const userCookie = Cookies.get('user');
     const userData = userCookie ? JSON.parse(decodeURIComponent(userCookie)) : {};
 
@@ -53,13 +52,13 @@ export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode })
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center text-gray-800 dark:text-white">
                 <Image
-                  src="https://placeholder.pics/svg/300?height=32&width=32" // Placeholder image for user avatar
+                  src={`https://api.dicebear.com/6.x/initials/svg?seed=${userData.name}`} // Placeholder image for user avatar
                   width={32}
                   height={32}
                   alt="User avatar"
                   className="w-8 h-8 rounded-full mr-2"
                 />
-                <span>{userData.name}</span>
+                <span className='font-bold text-xl'>{userData.name}</span>
                 <ChevronDown className="h-4 w-4 ml-2" />
               </Button>
             </DropdownMenuTrigger>
@@ -78,4 +77,3 @@ export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode })
       </header>
     );
   }
-}
