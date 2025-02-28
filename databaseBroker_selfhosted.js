@@ -121,7 +121,7 @@ const handleDatabaseMessage = async (topic, jsonMessage) => {
 
 // Connect to the MQTT broker
 const options = {
-  protocol: 'mqtts',
+  protocol: 'mqtt',
   host: '138.199.200.175',
   port: 1883,
 };
