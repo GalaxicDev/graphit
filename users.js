@@ -36,18 +36,17 @@ const createPassword = () => {
 router.use(extractUserId);
 
 router.post('/',
-    body('username').isString().isLength({ min: 3 }),
+    body('name').isString().isLength({ min: 3 }),
     body('email').isEmail(),
     handleValidationErrors,
     async (req, res) => {
         const db = await getDB('users');
         const user = { 
             email: req.body.email,
-            name: req.body.username,
+            name: req.body.name,
             initialPassword: createPassword(),
             role: 'user',
             ownedCollections: [],
-
         };
         try {
             await user.save();
