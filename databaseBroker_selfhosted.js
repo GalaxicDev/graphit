@@ -107,16 +107,16 @@ const handleDatabaseMessage = async (topic, jsonMessage) => {
   console.log(`Message saved to collection for topic "${topic}":`, jsonMessage);
 
   // Send webhook to Next.js website
-  try {
-    await axios.post('https://your-nextjs-website.com/api/webhook', {
-      event: 'database',
-      topic,
-      data: jsonMessage
-    });
-    console.log('Webhook sent for database message');
-  } catch (error) {
-    console.error('Error sending webhook:', error);
-  }
+  //try {
+  //  await axios.post('https://your-nextjs-website.com/api/webhook', {
+  //    event: 'database',
+  //    topic,
+  //    data: jsonMessage
+  //  });
+  //  console.log('Webhook sent for database message');
+  //} catch (error) {
+  //  console.error('Error sending webhook:', error);
+  //}
 };
 
 // Connect to the MQTT broker
