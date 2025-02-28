@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Cookies from 'js-cookie';
 import nextConfig from '@/next.config.mjs';
+import { verifyToken } from '@/lib/api';
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -18,6 +19,19 @@ const LoginForm = () => {
   const [error, setError] = useState("");
   const [darkMode, setDarkMode] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = Cookies.get('token');
+      if (token) {
+        const result = await verifyToken(token);
+        if (result.success) {
+          router.push('/'); // Redirect to the main page if already logged in
+        }
+      }
+    };
+    checkAuth();
+  }, [router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,7 +47,7 @@ const LoginForm = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ email, password }),
-        credentials: 'include'
+        credentials: 'include' // Ensure cookies are included in the request
       });
       const data = await res.json();
       console.log("login data:", data);
@@ -43,23 +57,22 @@ const LoginForm = () => {
         setError("");
         Cookies.set('token', data.token, {
           expires: 31,
-          secure: false,
+          secure: process.env.NODE_ENV === 'production', // Set secure to true only in production
           sameSite: 'Strict'
         });
         console.log("set cookie token to:", data.token);
         Cookies.set('user', JSON.stringify({ _id: data.user._id, name: data.user.name, email: data.user.email }), {
           expires: 31,
-        secure: false,
-        sameSite: 'Strict'
+          secure: process.env.NODE_ENV === 'production', // Set secure to true only in production
+          sameSite: 'Strict'
         });
+        console.log("redirecting to /");
+        console.log("Cookies.get('token'):", Cookies.get('token'));
+        router.push('/'); // Redirect to the main page
       }
     } catch (error) {
       setError("Failed to login");
       console.error('Failed to login:', error);
-    } finally {
-      console.log("redirecting to /");
-      console.log("Cookies.get('token'):", Cookies.get('token'));
-      router.push('/'); // Redirect to the main page
     }
   };
 
