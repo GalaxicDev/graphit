@@ -1,6 +1,7 @@
 import express from 'express';
 import { body, param, validationResult } from 'express-validator';
 import { getDB } from './connectDB.js';
+import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 import {verifyToken} from "./utils/jwt.js";
 const router = express.Router();
@@ -31,8 +32,9 @@ const extractUserId = (req, res, next) => {
 };
 
 const createPassword = () => {
-    return Math.floor(Math.random() * 9999).toString().padStart(4, '0');;
+    return "TSm!" + (Math.floor(Math.random() * 9999).toString().padStart(4, '0'));
 }
+
 router.use(extractUserId);
 
 router.post('/',
@@ -40,20 +42,35 @@ router.post('/',
     body('email').isEmail(),
     handleValidationErrors,
     async (req, res) => {
-        const db = await getDB('users');
+        const db = await getDB('data');
+        const password = req.body.password || createPassword(); // If no password is provided, generate a random one
         const user = { 
             email: req.body.email,
-            name: req.body.name,
-            initialPassword: createPassword(),
-            role: 'user',
+            password: await bcrypt.hash(password, 12),
+            initialPassword: password,
+            name: req.body.username,
+            role: req.body.role,
+            lastLogin: new Date(),
             ownedCollections: [],
         };
         try {
-            await user.save();
+            await db.collection('users').insertOne(user);
             res.status(201).json({ message: 'User created successfully' });
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
+    });
+router.get('/',
+    handleValidationErrors, async (req, res) => {
+        const db = await getDB('data');
+        if (req.userId) {
+            const user = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
+            if (user.role !== 'admin') {
+                return res.status(403).json({ success: false, message: 'Unauthorized' });
+            }
+        };
+        const users = await db.collection('users').find().toArray();
+        res.json(users);
     });
 
 router.get('/:id',
