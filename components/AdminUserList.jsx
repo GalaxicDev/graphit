@@ -173,7 +173,7 @@ export function AdminUserList({ token, users }) {
             <form onSubmit={handleAddUser} className="space-y-5 mt-4">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor={`${id}-name`}>Full name</Label>
+                  <Label htmlFor={`${id}-name`}>Username</Label>
                   <Input
                     id={`${id}-name`}
                     value={newUser.name}
