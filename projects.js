@@ -26,7 +26,7 @@ const extractUserId = (req, res, next) => {
         next();
     } catch (error) {
         console.log("error", error);
-        console.log("invalid token in projects")
+        console.log("invalid token in projects", req.headers['authorization']);
         res.status(403).json({ success: false, message: 'Invalid token' });
     }
 };
