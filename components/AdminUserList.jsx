@@ -55,7 +55,7 @@ export function AdminUserList({ users }) {
     setError("")
 
     try {
-      const res = await fetch(nextConfig.env.API_URL + "/auth/admin/create-user", {
+      const res = await fetch(nextConfig.env.API_URL + "/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -87,7 +87,7 @@ export function AdminUserList({ users }) {
 
   const confirmRemoveUser = async () => {
     try {
-      const res = await fetch(nextConfig.env.API_URL + `/auth/admin/delete-user/${selectedUser._id}`, {
+      const res = await fetch(nextConfig.env.API_URL + `/users/${selectedUser._id}`, {
         method: "DELETE",
       })
 
@@ -114,7 +114,7 @@ export function AdminUserList({ users }) {
 
   const confirmResetPassword = async () => {
     try {
-      const res = await fetch(nextConfig.env.API_URL + `/auth/admin/reset-password/${selectedUser._id}`, {
+      const res = await fetch(nextConfig.env.API_URL + `/users/${selectedUser._id}`, {
         method: "POST",
       })
 
