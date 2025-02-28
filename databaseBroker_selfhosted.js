@@ -66,23 +66,21 @@ const getModelForTopic = (topic, message) => {
 // Handle registration messages
 const handleRegistrationMessage = async (jsonMessage) => {
   const { deviceId, user } = jsonMessage;
-  const User = mongoose.model('users', new mongoose.Schema({
+  const User = mongoose.connection.useDb('data').model('users', new mongoose.Schema({
     name: String,
     ownedCollections: [String]
   }));
 
-  User.findOneAndUpdate(
-    { name: user },
-    { $addToSet: { ownedCollections: deviceId } },
-    { new: true, upsert: true },
-    (err, doc) => {
-      if (err) {
-        console.error('Error updating user document:', err);
-      } else {
-        console.log(`Device ID "${deviceId}" added to user "${user}"`);
-      }
-    }
-  );
+  try {
+    const doc = await User.findOneAndUpdate(
+      { name: user },
+      { $addToSet: { ownedCollections: deviceId } },
+      { new: true, upsert: true }
+    );
+    console.log(`Device ID "${deviceId}" added to user "${user}"`);
+  } catch (err) {
+    console.error('Error updating user document:', err);
+  }
 
   // Send webhook to Next.js website
   //try {
