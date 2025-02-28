@@ -13,30 +13,35 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Image from "next/image";
 import logo from "@/images/logo.png";
+import Cookies from 'js-cookie';
 
 export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode }) {
-  return (
-      <header className={`flex items-center justify-between h-16 px-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700`}>
+    const userCookie = Cookies.get('user');
+    const userData = userCookie ? JSON.parse(decodeURIComponent(userCookie)) : {};
+
+    return (
+      <header className="flex items-center justify-between h-16 px-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center">
           {!sidebarOpen && (
-              <>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleSidebar}
-                    className="mr-2 lg:block text-gray-800 dark:text-white flex items-center justify-center">
-                  <Menu className="h-6 w-6" />
-                </Button>
-                <Image
-                    src={logo}
-                    alt={"Graphity logo"}
-                    height={80}
-                    width={80}
-                    className={"flex justify-center content-center mr-4"}
-                    loading={"eager"}
-                    onClick={() => window.location.href = "/"}
-                />
-              </>
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleSidebar}
+                className="mr-2 lg:block text-gray-800 dark:text-white flex items-center justify-center"
+              >
+                <Menu className="h-6 w-6" />
+              </Button>
+              <Image
+                src={logo}
+                alt="Graphity logo"
+                height={80}
+                width={80}
+                className="flex justify-center content-center mr-4"
+                loading="eager"
+                onClick={() => (window.location.href = "/")}
+              />
+            </>
           )}
         </div>
         <div className="flex items-center">
@@ -47,12 +52,13 @@ export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode })
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center text-gray-800 dark:text-white">
                 <Image
-                    src="https://placeholder.pics/svg/300?height=32&width=32" // Placeholder image for user avatar
-                    width={32}
-                    height={32}
-                    alt="User avatar"
-                    className="w-8 h-8 rounded-full mr-2" />
-                <span>John Doe</span>
+                  src={`https://api.dicebear.com/6.x/initials/svg?seed=${userData.name}`} // Placeholder image for user avatar
+                  width={32}
+                  height={32}
+                  alt="User avatar"
+                  className="w-8 h-8 rounded-full mr-2"
+                />
+                <span className='font-bold text-xl'>{userData.name}</span>
                 <ChevronDown className="h-4 w-4 ml-2" />
               </Button>
             </DropdownMenuTrigger>
@@ -69,5 +75,5 @@ export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode })
           </Button>
         </div>
       </header>
-  );
-}
+    );
+  }
