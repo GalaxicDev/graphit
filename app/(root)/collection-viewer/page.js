@@ -114,7 +114,7 @@ export default function MongoDBViewer() {
               <li key={collection}>
                 <Button
                   variant={selectedCollection === collection ? "default" : "unselected"}
-                  className="w-full justify-start dark:bg-gray-700 dark:text-white"
+                  className={`w-full justify-start dark:bg-gray-700 dark:text-white hover:cursor-pointer ${selectedCollection === collection ? "bg-black text-white" : "hover:bg-gray-200"}`}
                   onClick={() => handleCollectionClick(collection)}
                 >
                   <Database className="mr-2 h-4 w-4" />
