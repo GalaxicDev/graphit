@@ -1,6 +1,5 @@
 "use client";
 
-
 import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { Plus, Settings, Lock} from 'lucide-react'
@@ -22,8 +21,11 @@ export function ProjectView({ project, token, userRole, hasAccess, }) {
     const { user } = useUser();
 
     if (user.role === "admin") {
+        console.log("user is admin, has access")
         hasAccess = true;
     }
+
+    console.log("user role: ", !hasAccess)
 
     return (
         <>
