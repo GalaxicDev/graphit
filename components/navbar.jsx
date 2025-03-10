@@ -14,10 +14,18 @@ import {
 import Image from "next/image";
 import logo from "@/images/logo.png";
 import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
 
 export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode }) {
     const userCookie = Cookies.get('user');
     const userData = userCookie ? JSON.parse(decodeURIComponent(userCookie)) : {};
+    const router = useRouter();
+
+    const handleLogout = () => {
+      Cookies.remove('token');
+      Cookies.remove('user');
+      router.push('/login');
+    }
 
     return (
       <header className="flex items-center justify-between h-16 px-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
@@ -67,7 +75,7 @@ export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode })
               <DropdownMenuSeparator className="dark:border-gray-700" />
               <DropdownMenuItem className="dark:text-gray-300 dark:focus:bg-gray-700">Account</DropdownMenuItem>
               <DropdownMenuItem className="dark:text-gray-300 dark:focus:bg-gray-700">Settings</DropdownMenuItem>
-              <DropdownMenuItem className="dark:text-gray-300 dark:focus:bg-gray-700">Logout</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout} className="dark:text-gray-300 dark:focus:bg-gray-700">Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <Button variant="ghost" size="icon" onClick={toggleDarkMode} className="ml-4 text-gray-800 dark:text-white">
