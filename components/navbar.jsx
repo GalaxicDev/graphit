@@ -15,6 +15,7 @@ import Image from "next/image";
 import logo from "@/images/logo.png";
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
+import nextConfig from '@/next.config.mjs';
 
 export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode }) {
     const userCookie = Cookies.get('user');
@@ -60,7 +61,7 @@ export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode })
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center text-gray-800 dark:text-white">
                 <Image
-                  src={`https://api.dicebear.com/6.x/thumbs/svg?seed=${userData.name}`} // Placeholder image for user avatar
+                  src={nextConfig.env.IMG_SRC + userData.name} // Placeholder image for user avatar
                   width={32}
                   height={32}
                   alt="User avatar"
