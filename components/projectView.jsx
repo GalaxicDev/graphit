@@ -8,16 +8,22 @@ import { Button } from "@/components/ui/button"
 import ChartCardComponent from '@/components/ChartCardComponent'
 import { useRouter } from "next/navigation"
 import nextConfig from '@/next.config.mjs';
+import { useUser } from '@/lib/UserContext';
 
 
-export function ProjectView({ project, token, userRole, hasAccess }) {
+export function ProjectView({ project, token, userRole, hasAccess, }) {
     const [projectName, setProjectName] = useState(project.name)
     const [projectDescription, setProjectDescription] = useState(project.description)
     const [graphs, setGraphs] = useState([])
     const [role, setRole] = useState(userRole.role);
 
     const router = useRouter()
-    console.log("role: ", role)
+    
+    const { user } = useUser();
+
+    if (user.role === "admin") {
+        hasAccess = true;
+    }
 
     return (
         <>
