@@ -38,7 +38,7 @@ const createPassword = () => {
 router.use(extractUserId);
 
 router.post('/',
-    body('username').isString().isLength({ min: 3 }),
+    body('name').isString().isLength({ min: 3 }),
     body('email').isEmail(),
     handleValidationErrors,
     async (req, res) => {
@@ -55,32 +55,37 @@ router.post('/',
             email: req.body.email,
             password: await bcrypt.hash(password, 12),
             initialPassword: password,
-            name: req.body.username,
+            name: req.body.name,
             role: req.body.role,
             lastLogin: new Date(),
             ownedCollections: [],
         };
         try {
             await db.collection('users').insertOne(user);
-            res.status(201).json({ message: 'User created successfully' });
+            console.log("Created new user with password: ", password)
+            res.status(201).json({ success: true, message: 'User created successfully', password });
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ success: false, error: error.message });
         }
     });
 
 router.get('/',
     handleValidationErrors, async (req, res) => {
         const db = await getDB('data');
+        // Check if the user is an admin
         if (req.userId) {
             const user = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
             if (user.role !== 'admin') {
                 return res.status(403).json({ success: false, message: 'Unauthorized' });
             }
         };
+
+        // Get all users
         const users = await db.collection('users').find().toArray();
         res.json(users);
     });
 
+// get one user by its id
 router.get('/:id',
     handleValidationErrors, async (req, res) => {
     const db = await getDB('data');
