@@ -11,7 +11,7 @@ function RootLayoutContent({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [darkMode, setDarkMode] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(null);
-    const { setUser, setToken } = useUser();
+    const { setUser, setToken, user, token } = useUser();
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -73,9 +73,11 @@ function RootLayoutContent({ children }) {
         return null;
     }
 
+    console.log("user:", user.role)
+
     return (
         <div className={`flex h-screen overflow-hidden ${darkMode ? 'dark' : ''}`}>
-            <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+            <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} token={token} />
             <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-64' : ''} h-screen`}>
                 <Navbar 
                     sidebarOpen={sidebarOpen}

@@ -1,15 +1,18 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { Button } from "@/components/ui/button";
-import { sidebarUtils, projectSidebarUtils } from "@/lib/sidebarUtils";
+import { sidebarUtils, projectSidebarUtils, adminSidebarUtils } from "@/lib/sidebarUtils";
 import Image from "next/image";
 import logo from "@/images/logo.png";
 import Link from 'next/link';
+import { useUser } from '@/lib/UserContext';
 
-export function Sidebar({ sidebarOpen, toggleSidebar }) {
+export function Sidebar({ sidebarOpen, toggleSidebar, token }) {
     const pathname = usePathname();
+    const { user } = useUser();
 
     // Check if in project mode and extract projectId if true
     const projectMode = pathname.startsWith('/projects/') && pathname.split('/').length > 2;
@@ -50,9 +53,24 @@ export function Sidebar({ sidebarOpen, toggleSidebar }) {
 
                 {/* Divider between general and project-specific navigation */}
                 {projectMode && <hr className="my-4 border-gray-300 dark:border-gray-700" />}
-                { projectMode && <span className="block px-6 text-sm text-gray-500 dark:text-gray-400">Project Navigation</span> }
+                {projectMode && <span className="block px-6 text-sm text-gray-500 dark:text-gray-400">Project Navigation</span> }
                 {/* Render project-specific navigation items only if in project mode */}
                 {projectMode && projectSidebarUtils(projectId).map((item) => {
+                    const Icon = item.icon;
+                    return (
+                        <a
+                            key={item.name}
+                            href={item.href}
+                            className="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700">
+                            <Icon className="h-5 w-5 mr-3" />
+                            {item.name}
+                        </a>
+                    );
+                })}
+                {/* Divider between general and project-specific navigation */}
+                {user.role === "admin" && <hr className="my-4 border-gray-300 dark:border-gray-700" />}
+                {user.role === "admin" && <span className="block px-6 text-sm text-gray-500 dark:text-gray-400">Admin</span> }
+                {user.role === "admin" && adminSidebarUtils.map((item) => {
                     const Icon = item.icon;
                     return (
                         <a
