@@ -27,5 +27,7 @@ export default async function ProjectPage(props) {
         return <div>Loading...</div>;
     }
 
+    console.log("rendering projectview with ", hasAccess);
+
     return <ProjectView project={projectData} token={token} userRole={userRole} hasAccess={hasAccess} />;
 }
