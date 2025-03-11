@@ -73,7 +73,9 @@ export function AdminUserList({ token, users }) {
         console.log("success creating user", data);
         setNewUser({ name: "", email: "", password: "", role: "user" });
         setCreateDialogOpen(false);
-        setSuccessMessage(`User created successfully with password: ${data.password}`);
+        if (data.password) {
+          setSuccessMessage(`User created successfully with password: ${data.password}`);
+        }
         router.refresh();
       }
     } catch (error) {
@@ -128,7 +130,9 @@ export function AdminUserList({ token, users }) {
         setError(data.message || "Failed to reset password");
       } else {
         setError("");
-        setSuccessMessage(`User created successfully with password: ${data.password}`);
+        if (data.password) {
+          setSuccessMessage(`User created successfully with password: ${data.password}`);
+        }
       }
     } catch (error) {
       setError("Failed to reset password");
@@ -140,7 +144,13 @@ export function AdminUserList({ token, users }) {
   };
 
   useEffect(() => {
-    console.log("new success message,", successMessage);
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage("");
+      }, 5000); // Hide the alert after 5 seconds
+
+      return () => clearTimeout(timer);
+    }
   }, [successMessage]);
 
   return (
@@ -245,9 +255,14 @@ export function AdminUserList({ token, users }) {
       </CardHeader>
       <CardContent className="space-y-4">
         {successMessage && (
-          <Alert variant="success" className="mb-4 bg-green-500">
-            <AlertTitle className={"text-white font-bold"}>Success</AlertTitle>
-            <AlertDescription className={"text-white font-bold"} >{successMessage}</AlertDescription>
+          <Alert variant="success" className="mb-4 bg-green-500 text-white flex justify-between items-center">
+            <div>
+              <AlertTitle className="font-bold">Success</AlertTitle>
+              <AlertDescription>{successMessage}</AlertDescription>
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => setSuccessMessage("")} className="text-white">
+              <X className="h-5 w-5" />
+            </Button>
           </Alert>
         )}
         <ScrollArea className="h-[400px] w-full rounded-md border p-4 dark:border-gray-700">
