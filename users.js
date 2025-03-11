@@ -131,5 +131,6 @@ router.put('/change-password',
             { $set: { password } }
         );
         res.json({ message: 'Password updated successfully' });
-    });
+});
+
 export default router;
