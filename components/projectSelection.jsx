@@ -60,7 +60,6 @@ export function ProjectSelection({ initialProjects }) {
     router.push(`/projects/${projectId}`);
   };
 
-
   // Filter projects based on search term
   const filteredProjects = projectList?.length 
         ? projectList.filter(project => project?.name?.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -134,6 +133,7 @@ export function ProjectSelection({ initialProjects }) {
                   key={project._id}
                   project={project}
                   onViewProject={handleViewProject}
+                  setProjects={setProjectList}
               />
           ))}
         </div>
