@@ -32,6 +32,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import nextConfig from "@/next.config.mjs";
+import axios from "axios";
 
 export function AdminUserList({ token, users }) {
   const id = useId();
@@ -43,6 +44,7 @@ export function AdminUserList({ token, users }) {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
+  const [usersList, setUsersList] = useState(users);
   const router = useRouter();
 
   const handleAddUser = async (e) => {
@@ -88,21 +90,24 @@ export function AdminUserList({ token, users }) {
 
   const handleRemoveUser = async (user) => {
     setSelectedUser(user);
-    setResetDialogOpen(false);
+    setDeleteDialogOpen(true);
   };
 
   const confirmRemoveUser = async () => {
     try {
-      const res = await fetch(nextConfig.env.API_URL + `/users/${selectedUser._id}`, {
-        method: "DELETE",
+      const res = await axios.delete(`${nextConfig.env.API_URL}/users/${selectedUser._id}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
       });
 
-      const data = await res.json();
+      const data = await res.data;
 
       if (!data.success) {
         setError(data.message || "Failed to remove user");
       } else {
-        router.refresh();
+        setUsersList(usersList.filter((user) => user._id !== selectedUser._id));
+        setSuccessMessage(`User ${selectedUser.name} removed successfully`);
       }
     } catch (error) {
       setError("Failed to remove user");
@@ -147,7 +152,7 @@ export function AdminUserList({ token, users }) {
     if (successMessage) {
       const timer = setTimeout(() => {
         setSuccessMessage("");
-      }, 5000); // Hide the alert after 5 seconds
+      }, 12000); // Hide the alert after 12 seconds
 
       return () => clearTimeout(timer);
     }
@@ -241,8 +246,8 @@ export function AdminUserList({ token, users }) {
 
               {error && (
                 <Alert variant="destructive">
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertTitle className="font-bold text-white" >Error</AlertTitle>
+                  <AlertDescription className="font-bold text-white">{error}</AlertDescription>
                 </Alert>
               )}
 
@@ -257,8 +262,8 @@ export function AdminUserList({ token, users }) {
         {successMessage && (
           <Alert variant="success" className="mb-4 bg-green-500 text-white flex justify-between items-center">
             <div>
-              <AlertTitle className="font-bold">Success</AlertTitle>
-              <AlertDescription>{successMessage}</AlertDescription>
+              <AlertTitle className="font-bold text-white">Success</AlertTitle>
+              <AlertDescription className="font-bold text-white">{successMessage}</AlertDescription>
             </div>
             <Button variant="ghost" size="icon" onClick={() => setSuccessMessage("")} className="text-white">
               <X className="h-5 w-5" />
@@ -266,8 +271,8 @@ export function AdminUserList({ token, users }) {
           </Alert>
         )}
         <ScrollArea className="h-[400px] w-full rounded-md border p-4 dark:border-gray-700">
-          {users?.length > 0 ? (
-            users.map((user) => (
+          {usersList?.length > 0 ? (
+            usersList.map((user) => (
               <div key={user._id} className="flex items-center justify-between py-2">
                 <div className="flex items-center space-x-4">
                   <Avatar>
