@@ -43,6 +43,13 @@ router.post('/',
     handleValidationErrors,
     async (req, res) => {
         const db = await getDB('data');
+        
+        // Check if the user is admin
+        const requestingUser = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
+        if (requestingUser.role !== 'admin') {
+            return res.status(403).json({ success: false, message: 'Unauthorized' });
+        }
+
         const password = req.body.password || createPassword(); // If no password is provided, generate a random one
         const user = { 
             email: req.body.email,
@@ -55,13 +62,16 @@ router.post('/',
         };
         try {
             await db.collection('users').insertOne(user);
-            console.log("Created new user with password: ", password)
-            res.status(201).json({ success: true, message: 'User created successfully', password });
+            console.log("Created new user with password: ", password);
+            if (!req.body.password) {
+                res.status(201).json({ success: true, message: 'User created successfully', password });
+            } else {
+                res.status(201).json({ success: true, message: 'User created successfully' });
+            }
         } catch (error) {
             res.status(500).json({ success: false, error: error.message });
         }
-});
-
+    });
 
 router.get('/',
     handleValidationErrors, async (req, res) => {
@@ -92,6 +102,37 @@ router.get('/:id',
         return res.status(404).json({ success: false, message: 'User not found' });
     }
     res.json(user);
+});
+
+// delete a user by its id
+router.delete('/:id', handleValidationErrors, async (req, res) => {
+
+    console.log("received delete request")
+    const db = await getDB('data');
+    const result = await db.collection('users').deleteOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
+    
+    if (result.deletedCount === 0) {
+        return res.status(404).json({ success: false, message: 'User couldn\'t be deleted, please try again or contact an system administrator.' });
+    }
+
+    res.json({ success: true, message: 'User deleted successfully' });
+});
+
+router.put('/change-password',
+    body('password').isString().isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+    handleValidationErrors, async (req, res) => {
+        const db = await getDB('data');
+        const user = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        console.log(req.body.password)
+        const password = await bcrypt.hash(req.body.password, 12);
+        await db.collection('users').updateOne(
+            { _id: new mongoose.Types.ObjectId(req.userId) },
+            { $set: { password } }
+        );
+        res.json({ message: 'Password updated successfully' });
 });
 
 export default router;

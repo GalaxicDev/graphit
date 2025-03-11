@@ -2,9 +2,11 @@ import express from 'express';
 import { body, param, validationResult } from 'express-validator';
 import { getDB } from './connectDB.js';
 import mongoose from 'mongoose';
-import {verifyToken} from "./utils/jwt.js";
+import { verifyToken } from "./utils/jwt.js";
+import NodeCache from 'node-cache';
 
 const router = express.Router();
+const cache = new NodeCache({ stdTTL: 60 * 60 }); // 1 hour cache
 
 // Helper function for handling validation errors
 const handleValidationErrors = (req, res, next) => {
@@ -33,16 +35,27 @@ const extractUserId = (req, res, next) => {
 // Apply extractUserId middleware to all routes
 router.use(extractUserId);
 
-//Get all graphs for a project
+// Get all graphs for a project
 router.get('/project/:projectId', async (req, res) => {
+    const { projectId } = req.params;
+    const cacheKey = `project-graphs-${projectId}`;
+
+    // Check cache first
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) {
+        console.log("Returning cached data for project graphs");
+        return res.json(cachedData);
+    }
+
     try {
         const db = await getDB('data');
-        const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.params.projectId) });
+        const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(projectId) });
         if (!project) {
             return res.status(404).json({ success: false, message: 'Project not found' });
         }
         const graphs = await db.collection('graphs').find({ projectId: new mongoose.Types.ObjectId(req.params.projectId) }).toArray();
-        
+        cache.set(cacheKey, graphs);
+
         res.json(graphs);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -95,7 +108,6 @@ router.post('/',
         }
     });
 
-
 // Update a graph by ID
 router.put('/:id',
     param('id').isMongoId(),
@@ -133,4 +145,3 @@ router.delete('/:id', param('id').isMongoId(),
     });
 
 export default router;
-
