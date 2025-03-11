@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import { useState, useId } from "react"
-import { Plus, X, RotateCcw, UserPlus, Users } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useState, useId, useEffect } from "react";
+import { Plus, X, RotateCcw, UserPlus, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,7 +20,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
@@ -28,31 +28,34 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import nextConfig from "@/next.config.mjs"
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import nextConfig from "@/next.config.mjs";
+import axios from "axios";
 
 export function AdminUserList({ token, users }) {
-  const id = useId()
-  const [newUser, setNewUser] = useState({ name: "", email: "", password: "", role: "user" })
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [resetDialogOpen, setResetDialogOpen] = useState(false)
-  const [createDialogOpen, setCreateDialogOpen] = useState(false)
-  const [selectedUser, setSelectedUser] = useState(null)
-  const router = useRouter()
+  const id = useId();
+  const [newUser, setNewUser] = useState({ name: "", email: "", password: "", role: "user" });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [usersList, setUsersList] = useState(users);
+  const router = useRouter();
 
   const handleAddUser = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!newUser.name || !newUser.email) {
-      setError("Name and email are required")
-      return
+      setError("Name and email are required");
+      return;
     }
 
-    setIsLoading(true)
-    setError("")
+    setIsLoading(true);
+    setError("");
 
     try {
       const res = await fetch(nextConfig.env.API_URL + "/users", {
@@ -62,78 +65,98 @@ export function AdminUserList({ token, users }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(newUser),
-      })
+      });
 
-      const data = await res.json()
+      const data = await res.json();
 
       if (!data.success) {
-        setError(data.message || "Failed to create user")
+        setError(data.message || "Failed to create user");
       } else {
-        setNewUser({ name: "", email: "", password: "", role: "user" })
-        setCreateDialogOpen(false)
-        router.refresh()
+        console.log("success creating user", data);
+        setNewUser({ name: "", email: "", password: "", role: "user" });
+        setCreateDialogOpen(false);
+        if (data.password) {
+          setSuccessMessage(`User created successfully with password: ${data.password}`);
+        }
+        router.refresh();
       }
     } catch (error) {
-      setError("Failed to create user")
-      console.error("Failed to create user:", error)
+      setError("Failed to create user");
+      console.error("Failed to create user:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleRemoveUser = async (user) => {
-    setSelectedUser(user)
-    setDeleteDialogOpen(true)
-  }
+    setSelectedUser(user);
+    setDeleteDialogOpen(true);
+  };
 
   const confirmRemoveUser = async () => {
     try {
-      const res = await fetch(nextConfig.env.API_URL + `/users/${selectedUser._id}`, {
-        method: "DELETE",
-      })
+      const res = await axios.delete(`${nextConfig.env.API_URL}/users/${selectedUser._id}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
 
-      const data = await res.json()
+      const data = await res.data;
 
       if (!data.success) {
-        setError(data.message || "Failed to remove user")
+        setError(data.message || "Failed to remove user");
       } else {
-        router.refresh()
+        setUsersList(usersList.filter((user) => user._id !== selectedUser._id));
+        setSuccessMessage(`User ${selectedUser.name} removed successfully`);
       }
     } catch (error) {
-      setError("Failed to remove user")
-      console.error("Failed to remove user:", error)
+      setError("Failed to remove user");
+      console.error("Failed to remove user:", error);
     } finally {
-      setDeleteDialogOpen(false)
-      setSelectedUser(null)
+      setDeleteDialogOpen(false);
+      setSelectedUser(null);
     }
-  }
+  };
 
   const handleResetPassword = async (user) => {
-    setSelectedUser(user)
-    setResetDialogOpen(true)
-  }
+    setSelectedUser(user);
+    setResetDialogOpen(true);
+  };
 
   const confirmResetPassword = async () => {
     try {
       const res = await fetch(nextConfig.env.API_URL + `/users/${selectedUser._id}`, {
         method: "POST",
-      })
+      });
 
-      const data = await res.json()
+      const data = await res.json();
 
       if (!data.success) {
-        setError(data.message || "Failed to reset password")
+        setError(data.message || "Failed to reset password");
       } else {
-        setError("")
+        setError("");
+        if (data.password) {
+          setSuccessMessage(`User created successfully with password: ${data.password}`);
+        }
       }
     } catch (error) {
-      setError("Failed to reset password")
-      console.error("Failed to reset password:", error)
+      setError("Failed to reset password");
+      console.error("Failed to reset password:", error);
     } finally {
-      setResetDialogOpen(false)
-      setSelectedUser(null)
+      setResetDialogOpen(false);
+      setSelectedUser(null);
     }
-  }
+  };
+
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage("");
+      }, 12000); // Hide the alert after 12 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
 
   return (
     <Card className="dark:bg-gray-800/40">
@@ -223,8 +246,8 @@ export function AdminUserList({ token, users }) {
 
               {error && (
                 <Alert variant="destructive">
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertTitle className="font-bold text-white" >Error</AlertTitle>
+                  <AlertDescription className="font-bold text-white">{error}</AlertDescription>
                 </Alert>
               )}
 
@@ -236,13 +259,24 @@ export function AdminUserList({ token, users }) {
         </Dialog>
       </CardHeader>
       <CardContent className="space-y-4">
+        {successMessage && (
+          <Alert variant="success" className="mb-4 bg-green-500 text-white flex justify-between items-center">
+            <div>
+              <AlertTitle className="font-bold text-white">Success</AlertTitle>
+              <AlertDescription className="font-bold text-white">{successMessage}</AlertDescription>
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => setSuccessMessage("")} className="text-white">
+              <X className="h-5 w-5" />
+            </Button>
+          </Alert>
+        )}
         <ScrollArea className="h-[400px] w-full rounded-md border p-4 dark:border-gray-700">
-          {users?.length > 0 ? (
-            users.map((user) => (
+          {usersList?.length > 0 ? (
+            usersList.map((user) => (
               <div key={user._id} className="flex items-center justify-between py-2">
                 <div className="flex items-center space-x-4">
                   <Avatar>
-                    <AvatarImage src={`https://api.dicebear.com/6.x/initials/svg?seed=${user.name}`} />
+                    <AvatarImage src={nextConfig.env.PFP_SRC + user.name} />
                     <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <div className="space-y-1">
@@ -286,7 +320,9 @@ export function AdminUserList({ token, users }) {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel className="dark:bg-gray-700">Cancel</AlertDialogCancel>
-              <AlertDialogAction className="bg-red-500 text-white hover:bg-red-600">Remove User</AlertDialogAction>
+              <AlertDialogAction className="bg-red-500 text-white hover:bg-red-600" onClick={confirmRemoveUser}>
+                Remove User
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -301,12 +337,11 @@ export function AdminUserList({ token, users }) {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel className="dark:bg-gray-700">Cancel</AlertDialogCancel>
-              <AlertDialogAction>Reset Password</AlertDialogAction>
+              <AlertDialogAction onClick={confirmResetPassword}>Reset Password</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
       </CardContent>
     </Card>
-  )
+  );
 }
-
