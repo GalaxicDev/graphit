@@ -69,7 +69,17 @@ router.get('/:id', param('id').isMongoId(), handleValidationErrors, async (req, 
             return res.status(404).json({ success: false, message: 'Project not found' });
         }
         
-        if (project.userId.toString() !== req.userId.toString() && !project.viewer.map(id => id.toString()).includes(req.userId.toString()) && !project.editor.map(id => id.toString()).includes(req.userId.toString())) {
+        // Admin bypass: if the user is an admin, allow access regardless of project association
+        const user = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
+        if (user && user.role === 'admin') {
+            return res.json(project);
+        }
+        
+        if (
+            project.userId.toString() !== req.userId.toString() &&
+            !project.viewer.map(id => id.toString()).includes(req.userId.toString()) &&
+            !project.editor.map(id => id.toString()).includes(req.userId.toString())
+        ) {
             return res.status(403).json({ success: false, message: 'Access denied' });
         }
         res.json(project);
@@ -83,7 +93,13 @@ router.get('/:id/role', param('id').isMongoId(), handleValidationErrors, async (
     try {
         const db = await getDB('data');
         const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
-        
+        const user = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
+
+        // admin bypasses all checks
+        if (user.role === 'admin') {
+            return res.json({ role: 'admin' });
+        }
+
         if (!project) {
             return res.status(404).json({ success: false, message: 'Project not found' });
         }
@@ -96,6 +112,7 @@ router.get('/:id/role', param('id').isMongoId(), handleValidationErrors, async (
         if (project.viewer.map(id => id.toString()).includes(req.userId.toString())) {
             return res.json({ role: 'viewer' });
         }
+        
         
         res.json({ role: 'none' });
     } catch (error) {

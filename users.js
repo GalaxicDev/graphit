@@ -55,8 +55,12 @@ router.post('/',
         };
         try {
             await db.collection('users').insertOne(user);
-            console.log("Created new user with password: ", password)
-            res.status(201).json({ success: true, message: 'User created successfully', password });
+            console.log("Created new user with password: ", password);
+            if (!req.body.password) {
+                res.status(201).json({ success: true, message: 'User created successfully', password });
+            } else {
+                res.status(201).json({ success: true, message: 'User created successfully' });
+            }
         } catch (error) {
             res.status(500).json({ success: false, error: error.message });
         }
@@ -92,6 +96,18 @@ router.get('/:id',
         return res.status(404).json({ success: false, message: 'User not found' });
     }
     res.json(user);
+});
+
+// delete a user by its id
+router.delete('/:id', handleValidationErrors, async (req, res) => {
+    const db = await getDB('data');
+    const result = await db.collection('users').deleteOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
+    
+    if (result.deletedCount === 0) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    res.json({ success: true, message: 'User deleted successfully' });
 });
 
 export default router;
