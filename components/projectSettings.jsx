@@ -344,7 +344,7 @@ export function ProjectSettings({ initialProjectData }) {
                         <div key={user._id} className="flex items-center justify-between py-2">
                           <div className="flex items-center space-x-4">
                             <Avatar>
-                              <AvatarImage src={`https://api.dicebear.com/6.x/thumbs/svg?seed=${user.name}`}/>
+                              <AvatarImage src={nextConfig.env.PFP_SRC + user.name}/>
                               <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div>
