@@ -106,11 +106,13 @@ router.get('/:id',
 
 // delete a user by its id
 router.delete('/:id', handleValidationErrors, async (req, res) => {
+
+    console.log("received delete request")
     const db = await getDB('data');
     const result = await db.collection('users').deleteOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
     
     if (result.deletedCount === 0) {
-        return res.status(404).json({ success: false, message: 'User not found' });
+        return res.status(404).json({ success: false, message: 'User couldn\'t be deleted, please try again or contact an system administrator.' });
     }
 
     res.json({ success: true, message: 'User deleted successfully' });
