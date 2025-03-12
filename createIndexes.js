@@ -1,12 +1,16 @@
 // TODO: create indexes to reduce query time
 
+import dotenv from 'dotenv';
 import { getDB } from './connectDB.js';
+
+// Load environment variables from .env file
+dotenv.config();
 
 const createIndexes = async () => {
     const db = await getDB('mqtt');
 
     // List of collections to create indexes on
-    const collections = await db.listCollections().toArray();
+    const collections = await db.listCollections();
 
     for (const { name } of collections) {
         console.log(`Creating indexes for collection: ${name}`);
@@ -16,8 +20,8 @@ const createIndexes = async () => {
 
         // Create indexes on fields specified in conditionalParams
         // Replace 'field1', 'field2', etc. with actual field names
-        await db.collection(name).createIndex({ field1: 1 });
-        await db.collection(name).createIndex({ field2: 1 });
+        //await db.collection(name).createIndex({ field1: 1 });
+        //await db.collection(name).createIndex({ field2: 1 });
         // Add more indexes as needed
     }
 
@@ -28,7 +32,7 @@ const removeIndexes = async () => {
     const db = await getDB('mqtt');
 
     // List of collections to remove indexes from
-    const collections = await db.listCollections().toArray();
+    const collections = await db.listCollections();
 
     for (const { name } of collections) {
         console.log(`Removing indexes for collection: ${name}`);
@@ -38,8 +42,8 @@ const removeIndexes = async () => {
 
         // Remove indexes on fields specified in conditionalParams
         // Replace 'field1', 'field2', etc. with actual field names
-        await db.collection(name).dropIndex({ field1: 1 });
-        await db.collection(name).dropIndex({ field2: 1 });
+        //await db.collection(name).dropIndex({ field1: 1 });
+        //await db.collection(name).dropIndex({ field2: 1 });
         // Remove more indexes as needed
     }
 
@@ -48,4 +52,4 @@ const removeIndexes = async () => {
 
 // Uncomment the function you want to run
 createIndexes().catch(console.error);
-// removeIndexes().catch(console.error);
+//removeIndexes().catch(console.error);

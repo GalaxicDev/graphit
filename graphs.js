@@ -4,9 +4,11 @@ import { getDB } from './connectDB.js';
 import mongoose from 'mongoose';
 import { verifyToken } from "./utils/jwt.js";
 import NodeCache from 'node-cache';
+import dotenv from 'dotenv';
 
 const router = express.Router();
 const cache = new NodeCache({ stdTTL: 60 * 60 }); // 1 hour cache
+dotenv.config();
 
 // Helper function for handling validation errors
 const handleValidationErrors = (req, res, next) => {
@@ -143,5 +145,36 @@ router.delete('/:id', param('id').isMongoId(),
             res.status(500).json({ success: false, message: error.message });
         }
     });
+
+
+const setupChangeStreams = async () => {
+    const db = await getDB('data');
+    const collections = await db.listCollections();
+
+    collections.forEach(({ name }) => {
+        // Enable fullDocument lookup so that update events include the latest document
+        const collectionChangeStream = db.collection(name).watch([], { fullDocument: 'updateLookup' });
+
+        collectionChangeStream.on('change', (change) => {
+            console.log(`Change stream event in collection ${name}: ${change.operationType}`);
+            let cacheKey = null;
+
+            // Depending on the operation type, you can access the document that was changed
+            if (change.operationType === 'insert' || change.operationType === 'update' || change.operationType === 'replace') {
+                console.log('Full document:', change.fullDocument);
+                cacheKey = `project-graphs-${change.fullDocument.projectId}`;
+            }
+
+            if (cacheKey) {
+                cache.del(cacheKey);
+            } else {
+                console.log('No cache key found for this operation');
+            }
+        });
+    });
+};
+
+// Initialize change streams for all collections
+setupChangeStreams().catch(console.error);
 
 export default router;

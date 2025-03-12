@@ -132,7 +132,22 @@ router.put('/change-password',
             { _id: new mongoose.Types.ObjectId(req.userId) },
             { $set: { password } }
         );
-        res.json({ message: 'Password updated successfully' });
+        res.json({ message: 'Password updated successfully',  });
+});
+
+router.put('/reset-password/:id',
+    handleValidationErrors, async (req, res) => {
+        const db = await getDB('data');
+        const user = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        const password = user.initialPassword || createPassword();
+        await db.collection('users').updateOne(
+            { _id: new mongoose.Types.ObjectId(req.params.id) },
+            { $set: { password: await bcrypt.hash(password, 12) } }
+        );
+        res.json({ success: true, message: 'Password reset successfully', password });
 });
 
 export default router;

@@ -5,9 +5,11 @@ import mongoose from 'mongoose';
 import {verifyToken} from "./utils/jwt.js";
 import { subDays, subMonths, subYears } from 'date-fns';
 import NodeCache from 'node-cache';
+import dotenv from 'dotenv';
 
 const router = express.Router();
 const cache = new NodeCache({ stdTTL: 60 * 60 }); // 1 hour cache
+dotenv.config();
 
 // Helper function for handling validation errors
 const handleValidationErrors = (req, res, next) => {
@@ -210,7 +212,7 @@ router.get('/availableKeys', async (req, res) => {
 // we use changeStream to listen to changes in the collection and remove the cache
 const setupChangeStreams = async () => {
     const db = await getDB('mqtt');
-    const collections = await db.listCollections().toArray();
+    const collections = await db.listCollections();
 
     collections.forEach(({ name }) => {
         const collectionChangeStream = db.collection(name).watch();
@@ -227,6 +229,7 @@ const setupChangeStreams = async () => {
                             const parsedKey = JSON.parse(key);
                             if (parsedKey.collections && parsedKey.collections.includes(name)) {
                                 cache.del(key);
+                                console.log(`Removed cache for key: ${key}`);
                             }
                         } catch (e) {
                             console.error(`Error parsing cache key: ${key}`, e);
@@ -239,9 +242,7 @@ const setupChangeStreams = async () => {
 };
 
 // Initialize change streams for all collections
-//setupChangeStreams().catch(console.error);
-// TODO: when setting it up the code crashes
-
+setupChangeStreams().catch(console.error);
 
 
 export default router;
