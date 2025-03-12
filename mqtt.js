@@ -229,6 +229,7 @@ const setupChangeStreams = async () => {
                             const parsedKey = JSON.parse(key);
                             if (parsedKey.collections && parsedKey.collections.includes(name)) {
                                 cache.del(key);
+                                console.log(`Removed cache for key: ${key}`);
                             }
                         } catch (e) {
                             console.error(`Error parsing cache key: ${key}`, e);
@@ -242,8 +243,6 @@ const setupChangeStreams = async () => {
 
 // Initialize change streams for all collections
 setupChangeStreams().catch(console.error);
-// TODO: when setting it up the code crashes
-
 
 
 export default router;
