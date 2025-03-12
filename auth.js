@@ -75,7 +75,7 @@ router.get('/verify', async (req, res, next) => {
 
         const db = await getDB('data');
         const User = createUserModel(db);
-        const user = await User.findById(decoded.userId);
+        const user = await User.findById(decoded.userId, { password: 0, initialPassword: 0 });
 
         if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
