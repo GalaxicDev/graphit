@@ -152,7 +152,7 @@ router.put('/:id',
             const db = await getDB('data');
             const { _id, userId, ...updateData } = req.body; // Exclude _id and userId from req.body
             const updateProject = await db.collection('projects').findOneAndUpdate(
-                { _id: new mongoose.Types.ObjectId(req.params.id), userId: new mongoose.Types.ObjectId(req.userId) },
+                { _id: new mongoose.Types.ObjectId(req.params.id) },
                 { $set: updateData },
                 { returnDocument: 'after' }
             );
@@ -250,15 +250,19 @@ router.post('/:projectId/access',
             if (!project) {
                 return res.status(404).json({ success: false, message: 'Project not found' });
             }
-            // Only the project owner can change access
-            if (project.userId.toString() !== req.userId) {
+
+
+            // Fetch current user's info for admin bypass
+            const currentUser = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
+            // Only the project owner or an admin can change access
+            if (currentUser.role !== 'admin' && project.userId.toString() !== req.userId) {
                 return res.status(403).json({ success: false, message: 'Access denied' });
             }
 
             const name = req.body.name;
             const role = req.body.role.toLowerCase();
-            //verify if the role is valid
-            if (!['admin','editor', 'viewer', 'none'].includes(role)) {
+            // Verify if the role is valid
+            if (!['admin', 'editor', 'viewer', 'none'].includes(role)) {
                 return res.status(400).json({ success: false, message: 'Invalid role' });
             }
 
@@ -349,19 +353,26 @@ router.get('/:projectId/access',
             if (!project) {
                 return res.status(404).json({ success: false, message: 'Project not found' });
             }
-            // Only the project owner can view access
-            if (project.userId.toString() !== req.userId) {
+            
+            // Fetch current user's info for admin bypass
+            const currentUser = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
+            if (!currentUser) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+            
+            // Allow access if current user is admin, otherwise only project owner can view access
+            if (currentUser.role !== 'admin' && project.userId.toString() !== req.userId) {
                 return res.status(403).json({ success: false, message: 'Access denied' });
             }
 
             const users = await db.collection('users').find(
-                { _id: { $in: project.editor.concat(project.viewer) } },
+                { _id: { $in: (project.editor || []).concat(project.viewer || []) } },
                 { projection: { _id: 1, name: 1, lastLogin: 1 } }
             ).toArray();
 
             const usersWithRoles = users.map(user => {
                 let role = 'Viewer';
-                if (project.editor.includes(user._id)) {
+                if ((project.editor || []).includes(user._id)) {
                     role = 'Editor';
                 }
                 return { ...user, role };
