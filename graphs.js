@@ -89,11 +89,16 @@ router.post('/',
         console.log("Creating new graph", req.body);
         try {
             const db = await getDB('data');
-            // Check if the user either owns the project or is an editor
-            const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.body.projectId) });
-            if (project.userId.toString() !== req.userId.toString() && !project.editor.map(id => id.toString()).includes(req.userId.toString())) {
-                res.status(403).json({ success: false, message: 'Access denied' });
-                return;
+            // Retrieve project information
+            const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(String(req.body.projectId)) });
+            if (!project) {
+                return res.status(404).json({ success: false, message: 'Project not found' });
+            }
+            // Retrieve user information
+            const user = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(String(req.userId)) });
+            // Allow access if user is admin, owns the project, or is an editor
+            if (!(user && user.role === 'admin') && (project.userId.toString() !== String(req.userId) && !project.editor.map(id => id.toString()).includes(String(req.userId)))) {
+                return res.status(403).json({ success: false, message: 'Access denied' });
             }
             // Create a new graph object
             const newGraphData = {
