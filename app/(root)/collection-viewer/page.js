@@ -5,79 +5,127 @@ import axios from 'axios'
 import { Search, Database, SquareArrowOutUpRight, Edit, Trash2, Ellipsis } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import nextConfig from '@/next.config.mjs';
 import { useUser } from '@/lib/UserContext'
 
-
 export default function MongoDBViewer() {
-  const [collections, setCollections] = useState([])
-  const [selectedCollection, setSelectedCollection] = useState(null)
-  const [documents, setDocuments] = useState([])
-  const [searchTerm, setSearchTerm] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalDocuments, setTotalDocuments] = useState(0)
-  const itemsPerPage = 10
+    const [collections, setCollections] = useState([])
+    const [selectedCollection, setSelectedCollection] = useState(null)
+    const [documents, setDocuments] = useState([])
+    const [searchTerm, setSearchTerm] = useState('')
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalDocuments, setTotalDocuments] = useState(0)
+    const itemsPerPage = 10
 
-  const { token } = useUser();
+    const { token } = useUser();
 
-  useEffect(() => {
-    // Fetch all collections
-    if(typeof window !== 'undefined'){
-      axios.get(nextConfig.env.API_URL + '/collections', {
-        headers: {
-          'Authorization': `Bearer ${token}`
+    useEffect(() => {
+        // Fetch all collections
+        if(typeof window !== 'undefined'){
+            axios.get(nextConfig.env.API_URL + '/collections', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+                .then(response => {
+                    const collectionList = response.data.map(collection => collection.name); // Extract collection names and put them in a list
+                    setCollections(collectionList);
+                })
+                .catch(error => {
+                    console.error('Error fetching collections:', error)
+                })
         }
-      })
-        .then(response => {
-          const collectionList = response.data.map(collection => collection.name); // Extract collection names and put them in a list
-          setCollections(collectionList);
-        })
-        .catch(error => {
-          console.error('Error fetching collections:', error)
-        })
-    }
-  }, [token])
+    }, [token])
 
-  useEffect(() => {
-    if (selectedCollection) {
-      // Fetch documents of the selected collection
-      axios.get(nextConfig.env.API_URL + `/collections/${selectedCollection}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        params: {
-          page: currentPage,
-          pageSize: itemsPerPage
+    useEffect(() => {
+        if (selectedCollection) {
+            // Fetch documents of the selected collection
+            axios.get(nextConfig.env.API_URL + `/collections/${selectedCollection}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                params: {
+                    page: currentPage,
+                    pageSize: itemsPerPage
+                }
+            })
+            .then(response => {
+                setDocuments(response.data.documents)
+                setTotalDocuments(response.data.totalDocuments)
+            })
+            .catch(error => {
+                console.error('Error fetching documents:', error)
+            })
         }
-      })
-      .then(response => {
-        setDocuments(response.data.documents)
-        setTotalDocuments(response.data.totalDocuments)
-      })
-      .catch(error => {
-        console.error('Error fetching documents:', error)
-      })
-    }
-  }, [selectedCollection, currentPage, itemsPerPage, token])
+    }, [selectedCollection, currentPage, itemsPerPage, token])
 
   const handleCollectionClick = (collection) => {
     setSelectedCollection(collection)
     setCurrentPage(1)
   }
 
-  const handleSearch = (event) => {
-    setSearchTerm(event.target.value)
-    setCurrentPage(1)
-  }
-
-  const handleExport = () => {
-    alert(`Exporting ${selectedCollection} data...`)
-  }
+    const handleExport = (coll, format = 'json') => {
+        axios.get(nextConfig.env.API_URL + `/collections/${coll}/all`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                const docs = response.data.documents;
+                if (format === 'json') {
+                    // Create a Blob object containing the data in JSON format
+                    const blob = new Blob([JSON.stringify(docs, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `${coll}.json`;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                } else if (format === 'csv') {
+                    // Convert JSON data to CSV format
+                    if (Array.isArray(docs) && docs.length > 0) {
+                        const allKeys = new Set(docs.flatMap(doc => Object.keys(doc))); // Get all keys from all documents, not just the first one
+                        const headers = Array.from(allKeys).join(',');
+                        const rows = docs.map(row => 
+                            Array.from(allKeys).map(key => row[key] !== undefined ? row[key] : '').join(',') // Fill in empty values with an empty string
+                        ).join('\n');
+                        const csvContent = `${headers}\n${rows}`; // Combine headers and rows
+                        const blob = new Blob([csvContent], { type: 'text/csv' }); // Convert to blob
+                        const url = URL.createObjectURL(blob); // Create a URL for the blob
+                        const link = document.createElement('a'); // Create a link element
+                        link.href = url; // Set the link's href attribute to the URL
+                        link.download = `${coll}.csv`; // Set the download attribute to the collection name
+                        link.click(); // Simulate a click on the link
+                        URL.revokeObjectURL(url);
+                    } else {
+                        console.error('No data available for CSV export.');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error exporting collection:', error);
+            });
+    };
 
   const handleDelete = (id) => {
     // Handle delete document
   }
-  // Search for collections
+
+  const handleDropdownOptionClick = (option, collection) => {
+    if (option === 'changeDisplayName') {
+
+      // open the modal to change the display name
+      
+
+
+      alert(`Change alias for ${collection}`)
+    } else if (option === 'copyFullName') {
+      navigator.clipboard.writeText(collection)
+      alert(`Copied full name: ${collection}`)
+    }
+  }
+
   const filteredCollections = collections.filter(collection =>
     collection.toLowerCase().includes(searchTerm.toLowerCase())
   )
@@ -90,39 +138,44 @@ export default function MongoDBViewer() {
 
   const totalPages = Math.ceil(totalDocuments / itemsPerPage)
 
-
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4 dark:text-white">Collection Viewer</h1>
-      <div className="mb-4">
-        <div className="relative">
-          <Input
-            type="text"
-            placeholder="Search collections or documents..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className="pl-10 dark:bg-gray-700 dark:text-white"
-          />
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:bg-gray-700" />
-        </div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <Input
+        type="text"
+        placeholder="Search collections or documents..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="pl-10 dark:bg-gray-700 dark:text-white"
+      />
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
         <div className="col-span-1">
           <h2 className="text-xl font-semibold mb-2 dark:text-white">Collections</h2>
           <ul className="space-y-2">
             {filteredCollections.map(collection => (
-              <li key={collection}>
-                <Button
-                  variant={selectedCollection === collection ? "default" : "unselected"}
-                  className={`w-full justify-start dark:bg-gray-700 dark:text-white hover:cursor-pointer ${selectedCollection === collection ? "bg-black text-white" : "hover:bg-gray-200"}`}
+              <li key={collection} className="relative">
+                <div
+                  className={`w-full flex items-center justify-between p-2 rounded-lg cursor-pointer dark:bg-gray-700 dark:text-white ${selectedCollection === collection ? 'bg-blue-200 dark:bg-blue-500' : ''}`}
                   onClick={() => handleCollectionClick(collection)}
-                >
-                  <Database className="mr-2 h-4 w-4" />
+                >                
+                 <Database className="mr-1 h-4 w-4" />
                   {collection}
-                  <Ellipsis 
-                    className="ml-auto h-4 w-4"
-                  />
-                </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost">
+                        <Ellipsis className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleDropdownOptionClick('changeDisplayName', collection)}>
+                        Change Display Name
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDropdownOptionClick('copyFullName', collection)}>
+                        Copy Full Name
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </li>
             ))}
           </ul>

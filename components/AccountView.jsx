@@ -72,7 +72,7 @@ export function AccountView({ initialUserData }) {
             await axios.put(
                 `${nextConfig.env.API_URL}/users/change-password`,
                 {
-                    newPassword,
+                    "password": newPassword,
                 },
                 {
                     headers: {
@@ -253,7 +253,7 @@ export function AccountView({ initialUserData }) {
                                 <CardDescription>Manage your password and account security</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div className="space-y-2">
+                                {/* <div className="space-y-2">
                                     <Label htmlFor="current-password">Current Password</Label>
                                     <div className="relative">
                                         <Input
@@ -265,7 +265,7 @@ export function AccountView({ initialUserData }) {
                                         />
                                         <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
                                     </div>
-                                </div>
+                                </div> */}
 
                                 <div className="space-y-2">
                                     <Label htmlFor="new-password">New Password</Label>
@@ -297,7 +297,7 @@ export function AccountView({ initialUserData }) {
 
                                 <Button
                                     onClick={handlePasswordChange}
-                                    disabled={!currentPassword || !newPassword || !confirmPassword}
+                                    disabled={!newPassword || !confirmPassword}
                                     className="mt-2"
                                 >
                                     <Shield className="w-4 h-4 mr-2" />

@@ -7,11 +7,11 @@ import { cookies } from "next/headers";
 export default async function AccountPage() {
     const cookiesStore = await cookies(); 
     const token = cookiesStore.get('token')?.value;
+    const user = JSON.parse(cookiesStore.get('user')?.value);
 
-    const user = "679389f3998912facf6c9824";
     let userData;
     try {
-        const response = await axios.get(nextConfig.env.API_URL + `/users/${user}`, {
+        const response = await axios.get(nextConfig.env.API_URL + `/users/${user._id}`, {
             headers: {
                 "Authorization": `Bearer ${token}`
             }
