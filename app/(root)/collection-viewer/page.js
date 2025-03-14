@@ -10,61 +10,103 @@ import nextConfig from '@/next.config.mjs';
 import { useUser } from '@/lib/UserContext'
 
 export default function MongoDBViewer() {
-  const [collections, setCollections] = useState([])
-  const [selectedCollection, setSelectedCollection] = useState(null)
-  const [documents, setDocuments] = useState([])
-  const [searchTerm, setSearchTerm] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalDocuments, setTotalDocuments] = useState(0)
-  const itemsPerPage = 10
+    const [collections, setCollections] = useState([])
+    const [selectedCollection, setSelectedCollection] = useState(null)
+    const [documents, setDocuments] = useState([])
+    const [searchTerm, setSearchTerm] = useState('')
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalDocuments, setTotalDocuments] = useState(0)
+    const itemsPerPage = 10
 
-  const { token } = useUser();
+    const { token } = useUser();
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      axios.get(nextConfig.env.API_URL + '/collections', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-        .then(response => {
-          const collectionList = response.data.map(collection => collection.name)
-          setCollections(collectionList)
-        })
-        .catch(error => {
-          console.error('Error fetching collections:', error)
-        })
-    }
-  }, [token])
-
-  useEffect(() => {
-    if (selectedCollection) {
-      // Fetch documents of the selected collection
-      axios.get(nextConfig.env.API_URL + `/collections/${selectedCollection}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        params: {
-          page: currentPage,
-          pageSize: itemsPerPage
+    useEffect(() => {
+        // Fetch all collections
+        if(typeof window !== 'undefined'){
+            axios.get(nextConfig.env.API_URL + '/collections', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+                .then(response => {
+                    const collectionList = response.data.map(collection => collection.name); // Extract collection names and put them in a list
+                    setCollections(collectionList);
+                })
+                .catch(error => {
+                    console.error('Error fetching collections:', error)
+                })
         }
-      })
-      .then(response => {
-        setDocuments(response.data.documents)
-        setTotalDocuments(response.data.totalDocuments)
-      })
-      .catch(error => {
-        console.error('Error fetching documents:', error)
-      })
-    }
-  }, [selectedCollection, currentPage, itemsPerPage, token])
+    }, [token])
+
+    useEffect(() => {
+        if (selectedCollection) {
+            // Fetch documents of the selected collection
+            axios.get(nextConfig.env.API_URL + `/collections/${selectedCollection}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                params: {
+                    page: currentPage,
+                    pageSize: itemsPerPage
+                }
+            })
+            .then(response => {
+                setDocuments(response.data.documents)
+                setTotalDocuments(response.data.totalDocuments)
+            })
+            .catch(error => {
+                console.error('Error fetching documents:', error)
+            })
+        }
+    }, [selectedCollection, currentPage, itemsPerPage, token])
 
   const handleCollectionClick = (collection) => {
     setSelectedCollection(collection)
     setCurrentPage(1)
   }
 
-  const handleExport = () => {
-    alert(`Exporting ${selectedCollection} data...`)
-  }
+    const handleExport = (coll, format = 'json') => {
+        axios.get(nextConfig.env.API_URL + `/collections/${coll}/all`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                const docs = response.data.documents;
+                if (format === 'json') {
+                    // Create a Blob object containing the data in JSON format
+                    const blob = new Blob([JSON.stringify(docs, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `${coll}.json`;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                } else if (format === 'csv') {
+                    // Convert JSON data to CSV format
+                    if (Array.isArray(docs) && docs.length > 0) {
+                        const allKeys = new Set(docs.flatMap(doc => Object.keys(doc))); // Get all keys from all documents, not just the first one
+                        const headers = Array.from(allKeys).join(',');
+                        const rows = docs.map(row => 
+                            Array.from(allKeys).map(key => row[key] !== undefined ? row[key] : '').join(',') // Fill in empty values with an empty string
+                        ).join('\n');
+                        const csvContent = `${headers}\n${rows}`; // Combine headers and rows
+                        const blob = new Blob([csvContent], { type: 'text/csv' }); // Convert to blob
+                        const url = URL.createObjectURL(blob); // Create a URL for the blob
+                        const link = document.createElement('a'); // Create a link element
+                        link.href = url; // Set the link's href attribute to the URL
+                        link.download = `${coll}.csv`; // Set the download attribute to the collection name
+                        link.click(); // Simulate a click on the link
+                        URL.revokeObjectURL(url);
+                    } else {
+                        console.error('No data available for CSV export.');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error exporting collection:', error);
+            });
+    };
 
   const handleDelete = (id) => {
     // Handle delete document
