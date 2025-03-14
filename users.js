@@ -95,13 +95,15 @@ router.get('/:id',
     const db = await getDB('data');
     const user = await db.collection('users').findOne(
         { _id: new mongoose.Types.ObjectId(req.params.id) },
-        { projection: { email: 1, name: 1, lastLogin: 1 } }
-    );
-    
+        { projection: { password: 0 } });
     if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
     }
-    res.json(user);
+    if (user.role !== 'admin' && req.userId !== req.params.id) { // Check if the user is an admin or the user itself
+        return res.status(403).json({ success: false, message: 'Unauthorized' });
+    }    
+    return res.json(user);
+
 });
 
 // delete a user by its id

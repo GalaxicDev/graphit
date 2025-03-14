@@ -27,6 +27,8 @@ const allowedOrigins = JSON.parse(process.env.CORS_ORIGIN);
 app.use(cors({
     origin: (origin, callback) => {
         console.log(`Incoming request from origin: ${origin}`);
+        console.log("Allowed origins: ", allowedOrigins);
+        console.log(allowedOrigins.includes(origin));
         if (!origin || allowedOrigins.includes(origin)) {
             console.log(`Origin ${origin} allowed by CORS`);
             callback(null, true);
