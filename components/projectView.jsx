@@ -21,11 +21,9 @@ export function ProjectView({ project, token, userRole, hasAccess, }) {
     const { user } = useUser();
 
     if (user.role === "admin") {
-        console.log("user is admin, has access")
         hasAccess = true;
     }
 
-    console.log("user role: ", !hasAccess)
 
     return (
         <>

@@ -72,7 +72,6 @@ export function AdminUserList({ token, users }) {
       if (!data.success) {
         setError(data.message || "Failed to create user");
       } else {
-        console.log("success creating user", data);
         setNewUser({ name: "", email: "", password: "", role: "user" });
         setCreateDialogOpen(false);
         if (data.password) {
@@ -119,24 +118,31 @@ export function AdminUserList({ token, users }) {
   };
 
   const handleResetPassword = async (user) => {
+    console.log("handle reset password")
     setSelectedUser(user);
     setResetDialogOpen(true);
   };
 
   const confirmResetPassword = async () => {
+    console.log("Resetting password for user:", selectedUser);
     try {
-      const res = await fetch(nextConfig.env.API_URL + `/users/${selectedUser._id}`, {
-        method: "POST",
+      const res = await axios.put(`${nextConfig.env.API_URL}/users/reset-password/${selectedUser._id}`, {}, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
       });
 
-      const data = await res.json();
+      const data = await res.data
+      console.log(data)
 
       if (!data.success) {
         setError(data.message || "Failed to reset password");
       } else {
+        console.log("data success")
         setError("");
         if (data.password) {
-          setSuccessMessage(`User created successfully with password: ${data.password}`);
+          console.log("data password")
+          setSuccessMessage(`Password reset succesfully for user ${selectedUser?.name}, new password is: ${data.password}`);
         }
       }
     } catch (error) {
