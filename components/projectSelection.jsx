@@ -47,6 +47,7 @@ export function ProjectSelection({ initialProjects }) {
         setProjectList(prevProjects => [...prevProjects, result]);
         setName('');
         setDescription('');
+        
       } else {
         console.error('Failed to create project:', result);
       }
@@ -59,7 +60,6 @@ export function ProjectSelection({ initialProjects }) {
   const handleViewProject = (projectId) => {
     router.push(`/projects/${projectId}`);
   };
-
 
   // Filter projects based on search term
   const filteredProjects = projectList?.length 
@@ -134,6 +134,7 @@ export function ProjectSelection({ initialProjects }) {
                   key={project._id}
                   project={project}
                   onViewProject={handleViewProject}
+                  setProjects={setProjectList}
               />
           ))}
         </div>

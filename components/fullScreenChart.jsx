@@ -17,11 +17,9 @@ const FullScreenChart = ({ graphId }) => {
 
     useEffect(() => {
         const fetchGraph = async () => {
-            console.log('Fetching graph with ID:', graphId);
             if (!graphId) return;
 
             try {
-                console.log('API URL:', nextConfig.env.API_URL);
                 const res = await axios.get(`${nextConfig.env.API_URL}/graphs/${graphId}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -66,6 +64,7 @@ const FullScreenChart = ({ graphId }) => {
                             graph={graph}
                             onDelete={handleDelete}
                             onEdit={handleEdit}
+                            token={token}
                         />
                     )}
                 </div>
