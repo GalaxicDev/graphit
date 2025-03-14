@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import { Search, Database, SquareArrowOutUpRight, Edit, Trash2 } from 'lucide-react'
+import { Search, Database, SquareArrowOutUpRight, Edit, Trash2, Ellipsis } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import nextConfig from '@/next.config.mjs';
@@ -128,7 +128,6 @@ export default function MongoDBViewer() {
         : []
 
     const totalPages = Math.ceil(totalDocuments / itemsPerPage)
-
 
     return (
         <div className="container mx-auto p-4">
