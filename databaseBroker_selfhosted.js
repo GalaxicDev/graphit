@@ -65,7 +65,7 @@ const getModelForTopic = (topic, message) => {
 
 // Handle registration messages
 const handleRegistrationMessage = async (jsonMessage) => {
-  const { deviceId, user } = jsonMessage;
+  const { collection, user } = jsonMessage;
   const User = mongoose.connection.useDb('data').model('users', new mongoose.Schema({
     name: String,
     ownedCollections: [String]
@@ -74,10 +74,10 @@ const handleRegistrationMessage = async (jsonMessage) => {
   try {
     const doc = await User.findOneAndUpdate(
       { name: user },
-      { $addToSet: { ownedCollections: deviceId } },
+      { $addToSet: { ownedCollections: collection } },
       { new: true, upsert: true }
     );
-    console.log(`Device ID "${deviceId}" added to user "${user}"`);
+    console.log(`Device ID "${collection}" added to user "${user}"`);
   } catch (err) {
     console.error('Error updating user document:', err);
   }
@@ -156,7 +156,7 @@ client.on('message', async (topic, message) => {
     const jsonMessage = JSON.parse(message.toString());
     console.log(`Message received on topic "${topic}":`, jsonMessage);
 
-    if (topic === 'registration' && jsonMessage.deviceId && jsonMessage.user) {
+    if (topic === 'registration' && jsonMessage.collection && jsonMessage.user) {
       await handleRegistrationMessage(jsonMessage);
     } else if (topic.startsWith('db/')) {
       await handleDatabaseMessage(topic, jsonMessage);
