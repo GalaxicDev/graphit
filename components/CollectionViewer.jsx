@@ -78,7 +78,7 @@ export default function CollectionViewer({ collections, selectedCollection, init
             <>
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">{selectedCollection}</h2>
-                <Button onClick={handleExport}>
+                <Button onClick={handleExport} className="bg-blue-700">
                   <Download className="mr-2 h-4 w-4" />
                   Export
                 </Button>

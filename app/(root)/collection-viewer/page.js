@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import { Search, Database, SquareArrowOutUpRight, Edit, Trash2 } from 'lucide-react'
+import { Search, Database, SquareArrowOutUpRight, Edit, Trash2, Ellipsis } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import nextConfig from '@/next.config.mjs';
@@ -119,6 +119,9 @@ export default function MongoDBViewer() {
                 >
                   <Database className="mr-2 h-4 w-4" />
                   {collection}
+                  <Ellipsis 
+                    className="ml-auto h-4 w-4"
+                  />
                 </Button>
               </li>
             ))}

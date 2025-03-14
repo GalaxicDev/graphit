@@ -47,6 +47,7 @@ export function ProjectSelection({ initialProjects }) {
         setProjectList(prevProjects => [...prevProjects, result]);
         setName('');
         setDescription('');
+        
       } else {
         console.error('Failed to create project:', result);
       }

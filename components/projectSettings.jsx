@@ -127,15 +127,6 @@ export function ProjectSettings({ initialProjectData }) {
     }));
   };
 
-  const handleToggleCollectionPublic = (collectionId) => {
-    setProject(prev => ({
-      ...prev,
-      collections: prev.collections.map(collection =>
-          collection.id === collectionId ? { ...collection, isPublic: !collection.isPublic } : collection
-      )
-    }));
-  };
-
   const handleDeleteProject = async (projectId) => {
     if (!isMounted) return;
     try {
@@ -389,18 +380,9 @@ export function ProjectSettings({ initialProjectData }) {
                                 key={collection.id}
                                 className="flex items-center justify-between py-2 border-b last:border-b-0 border-gray-700">
                               <div className="flex items-center space-x-2">
-                                <Badge variant={collection.isPublic ? "default" : "secondary"}>
-                                  {collection.isPublic ? "Public" : "Private"}
-                                </Badge>
                                 <p className="text-sm font-medium">{collection.name}</p>
                               </div>
                               <div className="flex items-center space-x-2">
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleToggleCollectionPublic(collection.id)}>
-                                  {collection.isPublic ? <EyeOff className="w-4 h-4"/> : <Eye className="w-4 h-4"/>}
-                                </Button>
                                 <Button
                                     variant="ghost"
                                     size="sm"

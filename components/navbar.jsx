@@ -28,6 +28,10 @@ export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode })
       router.push('/login');
     }
 
+    const handleAccountRedirect = () => {
+      router.push('/account');
+    }
+
     return (
       <header className="flex items-center justify-between h-16 px-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center">
@@ -74,8 +78,7 @@ export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode })
             <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:border-gray-700">
               <DropdownMenuLabel className="dark:text-white">My Account</DropdownMenuLabel>
               <DropdownMenuSeparator className="dark:border-gray-700" />
-              <DropdownMenuItem className="dark:text-gray-300 dark:focus:bg-gray-700">Account</DropdownMenuItem>
-              <DropdownMenuItem className="dark:text-gray-300 dark:focus:bg-gray-700">Settings</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleAccountRedirect} className="dark:text-gray-300 dark:focus:bg-gray-700">Account</DropdownMenuItem>
               <DropdownMenuItem onClick={handleLogout} className="dark:text-gray-300 dark:focus:bg-gray-700">Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

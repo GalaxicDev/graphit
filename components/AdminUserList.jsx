@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useId, useEffect } from "react";
-import { Plus, X, RotateCcw, UserPlus, Users } from "lucide-react";
+import { Plus, X, RotateCcw, UserPlus, Users, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,7 @@ export function AdminUserList({ token, users }) {
   const [selectedUser, setSelectedUser] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [usersList, setUsersList] = useState(users);
+  const [showInitialPassword, setShowInitialPassword] = useState({});
   const router = useRouter();
 
   const handleAddUser = async (e) => {
@@ -77,6 +78,10 @@ export function AdminUserList({ token, users }) {
         setCreateDialogOpen(false);
         if (data.password) {
           setSuccessMessage(`User created successfully with password: ${data.password}`);
+          setUsersList((prevUsers) => [
+            ...prevUsers,
+            { ...data.user, initialPassword: data.password },
+          ]);
         }
         router.refresh();
       }
@@ -125,18 +130,25 @@ export function AdminUserList({ token, users }) {
 
   const confirmResetPassword = async () => {
     try {
-      const res = await fetch(nextConfig.env.API_URL + `/users/${selectedUser._id}`, {
-        method: "POST",
+      const res = await axios.put(`${nextConfig.env.API_URL}/users/reset-password/${selectedUser._id}`, {}, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
       });
 
-      const data = await res.json();
+      const data = await res.data;
 
       if (!data.success) {
         setError(data.message || "Failed to reset password");
       } else {
         setError("");
         if (data.password) {
-          setSuccessMessage(`User created successfully with password: ${data.password}`);
+          setSuccessMessage(`Password reset successfully. New password: ${data.password}`);
+          setUsersList((prevUsers) =>
+            prevUsers.map((user) =>
+              user._id === selectedUser._id ? { ...user, initialPassword: data.password } : user
+            )
+          );
         }
       }
     } catch (error) {
@@ -147,6 +159,10 @@ export function AdminUserList({ token, users }) {
       setSelectedUser(null);
     }
   };
+
+  const toggleShowInitialPassword = (userId) => {
+    setShowInitialPassword((prev) => ({ ...prev, [userId]: !prev[userId] }));
+  }
 
   useEffect(() => {
     if (successMessage) {
@@ -170,93 +186,95 @@ export function AdminUserList({ token, users }) {
             <CardDescription>Add or remove users to the website</CardDescription>
           </div>
         </div>
-        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Add User
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px] dark:bg-gray-800/40">
-            <div className="flex flex-col items-center gap-2">
-              <div
-                className="flex size-11 shrink-0 items-center justify-center rounded-full border dark:border-gray-700"
-                aria-hidden="true"
-              >
-                <UserPlus className="w-6 h-6 text-primary dark:text-primary" />
-              </div>
-              <DialogHeader>
-                <DialogTitle className="text-xl font-semibold text-center">Add New User</DialogTitle>
-                <DialogDescription className="text-center">
-                  Enter the user details below. Password is optional.
-                </DialogDescription>
-              </DialogHeader>
-            </div>
-
-            <form onSubmit={handleAddUser} className="space-y-5 mt-4">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor={`${id}-name`}>Username</Label>
-                  <Input
-                    id={`${id}-name`}
-                    value={newUser.name}
-                    onChange={(e) => setNewUser((prev) => ({ ...prev, name: e.target.value }))}
-                    className="dark:bg-gray-700/50 dark:border-gray-600"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`${id}-email`}>Email</Label>
-                  <Input
-                    id={`${id}-email`}
-                    type="email"
-                    value={newUser.email}
-                    onChange={(e) => setNewUser((prev) => ({ ...prev, email: e.target.value }))}
-                    className="dark:bg-gray-700/50 dark:border-gray-600"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`${id}-password`}>Password (Optional)</Label>
-                  <Input
-                    id={`${id}-password`}
-                    type="password"
-                    value={newUser.password}
-                    onChange={(e) => setNewUser((prev) => ({ ...prev, password: e.target.value }))}
-                    className="dark:bg-gray-700/50 dark:border-gray-600"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`${id}-role`}>User Type</Label>
-                  <Select
-                    value={newUser.role}
-                    onValueChange={(value) => setNewUser((prev) => ({ ...prev, role: value }))}
-                    required
-                  >
-                    <SelectTrigger id={`${id}-role`} className="w-full dark:bg-gray-700/50 dark:border-gray-600">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="user">User</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {error && (
-                <Alert variant="destructive">
-                  <AlertTitle className="font-bold text-white" >Error</AlertTitle>
-                  <AlertDescription className="font-bold text-white">{error}</AlertDescription>
-                </Alert>
-              )}
-
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Creating..." : "Create User"}
+        <div className="flex items-center space-x-2">
+          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                Add User
               </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px] dark:bg-gray-800/40">
+              <div className="flex flex-col items-center gap-2">
+                <div
+                  className="flex size-11 shrink-0 items-center justify-center rounded-full border dark:border-gray-700"
+                  aria-hidden="true"
+                >
+                  <UserPlus className="w-6 h-6 text-primary dark:text-primary" />
+                </div>
+                <DialogHeader>
+                  <DialogTitle className="text-xl font-semibold text-center">Add New User</DialogTitle>
+                  <DialogDescription className="text-center">
+                    Enter the user details below. Password is optional.
+                  </DialogDescription>
+                </DialogHeader>
+              </div>
+  
+              <form onSubmit={handleAddUser} className="space-y-5 mt-4">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor={`${id}-name`}>Username</Label>
+                    <Input
+                      id={`${id}-name`}
+                      value={newUser.name}
+                      onChange={(e) => setNewUser((prev) => ({ ...prev, name: e.target.value }))}
+                      className="dark:bg-gray-700/50 dark:border-gray-600"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`${id}-email`}>Email</Label>
+                    <Input
+                      id={`${id}-email`}
+                      type="email"
+                      value={newUser.email}
+                      onChange={(e) => setNewUser((prev) => ({ ...prev, email: e.target.value }))}
+                      className="dark:bg-gray-700/50 dark:border-gray-600"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`${id}-password`}>Password (Optional)</Label>
+                    <Input
+                      id={`${id}-password`}
+                      type="password"
+                      value={newUser.password}
+                      onChange={(e) => setNewUser((prev) => ({ ...prev, password: e.target.value }))}
+                      className="dark:bg-gray-700/50 dark:border-gray-600"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`${id}-role`}>User Type</Label>
+                    <Select
+                      value={newUser.role}
+                      onValueChange={(value) => setNewUser((prev) => ({ ...prev, role: value }))}
+                      required
+                    >
+                      <SelectTrigger id={`${id}-role`} className="w-full dark:bg-gray-700/50 dark:border-gray-600">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="user">User</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+  
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertTitle className="font-bold text-white">Error</AlertTitle>
+                    <AlertDescription className="font-bold text-white">{error}</AlertDescription>
+                  </Alert>
+                )}
+  
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Creating..." : "Create User"}
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {successMessage && (
@@ -274,7 +292,7 @@ export function AdminUserList({ token, users }) {
           {usersList?.length > 0 ? (
             usersList.map((user) => (
               <div key={user._id} className="flex items-center justify-between py-2">
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-4 w-1/3">
                   <Avatar>
                     <AvatarImage src={nextConfig.env.PFP_SRC + user.name} />
                     <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
@@ -284,8 +302,25 @@ export function AdminUserList({ token, users }) {
                     <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Badge variant={user.role === "admin" ? "default" : "secondary"}>{user.role}</Badge>
+                <div className="flex flex-col items-center w-1/3">
+                  <Badge className={user.role === "admin" ? "bg-gray-700 text-white" : "bg-gray-200 text-black"} >{user.role}</Badge>
+                </div>
+                <div className="flex flex-col items-center w-1/3">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Initial Password:</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {showInitialPassword[user._id] ? user.initialPassword || "N/A" : "••••••••"}
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2 w-1/3 justify-end">
+                  
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleShowInitialPassword(user._id)}
+                    className="dark:hover:bg-gray-700"
+                  >
+                    {showInitialPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -309,38 +344,37 @@ export function AdminUserList({ token, users }) {
             <p className="text-center text-gray-500 dark:text-gray-400">No users found.</p>
           )}
         </ScrollArea>
-
-        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <AlertDialogContent className="dark:bg-gray-800/40">
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will permanently remove {selectedUser?.name} from the website. This action cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="dark:bg-gray-700">Cancel</AlertDialogCancel>
-              <AlertDialogAction className="bg-red-500 text-white hover:bg-red-600" onClick={confirmRemoveUser}>
-                Remove User
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        <AlertDialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
-          <AlertDialogContent className="dark:bg-gray-800/40">
-            <AlertDialogHeader>
-              <AlertDialogTitle>Reset Password</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will reset the password for {selectedUser?.name} and send them a new password via email. Continue?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="dark:bg-gray-700">Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={confirmResetPassword}>Reset Password</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+  <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <AlertDialogContent className="dark:bg-gray-800/40">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently remove {selectedUser?.name} from the website. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="dark:bg-gray-700">Cancel</AlertDialogCancel>
+                <AlertDialogAction className="bg-red-500 text-white hover:bg-red-600" onClick={confirmRemoveUser}>
+                  Remove User
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+  
+          <AlertDialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+            <AlertDialogContent className="dark:bg-gray-800/40">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Reset Password</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will reset the password for {selectedUser?.name} and send them a new password via email. Continue?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="dark:bg-gray-700">Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={confirmResetPassword}>Reset Password</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
       </CardContent>
     </Card>
   );
