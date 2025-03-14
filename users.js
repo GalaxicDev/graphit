@@ -62,8 +62,12 @@ router.post('/',
         };
         try {
             await db.collection('users').insertOne(user);
-            console.log("Created new user with password: ", password)
-            res.status(201).json({ success: true, message: 'User created successfully', password });
+            console.log("Created new user with password: ", password);
+            if (!req.body.password) {
+                res.status(201).json({ success: true, message: 'User created successfully', password });
+            } else {
+                res.status(201).json({ success: true, message: 'User created successfully' });
+            }
         } catch (error) {
             res.status(500).json({ success: false, error: error.message });
         }
@@ -102,6 +106,20 @@ router.get('/:id',
 
 });
 
+// delete a user by its id
+router.delete('/:id', handleValidationErrors, async (req, res) => {
+
+    console.log("received delete request")
+    const db = await getDB('data');
+    const result = await db.collection('users').deleteOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
+    
+    if (result.deletedCount === 0) {
+        return res.status(404).json({ success: false, message: 'User couldn\'t be deleted, please try again or contact an system administrator.' });
+    }
+
+    res.json({ success: true, message: 'User deleted successfully' });
+});
+
 router.put('/change-password',
     body('password').isString().isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
     handleValidationErrors, async (req, res) => {
@@ -116,6 +134,22 @@ router.put('/change-password',
             { _id: new mongoose.Types.ObjectId(req.userId) },
             { $set: { password } }
         );
-        res.json({ message: 'Password updated successfully' });
-    });
+        res.json({ message: 'Password updated successfully',  });
+});
+
+router.put('/reset-password/:id',
+    handleValidationErrors, async (req, res) => {
+        const db = await getDB('data');
+        const user = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        const password = user.initialPassword || createPassword();
+        await db.collection('users').updateOne(
+            { _id: new mongoose.Types.ObjectId(req.params.id) },
+            { $set: { password: await bcrypt.hash(password, 12) } }
+        );
+        res.json({ success: true, message: 'Password reset successfully', password });
+});
+
 export default router;

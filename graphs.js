@@ -2,9 +2,13 @@ import express from 'express';
 import { body, param, validationResult } from 'express-validator';
 import { getDB } from './connectDB.js';
 import mongoose from 'mongoose';
-import {verifyToken} from "./utils/jwt.js";
+import { verifyToken } from "./utils/jwt.js";
+import NodeCache from 'node-cache';
+import dotenv from 'dotenv';
 
 const router = express.Router();
+const cache = new NodeCache({ stdTTL: 60 * 60 }); // 1 hour cache
+dotenv.config();
 
 // Helper function for handling validation errors
 const handleValidationErrors = (req, res, next) => {
@@ -33,16 +37,27 @@ const extractUserId = (req, res, next) => {
 // Apply extractUserId middleware to all routes
 router.use(extractUserId);
 
-//Get all graphs for a project
+// Get all graphs for a project
 router.get('/project/:projectId', async (req, res) => {
+    const { projectId } = req.params;
+    const cacheKey = `project-graphs-${projectId}`;
+
+    // Check cache first
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) {
+        console.log("Returning cached data for project graphs");
+        return res.json(cachedData);
+    }
+
     try {
         const db = await getDB('data');
-        const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.params.projectId) });
+        const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(projectId) });
         if (!project) {
             return res.status(404).json({ success: false, message: 'Project not found' });
         }
         const graphs = await db.collection('graphs').find({ projectId: new mongoose.Types.ObjectId(req.params.projectId) }).toArray();
-        
+        cache.set(cacheKey, graphs);
+
         res.json(graphs);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -74,11 +89,16 @@ router.post('/',
         console.log("Creating new graph", req.body);
         try {
             const db = await getDB('data');
-            // Check if the user either owns the project or is an editor
-            const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.body.projectId) });
-            if (project.userId.toString() !== req.userId.toString() && !project.editor.map(id => id.toString()).includes(req.userId.toString())) {
-                res.status(403).json({ success: false, message: 'Access denied' });
-                return;
+            // Retrieve project information
+            const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(String(req.body.projectId)) });
+            if (!project) {
+                return res.status(404).json({ success: false, message: 'Project not found' });
+            }
+            // Retrieve user information
+            const user = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(String(req.userId)) });
+            // Allow access if user is admin, owns the project, or is an editor
+            if (!(user && user.role === 'admin') && (project.userId.toString() !== String(req.userId) && !project.editor.map(id => id.toString()).includes(String(req.userId)))) {
+                return res.status(403).json({ success: false, message: 'Access denied' });
             }
             // Create a new graph object
             const newGraphData = {
@@ -94,7 +114,6 @@ router.post('/',
             res.status(500).json({ success: false, message: error.message });
         }
     });
-
 
 // Update a graph by ID
 router.put('/:id',
@@ -132,5 +151,35 @@ router.delete('/:id', param('id').isMongoId(),
         }
     });
 
-export default router;
 
+const setupChangeStreams = async () => {
+    const db = await getDB('data');
+    const collections = await db.listCollections();
+
+    collections.forEach(({ name }) => {
+        // Enable fullDocument lookup so that update events include the latest document
+        const collectionChangeStream = db.collection(name).watch([], { fullDocument: 'updateLookup' });
+
+        collectionChangeStream.on('change', (change) => {
+            console.log(`Change stream event in collection ${name}: ${change.operationType}`);
+            let cacheKey = null;
+
+            // Depending on the operation type, you can access the document that was changed
+            if (change.operationType === 'insert' || change.operationType === 'update' || change.operationType === 'replace') {
+                console.log('Full document:', change.fullDocument);
+                cacheKey = `project-graphs-${change.fullDocument.projectId}`;
+            }
+
+            if (cacheKey) {
+                cache.del(cacheKey);
+            } else {
+                console.log('No cache key found for this operation');
+            }
+        });
+    });
+};
+
+// Initialize change streams for all collections
+setupChangeStreams().catch(console.error);
+
+export default router;
