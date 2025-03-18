@@ -107,18 +107,6 @@ router.get('/:collection', async (req, res) => {
     }
 });
 
-router.get('/:collection', async (req, res) => {
-    const { collection } = req.params;
-    const { page = 1, pageSize = 10 } = req.query; // Default to page 1 and pageSize 10 if not provided
-
-    try {
-        const { documents, totalDocuments } = await getDocuments(collection, parseInt(page), parseInt(pageSize));
-        res.json({ documents, totalDocuments });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Failed to fetch collection content', error: error.message });
-    }
-});
-
 // endpoint to update/or add a displayname to a collection
 router.put('/:collection',
     body('displayName').isString().isLength({ min: 3 }),
@@ -127,17 +115,25 @@ router.put('/:collection',
         const { displayName } = req.body;
 
         try {
-            const db = await getDB("mqtt");
+            const db = await getDB("data");
             const coll = db.collection("collection_metadata");
-            const result = await coll.updateOne({}, { $set: { collection, displayName } });
-            if (result.modifiedCount === 0) {
-                return res.status(404).json({ success: false, message: 'Collection not found' });
+            const result = await coll.updateOne(
+                { collection }, // Filter by collection name
+                { $set: { collection, displayName } }, // Update or set the displayName
+                { upsert: true } // Insert a new document if no matching document is found
+            );
+
+            if (result.upsertedCount > 0) {
+                res.status(201).json({ success: true, message: 'Collection created successfully' });
+            } else if (result.modifiedCount > 0) {
+                res.json({ success: true, message: 'Collection updated successfully' });
+            } else {
+                res.status(404).json({ success: false, message: 'Collection not found' });
             }
-            res.json({ success: true, message: 'Collection updated successfully' });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
-    }); 
+});
 
 router.delete('/:collection/:id', async (req, res) => {
     const { collection, id } = req.params;
