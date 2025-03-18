@@ -107,12 +107,14 @@ router.get('/:collection', async (req, res) => {
     }
 });
 
-router.get('/:collection', async (req, res) => {
+router.get('/:collection/all', async (req, res) => {
     const { collection } = req.params;
-    const { page = 1, pageSize = 10 } = req.query; // Default to page 1 and pageSize 10 if not provided
 
     try {
-        const { documents, totalDocuments } = await getDocuments(collection, parseInt(page), parseInt(pageSize));
+        const db = await getDB("mqtt");
+        const coll = db.collection(collection);
+        const documents = await coll.find().toArray();
+        const totalDocuments = documents.length;
         res.json({ documents, totalDocuments });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Failed to fetch collection content', error: error.message });

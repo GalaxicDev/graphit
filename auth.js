@@ -7,39 +7,6 @@ import { generateToken, verifyToken } from './utils/jwt.js';
 
 const router = express.Router();
 
-// Signup Route
-router.post('/signup', async (req, res, next) => {
-    const { email, password, name } = req.body;
-
-    try {
-        const db = await getDB('data');
-        const User = createUserModel(db);
-
-        const userExists = await User.findOne({ email });
-        if (userExists) {
-            return res.status(409).json({ success: false, message: 'User already exists' });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 12);
-        const verificationToken = crypto.randomBytes(16).toString('hex');
-
-        const newUser = new User({
-            email,
-            password: hashedPassword,
-            name,
-            verificationToken,
-            verificationTokenExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-        });
-
-        await newUser.save();
-
-        const token = generateToken(newUser._id);
-        res.status(201).json({ success: true, message: 'User registered successfully', token });
-    } catch (error) {
-        next(error); // Pass the error to centralized error handler
-    }
-});
-
 // Login Route
 router.post('/login', async (req, res, next) => {
     const { email, password } = req.body;
@@ -57,7 +24,8 @@ router.post('/login', async (req, res, next) => {
 
         const token = generateToken(user._id);
         console.log("login token", token);
-        res.json({ success: true, message: 'Login successful', token, user });
+        const { password: userPassword, initialPassword, __v, ...userWithoutSensitiveData } = user.toObject(); // Remove sensitive data
+        res.json({ success: true, message: 'Login successful', token, user: userWithoutSensitiveData });
     } catch (error) {
         next(error); // Pass the error to centralized error handler
     }
@@ -67,7 +35,7 @@ router.post('/login', async (req, res, next) => {
 router.get('/verify', async (req, res, next) => {
     const authToken = req.headers['authorization'];
     console.log("verify", authToken);
-    if (!authToken) return res.status(403).json({ success: false, message: 'Token required' });
+    if (!authToken) return res.status(401).json({ success: false, message: 'Token required' });
 
     try {
         const token = authToken.split(' ')[1];
@@ -75,7 +43,7 @@ router.get('/verify', async (req, res, next) => {
 
         const db = await getDB('data');
         const User = createUserModel(db);
-        const user = await User.findById(decoded.userId, { password: 0, initialPassword: 0 });
+        const user = await User.findById(decoded.userId, { password: 0, initialPassword: 0, __v: 0 }); // Remove sensitive data
 
         if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
