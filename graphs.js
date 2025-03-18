@@ -7,7 +7,7 @@ import NodeCache from 'node-cache';
 import dotenv from 'dotenv';
 
 const router = express.Router();
-const cache = new NodeCache({ stdTTL: 60 * 60 }); // 1 hour cache
+const cache = new NodeCache({ stdTTL: 60 * 60 * 5 }); // 5 hour cache
 dotenv.config();
 
 // Helper function for handling validation errors
@@ -143,9 +143,15 @@ router.delete('/:id', param('id').isMongoId(),
             const db = await getDB('data');
             const graph = await db.collection('graphs').findOneAndDelete({ _id: new mongoose.Types.ObjectId(req.params.id) });
             if (!graph.value) {
+                console.log("Graph not found");
                 return res.status(404).json({ success: false, message: 'Graph not found' });
             }
-            res.json(graph.value);
+
+            // Delete all cache entries
+            cache.del(`project-graphs-${req.params.id}`);
+            console.log("All cache entries deleted");
+
+            res.json();
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
@@ -168,6 +174,8 @@ const setupChangeStreams = async () => {
             if (change.operationType === 'insert' || change.operationType === 'update' || change.operationType === 'replace') {
                 console.log('Full document:', change.fullDocument);
                 cacheKey = `project-graphs-${change.fullDocument.projectId}`;
+            } else if (change.operationType === 'delete') {
+                console.log('Deleted document:', change.documentKey);
             }
 
             if (cacheKey) {

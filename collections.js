@@ -119,4 +119,52 @@ router.get('/:collection', async (req, res) => {
     }
 });
 
+// endpoint to update/or add a displayname to a collection
+router.put('/:collection',
+    body('displayName').isString().isLength({ min: 3 }),
+    handleValidationErrors, async (req, res) => {
+        const { collection } = req.params;
+        const { displayName } = req.body;
+
+        try {
+            const db = await getDB("mqtt");
+            const coll = db.collection("collection_metadata");
+            const result = await coll.updateOne({}, { $set: { collection, displayName } });
+            if (result.modifiedCount === 0) {
+                return res.status(404).json({ success: false, message: 'Collection not found' });
+            }
+            res.json({ success: true, message: 'Collection updated successfully' });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }); 
+
+router.delete('/:collection/:id', async (req, res) => {
+    const { collection, id } = req.params;
+
+    try {
+
+        // check if the user is allowed to delete the document (if the collection is owned by the user or if the user is an admin)
+        const userDb = await getDB("data");
+        const user = await userDb.collection("users").findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
+        if (!user) {
+            return res.status(403).json({ success: false, message: 'Access denied' });
+        }
+
+        if (user.role !== 'admin' && (!user.ownedCollections || !user.ownedCollections.includes(collection))) {
+            return res.status(403).json({ success: false, message: 'Access denied' });
+        }
+
+        const db = await getDB("mqtt");
+        const coll = db.collection(collection);
+        const result = await coll.deleteOne({ _id: new mongoose.Types.ObjectId(id) });
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ success: false, message: 'Document not found' });
+        }
+        res.json({ success: true, message: 'Document deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 export default router;
