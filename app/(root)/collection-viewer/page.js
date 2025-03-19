@@ -272,10 +272,22 @@ export default function MongoDBViewer() {
             <>
               <div className="flex justify-between items-center mb-4 dark:text-white">
                 <h2 className="text-xl font-semibold">{selectedCollection}</h2>
-                <Button onClick={() => handleExport(selectedCollection)}>
-                  <SquareArrowOutUpRight className="mr-2 h-4 w-4" />
-                  Export
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button>
+                      <SquareArrowOutUpRight className="mr-2 h-4 w-4" />
+                      Export
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleExport(selectedCollection, 'json')}>
+                      Export to JSON
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport(selectedCollection, 'csv')}>
+                      Export to CSV
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               <div className="space-y-4">
                 {filteredDocuments.map(doc => (
