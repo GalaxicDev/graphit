@@ -139,15 +139,18 @@ export default function MongoDBViewer() {
   const totalPages = Math.ceil(totalDocuments / itemsPerPage)
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4 dark:text-white">Collection Viewer</h1>
-      <Input
-        type="text"
-        placeholder="Search collections or documents..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="pl-10 dark:bg-gray-700 dark:text-white"
-      />
+    <div className="container mx-auto">
+      <h1 className="text-3xl font-bold mb-6 dark:text-white">Collection Viewer</h1>
+      <div className="relative">
+        <Input
+          type="text"
+          placeholder="Search collections or documents..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10 dark:bg-gray-700 dark:text-white"
+        />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
         <div className="col-span-1">
           <h2 className="text-xl font-semibold mb-2 dark:text-white">Collections</h2>
@@ -179,6 +182,7 @@ export default function MongoDBViewer() {
               </li>
             ))}
           </ul>
+          <a href="https://google.com" className="text-blue-500 hover:underline">Can't find your collection?</a>
         </div>
         <div className="col-span-1 md:col-span-3">
           {selectedCollection && (

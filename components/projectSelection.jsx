@@ -16,8 +16,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ProjectCard } from './projectCard';
-import { Plus } from 'lucide-react';
-import { Search } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { useUser } from '@/lib/UserContext';
 import nextConfig from '@/next.config.mjs';
 

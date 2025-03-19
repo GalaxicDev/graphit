@@ -185,8 +185,8 @@ export function ProjectSettings({ initialProjectData }) {
             renderAlert()
         )}
 
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-semibold text-gray-800 dark:text-white">Project Settings</h1>
+        <div className="container mx-auto">
+          <h1 className="text-3xl font-bold mb-6 dark:text-white">Project Settings</h1>
           <Tabs defaultValue="general" className="space-y-4">
             <TabsList className="dark:bg-gray-800 dark:text-white">
               <TabsTrigger value="general"
@@ -197,7 +197,7 @@ export function ProjectSettings({ initialProjectData }) {
                            className="hover:bg-gray-200 dark:hover:bg-gray-700 dark:data-[state=active]:bg-blue-500">Collections</TabsTrigger>
             </TabsList>
             <TabsContent value="general">
-              <Card className={"dark:bg-gray-800"}>
+              <Card className="dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-750 p-2 mb-4">
                 <CardHeader>
                   <CardTitle>General Settings</CardTitle>
                   <CardDescription>Update your project&apos;s name and description</CardDescription>
