@@ -160,7 +160,7 @@ export function AccountView({ initialUserData }) {
     }, [alert])
 
     return (
-        <div>
+        <div className="m-0 p-0">
             {alert && renderAlert()}
             <div className="container mx-auto">
                 <h1 className="text-3xl font-bold mb-6 dark:text-white">User Settings</h1>
@@ -187,7 +187,7 @@ export function AccountView({ initialUserData }) {
                     </TabsList>
 
                     <TabsContent value="profile">
-                        <Card className="dark:bg-gray-800 mb-10">
+                        <Card className="dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-750 p-2 mb-4">
                             <CardHeader>
                                 <CardTitle>Profile Information</CardTitle>
                                 
@@ -247,7 +247,7 @@ export function AccountView({ initialUserData }) {
                                 </Button>
                             </CardFooter> */}
                         </Card>
-                        <Card className="dark:bg-gray-800">
+                        <Card className="dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-750 p-2 mb-4">
                             <CardHeader>
                                 <CardTitle>Security Settings</CardTitle>
                                 <CardDescription>Manage your password and account security</CardDescription>

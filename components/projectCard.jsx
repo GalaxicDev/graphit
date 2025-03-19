@@ -83,7 +83,7 @@ export function ProjectCard({ project, onViewProject, setProjects }) {
 
     return (
         <Card
-            className="hover:shadow-lg transition-shadow duration-300 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-750 p-4"
+            className="dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-750 p-4"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
