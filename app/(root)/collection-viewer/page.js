@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog"
 
 export default function MongoDBViewer() {
@@ -28,6 +29,7 @@ export default function MongoDBViewer() {
     const [successMessage, setSuccessMessage] = useState('')
     const [displaynameDialogOpen, setDisplaynameDialogOpen] = useState(false)
     const [selectedChannel, setSelectedChannel] = useState(null)
+    const [dropdownOpen, setDropdownOpen] = useState(null)
     const itemsPerPage = 10
 
     const { token } = useUser();
@@ -152,6 +154,7 @@ export default function MongoDBViewer() {
   }
 
   const handleDropdownOptionClick = (option, collection) => {
+    setDropdownOpen(null);
     if (option === 'changeDisplayName') {
       setSelectedChannel(collection.name);
       setDisplaynameDialogOpen(true);
@@ -218,69 +221,59 @@ export default function MongoDBViewer() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-      <div className="col-span-1">
-        <h2 className="text-xl font-semibold mb-2 dark:text-white">Collections</h2>
-        <ul className="space-y-2">
-          {filteredCollections.map(collection => (
-            <li key={collection.name} className="relative">
-              <div
-                className={`w-full flex items-center justify-between p-2 rounded-lg cursor-pointer dark:bg-gray-700 dark:text-white ${selectedCollection === collection.name ? 'bg-blue-200 dark:bg-blue-500' : ''}`}
-                onClick={() => handleCollectionClick(collection)}
-              >                
-                <Database className="mr-1 h-4 w-4" />
-                {collection.displayName}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent triggering the collection click
-                      }}
-                    >
-                      <Ellipsis className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={(e) => {
-                      e.stopPropagation(); // Prevent triggering the collection click
-                      handleDropdownOptionClick('changeDisplayName', collection);
-                    }}>
-                      Change Display Name
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={(e) =>  { 
-                        e.stopPropagation(); // Prevent triggering the collection click
+        <div className="col-span-1">
+          <h2 className="text-xl font-semibold mb-2 dark:text-white">Collections</h2>
+          <ul className="space-y-2">
+            {filteredCollections.map(collection => (
+              <li key={collection.name} className="relative">
+                <div
+                  className={`w-full flex items-center justify-between p-2 rounded-lg cursor-pointer dark:bg-gray-700 dark:text-white ${selectedCollection === collection.name ? 'bg-blue-200 dark:bg-blue-500' : ''}`}
+                  onClick={() => handleCollectionClick(collection)}
+                >
+                  <div className="flex flex-col">
+                    <span>{collection.displayName}</span>
+                    {collection.displayName !== collection.name && (
+                      <span className="text-xs text-gray-500">{collection.name}</span>
+                    )}
+                  </div>
+                  <DropdownMenu open={dropdownOpen === collection.name} onOpenChange={(isOpen) => setDropdownOpen(isOpen ? collection.name : null)}>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        <Ellipsis className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={(e) => {
+                        e.stopPropagation();
+                        handleDropdownOptionClick('changeDisplayName', collection);
+                      }}>
+                        Change Display Name
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => {
+                        e.stopPropagation();
                         handleDropdownOptionClick('copyFullName', collection);
                       }}>
-                      Copy Full Name
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div
-    onClick={() => {
-      console.log("I won't trigger if you click the inside div");
-    }}
-  >
-    <div
-      onClick={event => {
-        event.stopPropagation(); // <-- this stops the click going through to the parent div
-        console.log('Thank you for clicking the inside div');
-      }}
-    >
-      I'm Inside
-    </div>
-  </div>
+                        Copy Full Name
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
         <div className="col-span-1 md:col-span-3">
           {selectedCollection && (
             <>
               <div className="flex justify-between items-center mb-4 dark:text-white">
                 <h2 className="text-xl font-semibold">{selectedCollection}</h2>
                 <Button onClick={() => handleExport(selectedCollection)}>
-                  <SquareArrowOutUpRight className="mr-2 h-4 w-4"/>
+                  <SquareArrowOutUpRight className="mr-2 h-4 w-4" />
                   Export
                 </Button>
               </div>
@@ -317,12 +310,11 @@ export default function MongoDBViewer() {
                       setCurrentPage(page);
                     }}
                     className="w-12 rounded text-center border-none focus:outline-none hover:border-gray-800 hover:bg-white hover:border-solid"
-                    
                   />
                   <span className='text-sm dark:text-white pl-2'>
                     of {totalPages}
                   </span>
-                </div>  
+                </div>
                 <Button
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
@@ -335,39 +327,35 @@ export default function MongoDBViewer() {
           )}
         </div>
       </div>
-      <Dialog open={displaynameDialogOpen} onOpenChange={(isOpen) => {
-  if (!isOpen) return; // Prevent closing the dialog immediately after opening
-  setDisplaynameDialogOpen(isOpen);
-}} modal={false}>
-  <DialogContent>
-    <DialogHeader>
-      <DialogTitle>Change Display Name</DialogTitle>
-      <DialogDescription>
-        Enter a new display name for the collection "{selectedChannel}".
-      </DialogDescription>
-    </DialogHeader>
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleChangeDisplayName(e.target[0].value);
-        setDisplaynameDialogOpen(false);
-      }}
-    >
-      <Input
-        type="text"
-        placeholder="New display name"
-        required
-        className="mt-4"
-      />
-      <div className="flex justify-end mt-4">
-        <Button type="submit" className="bg-blue-600 text-white">
-          Save
-        </Button>
-      </div>
-    </form>
-  </DialogContent>
-</Dialog> 
-
+      <Dialog open={displaynameDialogOpen} onOpenChange={setDisplaynameDialogOpen}>
+        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
+          <DialogHeader>
+            <DialogTitle>Change Display Name</DialogTitle>
+            <DialogDescription>
+              Enter a new display name for the collection "{selectedChannel}".
+            </DialogDescription>
+          </DialogHeader>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleChangeDisplayName(e.target[0].value);
+              setDisplaynameDialogOpen(false);
+            }}
+          >
+            <Input
+              type="text"
+              placeholder="New display name"
+              required
+              className="mt-4"
+            />
+            <div className="flex justify-end mt-4">
+              <Button type="submit" className="bg-blue-600 text-white">
+                Save
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
