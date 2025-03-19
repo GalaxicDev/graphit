@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
-import ChartCard from "./chartCard";
+import dynamic from "next/dynamic";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import axios from "axios";
@@ -13,11 +13,13 @@ import { useUser } from '@/lib/UserContext';
 const ResponsiveGridLayout = WidthProvider(Responsive);
 const LOCAL_STORAGE_KEY = "dashboard-layouts";
 
+// Dynamically import ChartCard to enable code splitting
+const ChartCard = dynamic(() => import("./chartCard"), { ssr: false });
+
 const ChartCardComponent = ({ projectId, token }) => {
     const [layouts, setLayouts] = useState({ lg: [], xs: [] });
     const [graphs, setGraphs] = useState([]);
     const isInitialRender = useRef(true);
-
 
     const router = useRouter();
 
@@ -59,7 +61,7 @@ const ChartCardComponent = ({ projectId, token }) => {
         };
 
         fetchGraphs();
-    }, [projectId, layouts, token]);
+    }, [projectId, token]);
 
     // Save layouts to localStorage whenever they change
     const onLayoutChange = useCallback((currentLayout, allLayouts) => {
@@ -68,7 +70,7 @@ const ChartCardComponent = ({ projectId, token }) => {
     }, []);
 
     // Generate default layouts for graphs
-    const generateDefaultLayouts = (data) => {
+    const generateDefaultLayouts = useCallback((data) => {
         return {
             lg: data.map((graph, index) => ({
                 i: graph._id,
@@ -85,10 +87,10 @@ const ChartCardComponent = ({ projectId, token }) => {
                 h: 2,
             })),
         };
-    };
+    }, []);
 
     // Ensure all graphs have a valid layout
-    const getValidLayout = (graphId) => {
+    const getValidLayout = useCallback((graphId) => {
         const lgLayouts = layouts.lg || []; // Ensure layouts.lg is always an array
         const lgItem = lgLayouts.find((item) => item.i === graphId);
         return (
@@ -100,9 +102,29 @@ const ChartCardComponent = ({ projectId, token }) => {
                 h: 2,
             }
         );
-    };
+    }, [layouts]);
 
-    const handleDelete = (id) => {
+    const handleDelete = useCallback((id) => {
+        // send api request to delete the graph id
+        const deleteGraph = async () => {
+            try {
+                await axios.delete(
+                    `${nextConfig.env.API_URL}/graphs/${id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+                const updatedGraphs = graphs.filter((graph) => graph._id !== id);
+                setGraphs(updatedGraphs);
+            } catch (error) {
+                console.error("Failed to delete graph:", error);
+            }
+        };
+
+        deleteGraph();
+
         const updatedLayouts = { ...layouts };
         Object.keys(updatedLayouts).forEach((key) => {
             updatedLayouts[key] = updatedLayouts[key].filter(
@@ -111,14 +133,14 @@ const ChartCardComponent = ({ projectId, token }) => {
         });
         setLayouts(updatedLayouts);
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedLayouts));
-    };
+    }, [graphs, layouts, token]);
 
-    const handleEdit = (id) => {
+    const handleEdit = useCallback((id) => {
         const editGraph = graphs.find(graph => graph._id === id);
         if (editGraph) {
             router.push(`/projects/${projectId}/chartcreator?chartId=${id}`);
         }
-    };
+    }, [graphs, projectId, router]);
 
     return (
         <ResponsiveGridLayout
