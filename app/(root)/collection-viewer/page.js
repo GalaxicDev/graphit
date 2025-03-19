@@ -92,7 +92,7 @@ export default function MongoDBViewer() {
     };
 
     const handleExport = (coll, format = 'json') => {
-        axios.get(nextConfig.env.API_URL + `/collections/${coll}/all`, {
+        axios.get(nextConfig.env.API_URL + `/collections/${coll}/export`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
