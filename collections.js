@@ -52,10 +52,11 @@ const getCollections = async (dbName, userId) => {
     if(user.role === 'admin') {
         console.log("admin");
         const ownedCollections = await db.db.listCollections().toArray();
-        console.log(ownedCollections);
         const collectionData = await Promise.all(ownedCollections.map(async (collection) => {
+            const metadata = await userDb.collection("collection_metadata").findOne({ collection: collection.name });
             return {
-                name: collection.name
+                name: collection.name,
+                displayName: metadata ? metadata.displayName : collection.name
             };
         }));
         return collectionData;
@@ -66,9 +67,12 @@ const getCollections = async (dbName, userId) => {
     const collections = await db.db.listCollections().toArray();
     const ownedCollections = collections.filter(collection => user.ownedCollections.includes(collection.name));
 
+    // also fetch the display name for each collection
     const collectionData = await Promise.all(ownedCollections.map(async (collection) => {
+        const metadata = await userDb.collection("collection_metadata").findOne({ collection: collection.name });
         return {
-            name: collection.name
+            name: collection.name,
+            displayName: metadata ? metadata.displayName : collection.name
         };
     }));
     return collectionData;
@@ -160,6 +164,20 @@ router.delete('/:collection/:id', async (req, res) => {
         res.json({ success: true, message: 'Document deleted successfully' });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+router.get('/:collection/export', async (req, res) => {
+    const { collection } = req.params;
+
+    try {
+        const db = await getDB("mqtt");
+        const coll = db.collection(collection);
+        const documents = await coll.find().toArray();
+        const totalDocuments = documents.length;
+        res.json({ documents, totalDocuments });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to fetch collection content', error: error.message });
     }
 });
 
