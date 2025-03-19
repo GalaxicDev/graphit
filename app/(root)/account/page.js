@@ -29,8 +29,6 @@ export default async function AccountPage() {
         return <div>Loading...</div>;   
     }
     return (
-        <div className="container mx-auto p-4">
-            <AccountView initialUserData={userData}/>
-        </div>
+        <AccountView initialUserData={userData}/>
     )
 }

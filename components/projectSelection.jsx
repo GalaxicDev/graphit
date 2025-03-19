@@ -69,8 +69,8 @@ export function ProjectSelection({ initialProjects }) {
   return (
       <>
         {/* Header section with title and create project button */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-semibold text-gray-800 dark:text-white">Projects</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold mb-6 dark:text-white">Projects</h1>
           <Dialog>
             <DialogTrigger asChild>
               <Button>
