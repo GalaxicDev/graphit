@@ -170,7 +170,7 @@ export function ProjectSettings({ initialProjectData }) {
     });
     setUsersInProject(res.data);
     console.log("Users in project:", res.data);
-  }, [project]);
+  }, [project, token]);
 
   useEffect(() => {
     if (alert) {
@@ -180,13 +180,13 @@ export function ProjectSettings({ initialProjectData }) {
   }, [alert]);
 
   return (
-      <div>
+      <>
         {alert && (
             renderAlert()
         )}
 
-        <div className="container mx-auto py-10">
-          <h1 className="text-3xl font-bold mb-6 dark:text-white">Project Settings</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-semibold text-gray-800 dark:text-white">Project Settings</h1>
           <Tabs defaultValue="general" className="space-y-4">
             <TabsList className="dark:bg-gray-800 dark:text-white">
               <TabsTrigger value="general"
@@ -401,6 +401,6 @@ export function ProjectSettings({ initialProjectData }) {
             </TabsContent>
           </Tabs>
         </div>
-      </div>
+      </>
   );
 }
