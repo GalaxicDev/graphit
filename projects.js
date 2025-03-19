@@ -208,11 +208,12 @@ router.post('/:id/collections',
             const db = await getDB('data');
             // fetch the current collections
             const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
+            const user = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
             if (!project) {
                 return res.status(404).json({ success: false, message: 'Project not found' });
             }
 
-            if (project.userId.toString() !== req.userId) {
+            if (project.userId.toString() !== req.userId && user.role !== 'admin') {
                 return res.status(403).json({ success: false, message: 'Access denied' });
             }
 

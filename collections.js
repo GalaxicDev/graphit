@@ -52,10 +52,11 @@ const getCollections = async (dbName, userId) => {
     if(user.role === 'admin') {
         console.log("admin");
         const ownedCollections = await db.db.listCollections().toArray();
-        console.log(ownedCollections);
         const collectionData = await Promise.all(ownedCollections.map(async (collection) => {
+            const metadata = await userDb.collection("collection_metadata").findOne({ collection: collection.name });
             return {
-                name: collection.name
+                name: collection.name,
+                displayName: metadata ? metadata.displayName : collection.name
             };
         }));
         return collectionData;
@@ -66,9 +67,12 @@ const getCollections = async (dbName, userId) => {
     const collections = await db.db.listCollections().toArray();
     const ownedCollections = collections.filter(collection => user.ownedCollections.includes(collection.name));
 
+    // also fetch the display name for each collection
     const collectionData = await Promise.all(ownedCollections.map(async (collection) => {
+        const metadata = await userDb.collection("collection_metadata").findOne({ collection: collection.name });
         return {
-            name: collection.name
+            name: collection.name,
+            displayName: metadata ? metadata.displayName : collection.name
         };
     }));
     return collectionData;
@@ -107,12 +111,70 @@ router.get('/:collection', async (req, res) => {
     }
 });
 
-router.get('/:collection', async (req, res) => {
-    const { collection } = req.params;
-    const { page = 1, pageSize = 10 } = req.query; // Default to page 1 and pageSize 10 if not provided
+// endpoint to update/or add a displayname to a collection
+router.put('/:collection',
+    body('displayName').isString().isLength({ min: 3 }),
+    handleValidationErrors, async (req, res) => {
+        const { collection } = req.params;
+        const { displayName } = req.body;
+
+        try {
+            const db = await getDB("data");
+            const coll = db.collection("collection_metadata");
+            const result = await coll.updateOne(
+                { collection }, // Filter by collection name
+                { $set: { collection, displayName } }, // Update or set the displayName
+                { upsert: true } // Insert a new document if no matching document is found
+            );
+
+            if (result.upsertedCount > 0) {
+                res.status(201).json({ success: true, message: 'Collection created successfully' });
+            } else if (result.modifiedCount > 0) {
+                res.json({ success: true, message: 'Collection updated successfully' });
+            } else {
+                res.status(404).json({ success: false, message: 'Collection not found' });
+            }
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+});
+
+router.delete('/:collection/:id', async (req, res) => {
+    const { collection, id } = req.params;
 
     try {
-        const { documents, totalDocuments } = await getDocuments(collection, parseInt(page), parseInt(pageSize));
+
+        // check if the user is allowed to delete the document (if the collection is owned by the user or if the user is an admin)
+        const userDb = await getDB("data");
+        const user = await userDb.collection("users").findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
+        if (!user) {
+            return res.status(403).json({ success: false, message: 'Access denied' });
+        }
+
+        if (user.role !== 'admin' && (!user.ownedCollections || !user.ownedCollections.includes(collection))) {
+            return res.status(403).json({ success: false, message: 'Access denied' });
+        }
+
+        const db = await getDB("mqtt");
+        const coll = db.collection(collection);
+        const result = await coll.deleteOne({ _id: new mongoose.Types.ObjectId(id) });
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ success: false, message: 'Document not found' });
+        }
+        res.json({ success: true, message: 'Document deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+router.get('/:collection/export', async (req, res) => {
+    const { collection } = req.params;
+
+    try {
+        const db = await getDB("mqtt");
+        const coll = db.collection(collection);
+        const documents = await coll.find().toArray();
+        const totalDocuments = documents.length;
         res.json({ documents, totalDocuments });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Failed to fetch collection content', error: error.message });
