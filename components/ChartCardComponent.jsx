@@ -23,6 +23,26 @@ const ChartCardComponent = ({ projectId, token }) => {
 
     const router = useRouter();
 
+    // Generate default layouts for graphs
+    const generateDefaultLayouts = useCallback((data) => {
+        return {
+            lg: data.map((graph, index) => ({
+                i: graph._id,
+                x: (index % 2) * 6, // Place components in two columns
+                y: Math.floor(index / 2) * 2,
+                w: 6,
+                h: 2,
+            })),
+            xs: data.map((graph, index) => ({
+                i: graph._id,
+                x: 0, // Single column layout for small screens
+                y: index * 2,
+                w: 4,
+                h: 2,
+            })),
+        };
+    }, []);
+
     // Load layout from localStorage
     useEffect(() => {
         const savedLayouts = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -61,32 +81,12 @@ const ChartCardComponent = ({ projectId, token }) => {
         };
 
         fetchGraphs();
-    }, [projectId, token]);
+    }, [projectId, token, generateDefaultLayouts, layouts.lg.length, layouts.xs.length]);
 
     // Save layouts to localStorage whenever they change
     const onLayoutChange = useCallback((currentLayout, allLayouts) => {
         setLayouts(allLayouts); // Update layouts for all breakpoints
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allLayouts));
-    }, []);
-
-    // Generate default layouts for graphs
-    const generateDefaultLayouts = useCallback((data) => {
-        return {
-            lg: data.map((graph, index) => ({
-                i: graph._id,
-                x: (index % 2) * 6, // Place components in two columns
-                y: Math.floor(index / 2) * 2,
-                w: 6,
-                h: 2,
-            })),
-            xs: data.map((graph, index) => ({
-                i: graph._id,
-                x: 0, // Single column layout for small screens
-                y: index * 2,
-                w: 4,
-                h: 2,
-            })),
-        };
     }, []);
 
     // Ensure all graphs have a valid layout

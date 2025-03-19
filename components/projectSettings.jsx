@@ -170,7 +170,7 @@ export function ProjectSettings({ initialProjectData }) {
     });
     setUsersInProject(res.data);
     console.log("Users in project:", res.data);
-  }, [project]);
+  }, [project, token]);
 
   useEffect(() => {
     if (alert) {

@@ -227,7 +227,7 @@ export default function MongoDBViewer() {
             {filteredCollections.map(collection => (
               <li key={collection.name} className="relative">
                 <div
-                  className={`w-full flex items-center justify-between p-2 rounded-lg cursor-pointer dark:bg-gray-700 dark:text-white ${selectedCollection === collection.name ? 'bg-blue-200 dark:bg-blue-500' : ''}`}
+                  className={`w-full flex items-center justify-between p-2 rounded-lg cursor-pointer bg-gray-300 dark:bg-gray-700 dark:text-white ${selectedCollection === collection.name ? 'bg-blue-200 dark:bg-blue-500' : ''}`}
                   onClick={() => handleCollectionClick(collection)}
                 >
                   <div className="flex flex-col">
@@ -344,7 +344,7 @@ export default function MongoDBViewer() {
           <DialogHeader>
             <DialogTitle>Change Display Name</DialogTitle>
             <DialogDescription>
-              Enter a new display name for the collection "{selectedChannel}".
+              Enter a new display name for the collection &quot;{selectedChannel}&quot;.
             </DialogDescription>
           </DialogHeader>
           <form
