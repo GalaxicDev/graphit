@@ -82,6 +82,11 @@ export function AdminUserList({ token, users }) {
             ...prevUsers,
             { ...data.user, initialPassword: data.password },
           ]);
+        } else {
+          setUsersList((prevUsers) => [
+            ...prevUsers,
+            { ...data.user, initialPassword: "" },
+          ]);
         }
         router.refresh();
       }

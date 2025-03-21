@@ -266,7 +266,7 @@ export default function MongoDBViewer() {
               </li>
             ))}
           </ul>
-          <a href="https://google.com" className="text-blue-500 hover:underline">Can't find your collection?</a>
+          <a href="https://google.com" className="text-blue-500 hover:underline">Can&apos;t find your collection?</a>
         </div>
         <div className="col-span-1 md:col-span-3">
           {selectedCollection && (

@@ -163,7 +163,7 @@ export function ChartCreator({ token, projectData, chartData }) {
     debounce((key, value) => {
       setOptions(prev => ({ ...prev, [key]: value }));
     }, 300),
-    []
+    [setOptions]
   );
 
   const handleElementChange = useCallback(
@@ -175,7 +175,7 @@ export function ChartCreator({ token, projectData, chartData }) {
         return updatedElements;
       });
     }, 300),
-    []
+    [setElements]
   );
 
   const addElement = () => {
