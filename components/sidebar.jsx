@@ -53,7 +53,7 @@ export function Sidebar({ sidebarOpen, toggleSidebar, token }) {
 
                 {/* Divider between general and project-specific navigation */}
                 {projectMode && <hr className="my-4 border-gray-300 dark:border-gray-700" />}
-                {projectMode && <span className="block px-6 text-sm text-gray-500 dark:text-gray-400">Project Navigation</span> }
+                {projectMode && <span className="block px-6 text-sm text-gray-500 dark:text-gray-400">Project</span> }
                 {/* Render project-specific navigation items only if in project mode */}
                 {projectMode && projectSidebarUtils(projectId).map((item) => {
                     const Icon = item.icon;

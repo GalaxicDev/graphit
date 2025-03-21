@@ -29,9 +29,9 @@ export function ProjectView({ project, token, userRole, hasAccess, }) {
         <>
             {!hasAccess ? (
                 <>
-                    <div className="flex flex-col items-center justify-center h-screen">
+                <div className="flex flex-col items-center justify-center h-screen">
                     <div className="flex items-center mb-6">
-                        <h1 className="text-5xl font-semibold text-gray-800 dark:text-white">
+                        <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
                             {projectName}
                         </h1>
                         <Lock className="h-12 w-12 ml-4 text-red-500" />
@@ -51,7 +51,7 @@ export function ProjectView({ project, token, userRole, hasAccess, }) {
                 <>
                     <div className="flex justify-between items-center mb-6 overflow-auto w-full">
                         <div className="flex-1 mr-4">
-                            <h1 className="text-3xl font-semibold text-gray-800 dark:text-white">{projectName}</h1>
+                            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">{projectName}</h1>
                             <p className="text-gray-500 dark:text-gray-400">{projectDescription}</p>
                         </div>
                         <div className="flex items-center">
