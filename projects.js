@@ -378,6 +378,7 @@ router.post('/:projectId/access',
                     { _id: new mongoose.Types.ObjectId(req.params.projectId) },
                     updateData
                 );
+
                 if (result.modifiedCount === 0) {
                     return res.status(404).json({ success: false, message: 'Project not found' });
                 }
