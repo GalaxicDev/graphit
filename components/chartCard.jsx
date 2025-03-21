@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Edit, Trash2, Maximize2, Move } from 'lucide-react';
@@ -19,7 +19,6 @@ import { renderChart } from "@/lib/renderChart";
 import { renderOther } from "@/lib/renderOther";
 import { fetchGraphData } from '@/lib/api';
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 const generalChartTypes = ["Line", "Bar", "Area", "Scatter", "Pie", "Radar"];
 
 const ChartCard = ({ graph, onDelete, onEdit, token }) => {
@@ -44,31 +43,28 @@ const ChartCard = ({ graph, onDelete, onEdit, token }) => {
     };
 
     useEffect(() => {
+        const fetchData = async () => {
             try {
                 setIsLoading(true);
-                
-                const fetchData = async () => {
-                    try {
-                        const dataResponse = await fetchGraphData(graph.chartType, graph.elements, graph.options, selectedTimeframe, token);
-                        setGraphData(dataResponse);
-                    } catch (error) {
-                        console.error('Failed to fetch graph data:', error);
-                    } finally {
-                        setIsLoading(false);
-                    }
-                };
-
-                fetchData();
+                const dataResponse = await fetchGraphData(graph.chartType, graph.elements, graph.options, selectedTimeframe, token);
+                setGraphData(dataResponse);
             } catch (error) {
                 console.error('Failed to fetch graph data:', error);
             } finally {
                 setIsLoading(false);
             }
+        };
 
-        fetchGraphData();
-
+        fetchData();
     }, [graph, selectedTimeframe, token]);
 
+    const renderedChart = useMemo(() => {
+        return renderChart({ chartType: graph.chartType, elements: graph.elements, graphData, options: graph.options });
+    }, [graph.chartType, graph.elements, graphData, graph.options]);
+
+    const renderedOther = useMemo(() => {
+        return renderOther({ chartType: graph.chartType, elements: graph.elements, graphData, options: graph.options });
+    }, [graph.chartType, graph.elements, graphData, graph.options]);
 
     return (
         <>
@@ -130,7 +126,7 @@ const ChartCard = ({ graph, onDelete, onEdit, token }) => {
                                 </div>
                             ) : (
                                 <ResponsiveContainer width="100%" height="80%">
-                                    {renderChart({ chartType: graph.chartType, elements: graph.elements, graphData, options: graph.options })}
+                                    {renderedChart}
                                 </ResponsiveContainer>
                             )}
                         </>
@@ -142,7 +138,7 @@ const ChartCard = ({ graph, onDelete, onEdit, token }) => {
                                 </div>
                             ) : (
                                 <div className="p-4">
-                                    {renderOther({ chartType: graph.chartType, elements: graph.elements, graphData, options: graph.options })}
+                                    {renderedOther}
                                 </div>
                             )}
                         </>

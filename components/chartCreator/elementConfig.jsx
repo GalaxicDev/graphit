@@ -34,7 +34,7 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
         };
 
         fetchAvailableKeys();
-    }, [el.collection]);
+    }, [el.collection, token]);
 
     const addConditionalParam = () => {
         const newParam = { field: "", operator: "equals", value: "" };
