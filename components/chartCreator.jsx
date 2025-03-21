@@ -42,6 +42,7 @@ export function ChartCreator({ token, projectData, chartData }) {
   const [selectedTimeframe, setSelectedTimeframe] = useState('1D');
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [error, setError] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const router = useRouter();
 
@@ -107,6 +108,7 @@ export function ChartCreator({ token, projectData, chartData }) {
         xRange: { from: new Date(), to: new Date() },
       });
       setElements(chartData.elements || []);
+      setIsEditing(true);
       fetchInitialGraphData();
     }
   }, [chartData, token, selectedTimeframe]);
@@ -163,7 +165,7 @@ export function ChartCreator({ token, projectData, chartData }) {
     debounce((key, value) => {
       setOptions(prev => ({ ...prev, [key]: value }));
     }, 300),
-    [setOptions]
+    []
   );
 
   const handleElementChange = useCallback(
@@ -207,14 +209,12 @@ export function ChartCreator({ token, projectData, chartData }) {
   };
 
   const createGraph = async () => {
-
     const newGraph = {
       projectId: projectData._id,
       chartType,
       options,
       elements,
     };
-    
 
     for (let i = 0; i < elements.length; i++) {
       if (chartType === "Info") {
@@ -250,6 +250,51 @@ export function ChartCreator({ token, projectData, chartData }) {
       router.push(`/projects/${projectData._id}`);
     } catch (error) {
       console.error('Failed to create graph:', error);
+    }
+  };
+
+  const handleEditGraph = async () => {
+    const updatedGraph = {
+      projectId: projectData._id,
+      chartType,
+      options,
+      elements,
+    };
+
+    for (let i = 0; i < elements.length; i++) {
+      if (chartType === "Info") {
+        if (!elements[i].collection || !elements[i].dataKey) {
+          setError(true);
+          return;
+        }
+      } else if (chartType === "Map Trajectory") {
+        if (!elements[i].collection || !elements[i].latitudeKey || !elements[i].longitudeKey || !elements[i].timestampKey) {
+          setError(true);
+          return;
+        }
+      } else if (chartType === "Map") {
+        if (!elements[i].collection || !elements[i].latitudeKey || !elements[i].longitudeKey) {
+          setError(true);
+          return;
+        }
+      } else {
+        if (!elements[i].collection || !elements[i].xAxisKey || !elements[i].yAxisKey) {
+          setError(true);
+          return;
+        }
+      }
+    }
+
+    try {
+      const res = await axios.put(`${nextConfig.env.API_URL}/graphs/${chartData._id}`, updatedGraph, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      router.push(`/projects/${projectData._id}`);
+    } catch (error) {
+      console.error('Failed to update graph:', error);
     }
   };
 
@@ -393,8 +438,8 @@ export function ChartCreator({ token, projectData, chartData }) {
                 ) : null}
                 <Separator className="my-4 dark:bg-gray-700"/>
               </ScrollArea>
-              <Button className="w-full" onClick={() => createGraph()}>
-                Create Graph
+              <Button className="w-full" onClick={() => isEditing ? handleEditGraph() : createGraph()}>
+                {isEditing ? "Update Graph" : "Create Graph"}
               </Button>
             </CardContent>
           </Card>
