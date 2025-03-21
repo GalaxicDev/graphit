@@ -217,9 +217,16 @@ router.post('/:id/collections',
                 return res.status(403).json({ success: false, message: 'Access denied' });
             }
 
+            const newCollectionName = req.body.name;
+
+            // Check if the collection already exists in the project
+            const collectionExists = project.collections.some(collection => collection.name === newCollectionName);
+            if (collectionExists) {
+                return res.status(400).json({ success: false, message: 'Collection already exists in the project' });
+            }
+
             const newCollectionData = {
-                name: req.body.name,
-                fields: [],
+                name: newCollectionName,
             };
 
             const result = await db.collection('projects').updateOne(
@@ -231,21 +238,19 @@ router.post('/:id/collections',
                 return res.status(404).json({ success: false, message: 'Project not found' });
             }
 
-            res.status(201).json(newCollectionData);
+            res.status(201).json({succes: true, message: 'Collection added successfully', collection: newCollectionData});
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
-    }
-);
+    });
 
 
 
 // remove collection from project
-router.delete('/:projectId/collections/:collectionId',
+router.delete('/:projectId/collections/:collectionName',
     param('projectId').isMongoId(),
-    param('collectionId').isMongoId(),
+    param('collectionName').isString(),
     handleValidationErrors, async (req, res) => {
-
         try {
             const db = await getDB('data');
             const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.params.projectId) });
@@ -258,9 +263,11 @@ router.delete('/:projectId/collections/:collectionId',
                 return res.status(403).json({ success: false, message: 'Access denied' });
             }
 
+            const collectionName = req.params.collectionName;
+
             const result = await db.collection('projects').updateOne(
                 { _id: new mongoose.Types.ObjectId(req.params.projectId) },
-                { $pull: { collections: { _id: new mongoose.Types.ObjectId(req.params.collectionId) } } }
+                { $pull: { collections: { name: collectionName } } }
             );
 
             if (result.modifiedCount === 0) {
@@ -271,8 +278,7 @@ router.delete('/:projectId/collections/:collectionId',
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
-
-});
+    });
 
 
 // change the access of a project
