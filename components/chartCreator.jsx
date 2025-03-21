@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import debounce from "lodash.debounce";
 import axios from 'axios';
 import { format } from 'date-fns';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -8,10 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PacmanLoader } from 'react-spinners';
 import { CircleAlert } from 'lucide-react';
-import {
-  LineChart, Line, BarChart, Bar, AreaChart, Area, ScatterChart, Scatter,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis
-} from "recharts";
+import { ResponsiveContainer } from 'recharts';
 import { ChartOptions } from "@/components/chartCreator/chartOptions";
 import { ElementConfig } from "@/components/chartCreator/elementConfig";
 import { Separator } from "@/components/ui/separator";
@@ -161,18 +159,24 @@ export function ChartCreator({ token, projectData, chartData }) {
     return () => clearTimeout(debounceTimeout);
   }, [elements, selectedTimeframe, options.dynamicTime, options.xRange, options.yRange, token, chartType]);
 
-  const handleOptionChange = (key, value) => {
-    setOptions(prev => ({ ...prev, [key]: value }));
-  };
+  const handleOptionChange = useCallback(
+    debounce((key, value) => {
+      setOptions(prev => ({ ...prev, [key]: value }));
+    }, 300),
+    []
+  );
 
-  const handleElementChange = (id, key, value) => {
-    setElements((prev) => {
-      const updatedElements = prev.map((el) =>
-          el.id === id ? { ...el, [key]: value } : el
-      );
-      return updatedElements;
-    });
-  };
+  const handleElementChange = useCallback(
+    debounce((id, key, value) => {
+      setElements((prev) => {
+        const updatedElements = prev.map((el) =>
+            el.id === id ? { ...el, [key]: value } : el
+        );
+        return updatedElements;
+      });
+    }, 300),
+    []
+  );
 
   const addElement = () => {
     if (["Map", "Map Trajectory"].includes(chartType) && elements.some(el => ["Map", "Map Trajectory"].includes(el.chartType))) {
@@ -249,6 +253,8 @@ export function ChartCreator({ token, projectData, chartData }) {
     }
   };
 
+  const memoizedGraphData = useMemo(() => graphData, [graphData]);
+
   return (
       <div className="container mx-auto py-10 px-4">
         <h1 className="text-3xl font-bold mb-8 text-black dark:text-white">Chart Creator</h1>
@@ -323,7 +329,7 @@ export function ChartCreator({ token, projectData, chartData }) {
                         </div>
                     ) : (
                         <ResponsiveContainer width="100%" height={200}>
-                          {renderChart({ chartType, elements, graphData, options })}
+                          {renderChart({ chartType, elements, graphData: memoizedGraphData, options })}
                         </ResponsiveContainer>
                     )}
                   </>
@@ -335,9 +341,9 @@ export function ChartCreator({ token, projectData, chartData }) {
                         </div>
                     ) : (
                         <div className="p-4">
-                          {renderOther({ chartType, elements, graphData, options })}
+                          {renderOther({ chartType, elements, graphData: memoizedGraphData, options })}
                         </div>
-                    )}
+                    )} 
                   </>
               )}
             </CardContent>
