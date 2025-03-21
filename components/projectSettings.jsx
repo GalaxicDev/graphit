@@ -111,7 +111,7 @@ export function ProjectSettings({ initialProjectData }) {
         );
         setProject(prev => ({
           ...prev,
-          collections: [...prev.collections, response.data]
+          collections: [...prev.collections, response.data.collection]
         }));
         setNewCollection("");
       } catch (error) {
@@ -120,11 +120,20 @@ export function ProjectSettings({ initialProjectData }) {
     }
   };
 
-  const handleRemoveCollection = (collectionId) => {
-    setProject(prev => ({
-      ...prev,
-      collections: prev.collections.filter(collection => collection.id !== collectionId)
-    }));
+  const handleRemoveCollection = async (collectionId) => {
+    try {
+      await axios.delete(nextConfig.env.API_URL + `/projects/${project._id}/collections/${collectionId}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      setProject(prev => ({
+        ...prev,
+        collections: prev.collections.filter(c => c.name !== collectionId)
+      }));
+    } catch (error) {
+      console.error("Failed to remove collection:", error);
+    }
   };
 
   const handleDeleteProject = async (projectId) => {
@@ -178,6 +187,8 @@ export function ProjectSettings({ initialProjectData }) {
       return () => clearTimeout(timer);
     }
   }, [alert]);
+
+  console.log("collections", project.collections);
 
   return (
       <>
@@ -321,9 +332,9 @@ export function ProjectSettings({ initialProjectData }) {
                         value={newUser.role}
                         onChange={(e) => setNewUser(prev => ({...prev, role: e.target.value}))}
                     >
-                      <option value="Viewer">Viewer</option>
-                      <option value="Editor">Editor</option>
-                      <option value="Admin">Admin</option>
+                      <option value="viewer">Viewer</option>
+                      <option value="editor">Editor</option>
+                      <option value="admin">Admin</option>
                     </select>
                     <Button onClick={handleAddUser} className={"bg-blue-500 text-white"}>
                       <Plus className="w-4 h-4 mr-2"/>
@@ -343,7 +354,7 @@ export function ProjectSettings({ initialProjectData }) {
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <Badge>{user.role}</Badge>
+                            <Badge>{project.editor.includes(user?._id) ? "Editor" : "Viewer"}</Badge>
                             <Button variant="ghost" size="sm" onClick={() => handleRemoveUser(user.name)}>
                               <X className="w-4 h-4"/>
                             </Button>
@@ -373,11 +384,11 @@ export function ProjectSettings({ initialProjectData }) {
                       Add Collection
                     </Button>
                   </div>
-                  <ScrollArea className="h-[200px] w-full rounded-md border p-4 border-gray-600">
+                  <ScrollArea className="h-[200px] w-full rounded-md border p-4 dark:border-gray-700">
                     {project.collections.length > 0 ? (
                         project.collections.map(collection => (
                             <div
-                                key={collection.id}
+                                key={collection.name}
                                 className="flex items-center justify-between py-2 border-b last:border-b-0 border-gray-700">
                               <div className="flex items-center space-x-2">
                                 <p className="text-sm font-medium">{collection.name}</p>
@@ -386,7 +397,7 @@ export function ProjectSettings({ initialProjectData }) {
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => handleRemoveCollection(collection.id)}>
+                                    onClick={() => handleRemoveCollection(collection.name)}>
                                   <X className="w-4 h-4"/>
                                 </Button>
                               </div>

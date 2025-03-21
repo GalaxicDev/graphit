@@ -6,6 +6,7 @@ import { Navbar } from '@/components/navbar';
 import { verifyToken } from '@/lib/api';
 import { UserProvider, useUser } from '@/lib/UserContext';
 import Cookies from 'js-cookie';
+import { PacmanLoader } from 'react-spinners';
 
 function RootLayoutContent({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -65,7 +66,11 @@ function RootLayoutContent({ children }) {
     };
 
     if (isAuthenticated === null) {
-        return <div className="flex items-center justify-center h-screen">Loading...</div>;
+        return (
+            <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900">
+                <PacmanLoader color="#8884d8" />
+            </div>
+        );
     }
 
     if (!isAuthenticated) {
