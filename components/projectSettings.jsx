@@ -111,7 +111,7 @@ export function ProjectSettings({ initialProjectData }) {
         );
         setProject(prev => ({
           ...prev,
-          collections: [...prev.collections, response.data]
+          collections: [...prev.collections, response.data.collection]
         }));
         setNewCollection("");
       } catch (error) {
@@ -129,7 +129,7 @@ export function ProjectSettings({ initialProjectData }) {
       });
       setProject(prev => ({
         ...prev,
-        collections: prev.collections.filter(collection => collection.id !== collectionId)
+        collections: prev.collections.filter(c => c.name !== collectionId)
       }));
     } catch (error) {
       console.error("Failed to remove collection:", error);
@@ -187,6 +187,8 @@ export function ProjectSettings({ initialProjectData }) {
       return () => clearTimeout(timer);
     }
   }, [alert]);
+
+  console.log("collections", project.collections);
 
   return (
       <>
@@ -386,7 +388,7 @@ export function ProjectSettings({ initialProjectData }) {
                     {project.collections.length > 0 ? (
                         project.collections.map(collection => (
                             <div
-                                key={collection.id}
+                                key={collection.name}
                                 className="flex items-center justify-between py-2 border-b last:border-b-0 border-gray-700">
                               <div className="flex items-center space-x-2">
                                 <p className="text-sm font-medium">{collection.name}</p>
@@ -395,7 +397,7 @@ export function ProjectSettings({ initialProjectData }) {
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => handleRemoveCollection(collection._id)}>
+                                    onClick={() => handleRemoveCollection(collection.name)}>
                                   <X className="w-4 h-4"/>
                                 </Button>
                               </div>
