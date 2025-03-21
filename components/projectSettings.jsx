@@ -332,9 +332,9 @@ export function ProjectSettings({ initialProjectData }) {
                         value={newUser.role}
                         onChange={(e) => setNewUser(prev => ({...prev, role: e.target.value}))}
                     >
-                      <option value="Viewer">Viewer</option>
-                      <option value="Editor">Editor</option>
-                      <option value="Admin">Admin</option>
+                      <option value="viewer">Viewer</option>
+                      <option value="editor">Editor</option>
+                      <option value="admin">Admin</option>
                     </select>
                     <Button onClick={handleAddUser} className={"bg-blue-500 text-white"}>
                       <Plus className="w-4 h-4 mr-2"/>
@@ -354,7 +354,7 @@ export function ProjectSettings({ initialProjectData }) {
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <Badge>{user.role}</Badge>
+                            <Badge>{project.editor.includes(user?._id) ? "Editor" : "Viewer"}</Badge>
                             <Button variant="ghost" size="sm" onClick={() => handleRemoveUser(user.name)}>
                               <X className="w-4 h-4"/>
                             </Button>

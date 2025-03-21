@@ -21,26 +21,17 @@ async function fetchProjectData(project, token) {
     }
 }
 
-export default function SettingsPage(props) {
-    const params = props.params;
+export default async function SettingsPage(props) {
+    const params = await props.params;
     const { project } = params;
-    const token = cookies().get("token")?.value;
+    const tokenStore = await cookies()
+    const token = tokenStore.get("token")?.value;
 
-    const projectDataPromise = fetchProjectData(project, token);
+    const projectData = await fetchProjectData(project, token);
 
     return (
         <Suspense fallback={<div className="flex items-center justify-center h-full"><PacmanLoader color="#8884d8" /></div>}>
-            <ProjectSettingsWrapper projectDataPromise={projectDataPromise} />
+            <ProjectSettings initialProjectData={projectData} />
         </Suspense>
     );
-}
-
-function ProjectSettingsWrapper({ projectDataPromise }) {
-    const projectData = use(projectDataPromise);
-
-    if (!projectData) {
-        return <div>Loading...</div>;
-    }
-
-    return <ProjectSettings initialProjectData={projectData} />;
 }
