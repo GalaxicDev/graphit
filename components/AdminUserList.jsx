@@ -175,7 +175,7 @@ export function AdminUserList({ token, users }) {
   }, [successMessage]);
 
   return (
-    <Card className="dark:bg-gray-800/40">
+    <Card className="dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-750 p-2 mb-4">
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center space-x-4">
           <div className="p-2 bg-primary/10 rounded-lg dark:bg-primary/20">
