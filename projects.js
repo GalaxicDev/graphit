@@ -240,6 +240,41 @@ router.post('/:id/collections',
 
 
 
+// remove collection from project
+router.delete('/:projectId/collections/:collectionId',
+    param('projectId').isMongoId(),
+    param('collectionId').isMongoId(),
+    handleValidationErrors, async (req, res) => {
+
+        try {
+            const db = await getDB('data');
+            const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.params.projectId) });
+            const user = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
+            if (!project) {
+                return res.status(404).json({ success: false, message: 'Project not found' });
+            }
+
+            if (project.userId.toString() !== req.userId && user.role !== 'admin') {
+                return res.status(403).json({ success: false, message: 'Access denied' });
+            }
+
+            const result = await db.collection('projects').updateOne(
+                { _id: new mongoose.Types.ObjectId(req.params.projectId) },
+                { $pull: { collections: { _id: new mongoose.Types.ObjectId(req.params.collectionId) } } }
+            );
+
+            if (result.modifiedCount === 0) {
+                return res.status(404).json({ success: false, message: 'Project or collection not found' });
+            }
+
+            res.json({ success: true, message: 'Collection removed successfully' });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+
+});
+
+
 // change the access of a project
 router.post('/:projectId/access',
     param('projectId').isMongoId(),
