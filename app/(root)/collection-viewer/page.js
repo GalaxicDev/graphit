@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import { Search, Database, SquareArrowOutUpRight, Edit, Trash2, Ellipsis, X } from 'lucide-react'
+import { Search, Database, SquareArrowOutUpRight, Edit, Trash2, Ellipsis, X, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -186,8 +186,10 @@ export default function MongoDBViewer() {
   }
   
   const filteredCollections = collections.filter(collection =>
-    collection.displayName.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+    !searchTerm || 
+    collection.displayName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    collection.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   // Search for documents
   const filteredDocuments = selectedCollection
     ? documents.filter(doc =>
@@ -198,8 +200,8 @@ export default function MongoDBViewer() {
   const totalPages = Math.ceil(totalDocuments / itemsPerPage)
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4 dark:text-white">Collection Viewer</h1>
+    <div className="container mx-auto">
+      <h1 className="text-3xl font-bold mb-6 dark:text-white">Collection Viewer</h1>
       <Input
         type="text"
         placeholder="Search collections or documents..."
@@ -207,6 +209,7 @@ export default function MongoDBViewer() {
         onChange={(e) => setSearchTerm(e.target.value)}
         className="pl-10 dark:bg-gray-700 dark:text-white"
       />
+      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
 
       {successMessage && (
         <Alert variant="success" className="my-4 bg-green-500 text-white flex justify-between items-center">
@@ -219,7 +222,6 @@ export default function MongoDBViewer() {
           </Button>
         </Alert>
       )}
-
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
         <div className="col-span-1">
           <h2 className="text-xl font-semibold mb-2 dark:text-white">Collections</h2>
@@ -227,7 +229,7 @@ export default function MongoDBViewer() {
             {filteredCollections.map(collection => (
               <li key={collection.name} className="relative">
                 <div
-                  className={`w-full flex items-center justify-between p-2 rounded-lg cursor-pointer bg-gray-300 dark:bg-gray-700 dark:text-white ${selectedCollection === collection.name ? 'bg-blue-200 dark:bg-blue-500' : ''}`}
+                  className={`w-full flex items-center justify-between p-2 rounded-lg cursor-pointer ${selectedCollection === collection.name ? 'bg-black text-white  dark:bg-gray-800' : 'bg-gray-200 dark:bg-gray-700 dark:text-white '}`}
                   onClick={() => handleCollectionClick(collection)}
                 >
                   <div className="flex flex-col">
@@ -266,17 +268,19 @@ export default function MongoDBViewer() {
               </li>
             ))}
           </ul>
+          <a href="https://google.com" className="text-blue-500 hover:underline">Can&apos;t find your collection?</a>
         </div>
         <div className="col-span-1 md:col-span-3">
           {selectedCollection && (
             <>
-              <div className="flex justify-between items-center mb-4 dark:text-white">
+              <div className="flex justify-between items-center mb-4 dark:text-white p-2">
                 <h2 className="text-xl font-semibold">{selectedCollection}</h2>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button>
-                      <SquareArrowOutUpRight className="mr-2 h-4 w-4" />
-                      Export
+                    <Button className="border dark:text-white dark:border-gray-400 dark:bg-gray-600 px-2 h-8 rounded-lg">
+                      <SquareArrowOutUpRight className="mr-1 h-4 w-4" />
+                      Export Data
+                      <ChevronDown className="ml-2 h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">

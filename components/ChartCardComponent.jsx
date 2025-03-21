@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo, Suspense } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import dynamic from "next/dynamic";
 import "react-grid-layout/css/styles.css";
@@ -9,6 +9,8 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import nextConfig from '@/next.config.mjs';
 import { useUser } from '@/lib/UserContext';
+import { fetchGraphData } from '@/lib/api';
+import { PacmanLoader } from 'react-spinners';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 const LOCAL_STORAGE_KEY = "dashboard-layouts";
@@ -160,12 +162,14 @@ const ChartCardComponent = ({ projectId, token }) => {
                     key={graph._id}
                     data-grid={getValidLayout(graph._id)}
                 >
-                    <ChartCard
-                        graph={graph}
-                        onDelete={() => handleDelete(graph._id)}
-                        onEdit={() => handleEdit(graph._id)}
-                        token={token}
-                    />
+                    <Suspense fallback={<PacmanLoader color="#8884d8" />}>
+                        <ChartCard
+                            graph={graph}
+                            onDelete={() => handleDelete(graph._id)}
+                            onEdit={() => handleEdit(graph._id)}
+                            token={token}
+                        />
+                    </Suspense>
                 </div>
             ))}
         </ResponsiveGridLayout>
