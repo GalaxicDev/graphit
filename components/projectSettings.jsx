@@ -373,7 +373,7 @@ export function ProjectSettings({ initialProjectData }) {
                       Add Collection
                     </Button>
                   </div>
-                  <ScrollArea className="h-[200px] w-full rounded-md border p-4 border-gray-600">
+                  <ScrollArea className="h-[200px] w-full rounded-md border p-4 dark:border-gray-700">
                     {project.collections.length > 0 ? (
                         project.collections.map(collection => (
                             <div
