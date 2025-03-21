@@ -285,6 +285,7 @@ router.delete('/:projectId/collections/:collectionName',
 router.post('/:projectId/access',
     param('projectId').isMongoId(),
     body('name').isString(),
+    body('role').isString(),
     handleValidationErrors, async (req, res) => {
         try {
             const db = await getDB('data');
@@ -293,13 +294,10 @@ router.post('/:projectId/access',
                 return res.status(404).json({ success: false, message: 'Project not found' });
             }
 
-
             // Fetch current user's info for admin bypass
             const currentUser = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
-            // Only the project owner or an admin can change access
-            if (currentUser.role !== 'admin' &&
-                project.userId.toString() !== req.userId &&
-                !project.editor.map(id => id.toString()).includes(req.userId)) {
+            // Only the project owner or if the user is an admin on user level
+            if (currentUser.role !== 'admin' && project.userId.toString() !== req.userId) {
                 return res.status(403).json({ success: false, message: 'Access denied' });
             }
 
@@ -315,10 +313,15 @@ router.post('/:projectId/access',
             if (!user) {
                 return res.status(404).json({ success: false, message: 'User not found' });
             }
+
+            // Initialize editor and viewer arrays if they are undefined
+            project.editor = project.editor || [];
+            project.viewer = project.viewer || [];
+
             // Check if the user already has the role
             if (project.editor.includes(user._id) && role === 'editor') {
                 return res.status(400).json({ success: false, message: 'User already has editor access' });
-            }else if(project.viewer.includes(user._id) && role === 'viewer'){
+            } else if (project.viewer.includes(user._id) && role === 'viewer') {
                 return res.status(400).json({ success: false, message: 'User already has viewer access' });
             }
 
@@ -339,29 +342,29 @@ router.post('/:projectId/access',
                     { _id: new mongoose.Types.ObjectId(req.params.projectId) },
                     { $set: { userId: user._id } }
                 );
-                
+
                 if (result.modifiedCount === 0) {
                     return res.status(404).json({ success: false, message: 'Project not found' });
                 }
                 return res.json({ success: true, message: 'Access updated successfully' });
-            }else if(role === 'none'){
+            } else if (role === 'none') {
                 const updateData = {
                     $pull: { editor: user._id, viewer: user._id },
                 };
-    
+
                 const result = await db.collection('projects').updateOne(
                     { _id: new mongoose.Types.ObjectId(req.params.projectId) },
                     updateData
                 );
-    
+
                 if (result.modifiedCount === 0) {
                     return res.status(404).json({ success: false, message: 'Project not found' });
                 }
-    
+
                 res.json({ success: true, message: 'Access updated successfully' });
 
-            }else{
-                //Remove the user from viewer and editor list and then add them to the desired list
+            } else {
+                // Remove the user from viewer and editor list and then add them to the desired list
                 await db.collection('projects').updateOne(
                     { _id: new mongoose.Types.ObjectId(req.params.projectId) },
                     { $pull: { editor: user._id, viewer: user._id } }
@@ -378,9 +381,55 @@ router.post('/:projectId/access',
                 if (result.modifiedCount === 0) {
                     return res.status(404).json({ success: false, message: 'Project not found' });
                 }
-    
+
                 res.json({ success: true, message: 'Access updated successfully' });
             }
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+);
+
+// Get all people who have access
+router.get('/:projectId/access',
+    param('projectId').isMongoId(),
+    handleValidationErrors, async (req, res) => {
+        try {
+            const db = await getDB('data');
+            const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.params.projectId) });
+            if (!project) {
+                return res.status(404).json({ success: false, message: 'Project not found' });
+            }
+
+            // Fetch current user's info for admin bypass
+            const currentUser = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
+            if (!currentUser) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+
+            // Allow access if current user is admin, otherwise only project owner can view access
+            if (currentUser.role !== 'admin' && project.userId.toString() !== req.userId) {
+                return res.status(403).json({ success: false, message: 'Access denied' });
+            }
+
+            // Initialize editor and viewer arrays if they are undefined
+            project.editor = project.editor || [];
+            project.viewer = project.viewer || [];
+
+            const users = await db.collection('users').find(
+                { _id: { $in: project.editor.concat(project.viewer) } },
+                { projection: { _id: 1, name: 1, lastLogin: 1 } }
+            ).toArray();
+
+            const usersWithRoles = users.map(user => {
+                let role = 'Viewer';
+                if (project.editor.includes(user._id)) {
+                    role = 'Editor';
+                }
+                return { ...user, role };
+            });
+
+            res.json(usersWithRoles);
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
