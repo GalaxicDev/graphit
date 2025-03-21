@@ -115,26 +115,49 @@ router.post('/',
         }
     });
 
-// Update a graph by ID
+// Update an existing graph with new options
 router.put('/:id',
     param('id').isMongoId(),
-    body('name').isString().isLength({ min: 3 }),
-    handleValidationErrors, async (req, res) => {
+    body('projectId').isString().withMessage('Project ID is required'),
+    body('chartType').isString().withMessage('Chart Type is required'),
+    body('options').isObject().withMessage('Options must be an object'),
+    body('elements').isArray().withMessage('Elements must be an array'),
+    handleValidationErrors,
+    async (req, res) => {
+        console.log("Updating graph", req.body);
         try {
             const db = await getDB('data');
-            const graph = await db.collection('graphs').findOneAndUpdate(
+            // Retrieve project information
+            const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(String(req.body.projectId)) });
+            if (!project) {
+                return res.status(404).json({ success: false, message: 'Project not found' });
+            }
+            // Retrieve user information
+            const user = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(String(req.userId)) });
+            // Allow access if user is admin, owns the project, or is an editor
+            if (!(user && user.role === 'admin') && (project.userId.toString() !== String(req.userId) && !project.editor.map(id => id.toString()).includes(String(req.userId)))) {
+                return res.status(403).json({ success: false, message: 'Access denied' });
+            }
+            // Update the graph object
+            const updatedGraphData = {
+                projectId: new mongoose.Types.ObjectId(req.body.projectId),
+                chartType: req.body.chartType,
+                options: req.body.options,
+                elements: req.body.elements,
+            };
+            const result = await db.collection('graphs').findOneAndUpdate(
                 { _id: new mongoose.Types.ObjectId(req.params.id) },
-                { $set: req.body },
+                { $set: updatedGraphData },
                 { returnOriginal: false }
             );
-            if (!graph.value) {
-                return res.status(404).json({ success: false, message: 'Graph not found' });
-            }
-            res.json(graph.value);
+
+            // Return the updated graph object
+            res.json({success: true, ...result.value});
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
-    });
+    }
+);
 
 // Delete a graph by ID
 router.delete('/:id', param('id').isMongoId(),
