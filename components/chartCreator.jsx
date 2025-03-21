@@ -161,12 +161,9 @@ export function ChartCreator({ token, projectData, chartData }) {
     return () => clearTimeout(debounceTimeout);
   }, [elements, selectedTimeframe, options.dynamicTime, options.xRange, options.yRange, token, chartType]);
 
-  const handleOptionChange = useCallback(
-    debounce((key, value) => {
-      setOptions(prev => ({ ...prev, [key]: value }));
-    }, 300),
-    []
-  );
+  const handleOptionChange = (key, value) => {
+    setOptions(prev => ({ ...prev, [key]: value }));
+  };
 
   const handleElementChange = useCallback(
     debounce((id, key, value) => {
