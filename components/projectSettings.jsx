@@ -395,7 +395,7 @@ export function ProjectSettings({ initialProjectData }) {
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => handleRemoveCollection(collection.id)}>
+                                    onClick={() => handleRemoveCollection(collection._id)}>
                                   <X className="w-4 h-4"/>
                                 </Button>
                               </div>
