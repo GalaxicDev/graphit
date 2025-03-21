@@ -120,11 +120,20 @@ export function ProjectSettings({ initialProjectData }) {
     }
   };
 
-  const handleRemoveCollection = (collectionId) => {
-    setProject(prev => ({
-      ...prev,
-      collections: prev.collections.filter(collection => collection.id !== collectionId)
-    }));
+  const handleRemoveCollection = async (collectionId) => {
+    try {
+      await axios.delete(nextConfig.env.API_URL + `/projects/${project._id}/collections/${collectionId}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      setProject(prev => ({
+        ...prev,
+        collections: prev.collections.filter(collection => collection.id !== collectionId)
+      }));
+    } catch (error) {
+      console.error("Failed to remove collection:", error);
+    }
   };
 
   const handleDeleteProject = async (projectId) => {
