@@ -297,11 +297,9 @@ router.post('/:projectId/access',
             // Fetch current user's info for admin bypass
             const currentUser = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
             // Only the project owner or an admin can change access
-            if (currentUser.role !== 'admin') {
-                return res.status(403).json({ success: false, message: 'Access denied' });
-            }
-
-            if (project.userId.toString() !== req.userId || !project.editor.includes(req.userId)) {
+            if (currentUser.role !== 'admin' &&
+                project.userId.toString() !== req.userId &&
+                !project.editor.map(id => id.toString()).includes(req.userId)) {
                 return res.status(403).json({ success: false, message: 'Access denied' });
             }
 
