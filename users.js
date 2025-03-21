@@ -85,7 +85,7 @@ router.get('/',
         };
 
         // Get all users
-        const users = await db.collection('users').find().toArray();
+        const users = await db.collection('users').find({}, { projection: { password: 0 } }).toArray();
         res.json(users);
     });
 
