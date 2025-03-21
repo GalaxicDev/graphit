@@ -2,41 +2,45 @@ import axios from 'axios';
 import { ProjectSettings } from "@/components/projectSettings";
 import { cookies } from "next/headers";
 import nextConfig from '@/next.config.mjs';
+import { Suspense } from 'react';
+import { PacmanLoader } from 'react-spinners';
 
-export default async function SettingsPage(props) {
-    const params = await props.params;
-    const { project } = params;
-    let projectData = null;
-    const token = (await cookies()).get("token")?.value;
-
+async function fetchProjectData(project, token) {
     try {
         const response = await axios.get(nextConfig.env.API_URL + `/projects/${project}`, {
             headers: {
-            "Authorization": `Bearer ${token}`
+                "Authorization": `Bearer ${token}`
             }
         });
-
-        projectData = response.data;
-
+        return response.data;
     } catch (error) {
-        if (error.status === 403) {
-            return (
-                <div className="flex items-center justify-center h-full">
-                    <h1 className="text-2xl font-bold mb-4 dark:text-white">403 | Access Denied</h1>
-                </div>
-            );
+        if (error.response && error.response.status === 403) {
+            throw new Error('403 | Access Denied');
         }
-        console.error("Failed to fetch project data:", error);
+        throw new Error('Failed to fetch project data');
     }
+}
+
+export default function SettingsPage(props) {
+    const params = props.params;
+    const { project } = params;
+    const token = cookies().get("token")?.value;
+
+    const projectDataPromise = fetchProjectData(project, token);
+
+    return (
+        <Suspense fallback={<div className="flex items-center justify-center h-full"><PacmanLoader color="#8884d8" /></div>}>
+            <ProjectSettingsWrapper projectDataPromise={projectDataPromise} />
+        </Suspense>
+    );
+}
+
+function ProjectSettingsWrapper({ projectDataPromise }) {
+    const projectData = use(projectDataPromise);
 
     if (!projectData) {
         return <div>Loading...</div>;
     }
 
-
-    return (
-        <div>
-            <ProjectSettings initialProjectData={projectData} />
-        </div>
-    );
+    return <ProjectSettings initialProjectData={projectData} />;
 }
