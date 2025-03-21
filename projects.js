@@ -400,52 +400,6 @@ router.get('/:projectId/access',
             if (!project) {
                 return res.status(404).json({ success: false, message: 'Project not found' });
             }
-
-            // Fetch current user's info for admin bypass
-            const currentUser = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
-            if (!currentUser) {
-                return res.status(404).json({ success: false, message: 'User not found' });
-            }
-
-            // Allow access if current user is admin, otherwise only project owner can view access
-            if (currentUser.role !== 'admin' && project.userId.toString() !== req.userId) {
-                return res.status(403).json({ success: false, message: 'Access denied' });
-            }
-
-            // Initialize editor and viewer arrays if they are undefined
-            project.editor = project.editor || [];
-            project.viewer = project.viewer || [];
-
-            const users = await db.collection('users').find(
-                { _id: { $in: project.editor.concat(project.viewer) } },
-                { projection: { _id: 1, name: 1, lastLogin: 1 } }
-            ).toArray();
-
-            const usersWithRoles = users.map(user => {
-                let role = 'Viewer';
-                if (project.editor.includes(user._id)) {
-                    role = 'Editor';
-                }
-                return { ...user, role };
-            });
-
-            res.json(usersWithRoles);
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
-        }
-    }
-);
-
-// Get all people who have access
-router.get('/:projectId/access',
-    param('projectId').isMongoId(),
-    handleValidationErrors, async (req, res) => {
-        try {
-            const db = await getDB('data');
-            const project = await db.collection('projects').findOne({ _id: new mongoose.Types.ObjectId(req.params.projectId) });
-            if (!project) {
-                return res.status(404).json({ success: false, message: 'Project not found' });
-            }
             
             // Fetch current user's info for admin bypass
             const currentUser = await db.collection('users').findOne({ _id: new mongoose.Types.ObjectId(req.userId) });
