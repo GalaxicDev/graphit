@@ -51,5 +51,20 @@ const removeIndexes = async () => {
 };
 
 // Uncomment the function you want to run
-createIndexes().catch(console.error);
+//createIndexes().catch(console.error);
 //removeIndexes().catch(console.error);
+
+
+const createIndexes2 = async () => {
+    const db = await getDB('data');
+
+    // Create an index on the userId field
+    await db.collection('projects').createIndex({ userId: 1 });
+
+    // Create an index on the collections.name field
+    await db.collection('projects').createIndex({ 'collections.name': 1 });
+
+    console.log('Indexes created successfully');
+};
+
+createIndexes2().catch(console.error);
