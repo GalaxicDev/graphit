@@ -104,57 +104,66 @@ router.get('/data',
 
             // Ensure conditionalParams is an array and iterate over it
             if (Array.isArray(conditionalParams)) {
-                for (const param of conditionalParams) {
-                    const { field, operator, value } = param;
+                const andConditions = [];
 
-                    if (!field || !operator || value === undefined) {
-                        return res.status(400).json({
-                            success: false,
-                            message: 'Each conditionalParam must include a field, operator, and value',
-                        });
-                    }
+                for (const orParams of conditionalParams) {
+                    for (const param of orParams) {
+                        const { field, operator, value } = param;
 
-                    if (!query[field]) query[field] = {};
-
-                    // Refined type detection
-                    let parsedValue;
-                    if (typeof value === 'string') {
-                        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z?$/.test(value)) {
-                            parsedValue = new Date(value); // ISO-8601 date
-                        } else if (!isNaN(value)) {
-                            parsedValue = parseFloat(value); // Numeric string
-                        } else {
-                            parsedValue = value; // Default string
-                        }
-                    } else {
-                        parsedValue = value; // Preserve original type
-                    }
-
-                    switch (operator) {
-                        case 'equals':
-                            query[field] = parsedValue;
-                            break;
-                        case 'not equals':
-                            query[field] = { $ne: parsedValue };
-                            break;
-                        case 'greater than':
-                            query[field] = { $gt: parsedValue };
-                            break;
-                        case 'less than':
-                            query[field] = { $lt: parsedValue };
-                            break;
-                        case 'greater than or equal to':
-                            query[field] = { $gte: parsedValue };
-                            break;
-                        case 'less than or equal to':
-                            query[field] = { $lte: parsedValue };
-                            break;
-                        default:
+                        if (!field || !operator || value === undefined) {
                             return res.status(400).json({
                                 success: false,
-                                message: `Unsupported operator: ${operator}`,
+                                message: 'Each conditionalParam must include a field, operator, and value',
                             });
+                        }
+
+                        // Refined type detection
+                        let parsedValue;
+                        if (typeof value === 'string') {
+                            if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z?$/.test(value)) {
+                                parsedValue = new Date(value); // ISO-8601 date
+                            } else if (!isNaN(value)) {
+                                parsedValue = parseFloat(value); // Numeric string
+                            } else {
+                                parsedValue = value; // Default string
+                            }
+                        } else {
+                            parsedValue = value; // Preserve original type
+                        }
+
+                        let condition = {};
+                        switch (operator) {
+                            case 'equals':
+                                condition[field] = parsedValue;
+                                break;
+                            case 'not equals':
+                                condition[field] = { $ne: parsedValue };
+                                break;
+                            case 'greater than':
+                                condition[field] = { $gt: parsedValue };
+                                break;
+                            case 'less than':
+                                condition[field] = { $lt: parsedValue };
+                                break;
+                            case 'greater than or equal to':
+                                condition[field] = { $gte: parsedValue };
+                                break;
+                            case 'less than or equal to':
+                                condition[field] = { $lte: parsedValue };
+                                break;
+                            default:
+                                return res.status(400).json({
+                                    success: false,
+                                    message: `Unsupported operator: ${operator}`,
+                                });
+                        }
+
+                        andConditions.push(condition);
                     }
+                }
+
+                if (andConditions.length > 0) {
+                    query.$and = andConditions;
                 }
             }
 
@@ -172,6 +181,7 @@ router.get('/data',
         res.status(500).json({ success: false, message: 'Internal server error' });
     }
 });
+
 
 
 router.get('/availableKeys', async (req, res) => {
