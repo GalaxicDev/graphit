@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import axios from "axios";
 import { useState, useEffect, useId } from "react";
@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CircleAlert } from "lucide-react";
 import nextConfig from '@/next.config.mjs';
 import { useUser } from '@/lib/UserContext';
@@ -29,7 +29,20 @@ export function ProjectSettings({ initialProjectData }) {
   const [usersInProject, setUsersInProject] = useState([]);
   const id = useId();
   const { token } = useUser();
-  
+
+  const fetchUsersInProject = async () => {
+    try {
+      const res = await axios.get(nextConfig.env.API_URL + `/projects/${project._id}/access`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+      });
+      setUsersInProject(res.data);
+      console.log("Users in project:", res.data);
+    } catch (error) {
+      console.error("Failed to fetch users in project:", error);
+    }
+  };
 
   const handleProjectUpdate = async () => {
     try {
@@ -49,7 +62,7 @@ export function ProjectSettings({ initialProjectData }) {
 
   const handleAddUser = async () => {
     try {
-      const res = await axios.post(nextConfig.env.API_URL + `/projects/${project._id}/access`,
+      await axios.post(nextConfig.env.API_URL + `/projects/${project._id}/access`,
         {
           "name": newUser.name,
           "role": newUser.role
@@ -60,13 +73,7 @@ export function ProjectSettings({ initialProjectData }) {
           }
         }
       );
-      // Fetch updated list of users
-      const updatedUsers = await axios.get(nextConfig.env.API_URL + `/projects/${project._id}/access`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-      });
-      setUsersInProject(updatedUsers.data);
+      fetchUsersInProject();
     } catch (error) {
       console.error("Failed to add user:", error);
     }
@@ -75,7 +82,7 @@ export function ProjectSettings({ initialProjectData }) {
   const handleRemoveUser = async (username) => {
     console.log("Removing user:", username);
     try {
-      const res = await axios.post(nextConfig.env.API_URL + `/projects/${project._id}/access`,
+      await axios.post(nextConfig.env.API_URL + `/projects/${project._id}/access`,
         {
           "name": username,
           "role": "none"
@@ -86,13 +93,7 @@ export function ProjectSettings({ initialProjectData }) {
           }
         }
       );
-      // Fetch updated list of users
-      const updatedUsers = await axios.get(nextConfig.env.API_URL + `/projects/${project._id}/access`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-      });
-      setUsersInProject(updatedUsers.data);
+      fetchUsersInProject();
     } catch (error) {
       console.error("Failed to remove user:", error);
     }
@@ -136,7 +137,6 @@ export function ProjectSettings({ initialProjectData }) {
   };
 
   const handleDeleteProject = async (projectId) => {
-    if (!isMounted) return;
     try {
       const res = await axios.delete(`${nextConfig.env.API_URL}/projects/${projectId}`, {
         headers: {
@@ -152,7 +152,7 @@ export function ProjectSettings({ initialProjectData }) {
     } catch (error) {
       console.error('Failed to delete project:', error);
     }
-  }
+  };
 
   const renderAlert = () => {
     return (
@@ -167,17 +167,10 @@ export function ProjectSettings({ initialProjectData }) {
           </button>
         </Alert>
     );
-  }
+  };
 
-  // If project changes, get new users
-  useEffect(() => async () => {
-    const res = await axios.get(nextConfig.env.API_URL + `/projects/${project._id}/access`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
-    });
-    setUsersInProject(res.data);
-    console.log("Users in project:", res.data);
+  useEffect(() => {
+    fetchUsersInProject();
   }, [project, token]);
 
   useEffect(() => {
