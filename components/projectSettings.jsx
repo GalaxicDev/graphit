@@ -101,8 +101,7 @@ export function ProjectSettings({ initialProjectData }) {
   const handleAddCollection = async () => {
     if (newCollection) {
       try {
-        const response = await axios.post(nextConfig.env.API_URL + `/projects/${project._id}/collections`,
-          { name: newCollection },
+        const response = await axios.post(nextConfig.env.API_URL + `/projects/${project._id}/collections/${newCollection}`,
           {
             headers: {
               "Authorization": `Bearer ${token}`
