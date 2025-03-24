@@ -76,10 +76,10 @@ export function ChartCreator({ token, projectData, chartData }) {
         }
   
         chartData.elements.forEach((el, index) => {
-          el.conditionalParams?.forEach((param) => {
-            params[`conditionalParams[${index}][field]`] = param.field;
-            params[`conditionalParams[${index}][operator]`] = param.operator;
-            params[`conditionalParams[${index}][value]`] = param.value;
+          el.conditionalParams?.forEach((param, paramIndex) => {
+            params[`conditionalParams[${index}][${paramIndex}][field]`] = param.field;
+            params[`conditionalParams[${index}][${paramIndex}][operator]`] = param.operator;
+            params[`conditionalParams[${index}][${paramIndex}][value]`] = param.value;
           });
         });
   
@@ -137,10 +137,10 @@ export function ChartCreator({ token, projectData, chartData }) {
         }
 
         elements.forEach((el, index) => {
-          el.conditionalParams.forEach((param) => {
-            params[`conditionalParams[${index}][field]`] = param.field;
-            params[`conditionalParams[${index}][operator]`] = param.operator;
-            params[`conditionalParams[${index}][value]`] = param.value;
+          el.conditionalParams.forEach((param, paramIndex) => {
+            params[`conditionalParams[${index}][${paramIndex}][field]`] = param.field;
+            params[`conditionalParams[${index}][${paramIndex}][operator]`] = param.operator;
+            params[`conditionalParams[${index}][${paramIndex}][value]`] = param.value;
           });
         });
 
