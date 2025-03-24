@@ -200,9 +200,9 @@ router.delete('/:id', param('id').isMongoId(),
 );
 
 // add a collection to a project
-router.post('/:id/collections',
+router.post('/:id/collections/:collectionName',
     param('id').isMongoId(),
-    body('name').isString(),
+    param('collectionName').isString(),
     handleValidationErrors, async (req, res) => {
         try {
             const db = await getDB('data');
@@ -217,7 +217,7 @@ router.post('/:id/collections',
                 return res.status(403).json({ success: false, message: 'Access denied' });
             }
 
-            const newCollectionName = req.body.name;
+            const newCollectionName = req.params.collectionName;
 
             // Check if the collection already exists in the project
             const collectionExists = project.collections.some(collection => collection.name === newCollectionName);
@@ -238,7 +238,7 @@ router.post('/:id/collections',
                 return res.status(404).json({ success: false, message: 'Project not found' });
             }
 
-            res.status(201).json({succes: true, message: 'Collection added successfully', collection: newCollectionData});
+            res.status(201).json({ success: true, message: 'Collection added successfully', collection: newCollectionData });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
@@ -378,6 +378,7 @@ router.post('/:projectId/access',
                     { _id: new mongoose.Types.ObjectId(req.params.projectId) },
                     updateData
                 );
+
                 if (result.modifiedCount === 0) {
                     return res.status(404).json({ success: false, message: 'Project not found' });
                 }
