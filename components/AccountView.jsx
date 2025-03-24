@@ -172,13 +172,13 @@ export function AccountView({ initialUserData }) {
                         >
                             Profile
                         </TabsTrigger>
-                        <TabsTrigger
+                        {/* <TabsTrigger
                             value="security"
                             className="hover:bg-gray-200 dark:hover:bg-gray-700 dark:data-[state=active]:bg-blue-500"
                         >
                             Security
                         </TabsTrigger>
-                        {/* <TabsTrigger
+                        <TabsTrigger
                             value="preferences"
                             className="hover:bg-gray-200 dark:hover:bg-gray-700 dark:data-[state=active]:bg-blue-500"
                         >
