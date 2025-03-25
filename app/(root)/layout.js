@@ -31,9 +31,7 @@ function RootLayoutContent({ children }) {
             if (typeof window === 'undefined') return; // Ensure this runs only on the client
 
             const userToken = Cookies.get('token');
-            console.log("layout token:", userToken)
             if (!userToken) {
-                console.log("no token")
                 setIsAuthenticated(false);
                 return;
             }
@@ -41,7 +39,6 @@ function RootLayoutContent({ children }) {
             try {
                 const verifiedToken = await verifyToken(userToken);
                 if (verifiedToken.success) {
-                    console.log("verifying token success")
                     setUser(verifiedToken.user);
                     setToken(userToken);
                     setIsAuthenticated(true);
@@ -77,8 +74,6 @@ function RootLayoutContent({ children }) {
         if (typeof window !== 'undefined') window.location.href = '/login';
         return null;
     }
-
-    console.log("user:", user.role)
 
     return (
         <div className={`flex h-screen overflow-hidden ${darkMode ? 'dark' : ''}`}>

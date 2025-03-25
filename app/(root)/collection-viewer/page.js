@@ -44,18 +44,15 @@ export default function MongoDBViewer() {
             .then(response => {
                 const collectionList = response.data.map(collection => collection); // Extract collection names and put them in a list
                 setCollections(collectionList);
-                console.log("collectionList", collectionList)
             })
             .catch(error => {
                 console.error('Error fetching collections:', error)
             })
     }, [token])
 
-    console.log("collections", collections)
 
     useEffect(() => {
         if (selectedCollection) {
-            console.log("selectedCollection", selectedCollection)
             // Fetch documents of the selected collection
             axios.get(nextConfig.env.API_URL + `/collections/${selectedCollection}`, {
                 headers: {

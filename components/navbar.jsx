@@ -58,9 +58,6 @@ export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode })
           )}
         </div>
         <div className="flex items-center">
-          <Button variant="ghost" size="icon" className="mr-4 text-gray-800 dark:text-white">
-            <Bell className="h-5 w-5" />
-          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center text-gray-800 dark:text-white">

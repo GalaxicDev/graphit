@@ -73,7 +73,6 @@ export function AdminUserList({ token, users }) {
       if (!data.success) {
         setError(data.message || "Failed to create user");
       } else {
-        console.log("success creating user", data);
         setNewUser({ name: "", email: "", password: "", role: "user" });
         setCreateDialogOpen(false);
         if (data.password) {

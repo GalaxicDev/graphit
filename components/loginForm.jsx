@@ -50,7 +50,6 @@ const LoginForm = () => {
         credentials: 'include' // Ensure cookies are included in the request
       });
       const data = await res.json();
-      console.log("login data:", data);
       if (!data.success) {
         setError(data.message);
       } else {
@@ -60,14 +59,11 @@ const LoginForm = () => {
           secure: true, // Set secure to true only in production
           sameSite: 'Strict'
         });
-        console.log("set cookie token to:", data.token);
         Cookies.set('user', JSON.stringify({ _id: data.user._id, name: data.user.name, email: data.user.email }), {
           expires: 31,
           secure: true, // Set secure to true only in production
           sameSite: 'Strict'
         });
-        console.log("redirecting to /");
-        console.log("Cookies.get('token'):", Cookies.get('token'));
         router.push('/'); // Redirect to the main page
       }
     } catch (error) {
