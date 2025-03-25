@@ -26,7 +26,6 @@ const FullScreenChart = ({ graphId }) => {
                     }
                 });
                 setGraph(res.data);
-                console.log('Graph:', res.data);
             } catch (error) {
                 console.error('Failed to fetch graph:', error);
             } finally {
