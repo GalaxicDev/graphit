@@ -51,7 +51,6 @@ export function ProjectCard({ project, onViewProject, setProjects }) {
     const prefetchProject = async () => {
         if (!prefetchEnabled) return;
         try {
-            console.log("prefetching started", project);
             await axios.get(`${nextConfig.env.API_URL}/projects/${project._id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`

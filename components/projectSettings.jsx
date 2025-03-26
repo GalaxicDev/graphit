@@ -40,7 +40,6 @@ export function ProjectSettings({ initialProjectData }) {
         },
       });
       setUsersInProject(res.data);
-      console.log("Users in project:", res.data);
     } catch (error) {
       console.error("Failed to fetch users in project:", error);
     }
@@ -82,7 +81,6 @@ export function ProjectSettings({ initialProjectData }) {
   };
 
   const handleRemoveUser = async (username) => {
-    console.log("Removing user:", username);
     try {
       await axios.post(nextConfig.env.API_URL + `/projects/${project._id}/access`,
         {
@@ -183,7 +181,6 @@ export function ProjectSettings({ initialProjectData }) {
     }
   }, [alert]);
 
-  console.log("collections", project.collections);
 
   return (
       <>
