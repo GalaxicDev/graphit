@@ -164,8 +164,8 @@ router.delete('/:id', param('id').isMongoId(),
     handleValidationErrors, async (req, res) => {
         try {
             const db = await getDB('data');
-            const graph = await db.collection('graphs').findOneAndDelete({ _id: new mongoose.Types.ObjectId(req.params.id) });
-            if (!graph.value) {
+            const result = await db.collection('graphs').deleteOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
+            if (result.deletedCount === 0) {
                 console.log("Graph not found");
                 return res.status(404).json({ success: false, message: 'Graph not found' });
             }
@@ -174,7 +174,7 @@ router.delete('/:id', param('id').isMongoId(),
             cache.del(`project-graphs-${req.params.id}`);
             console.log("All cache entries deleted");
 
-            res.json();
+            res.json({ success: true, message: 'Graph deleted'});
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
@@ -197,8 +197,6 @@ const setupChangeStreams = async () => {
             if (change.operationType === 'insert' || change.operationType === 'update' || change.operationType === 'replace') {
                 console.log('Full document:', change.fullDocument);
                 cacheKey = `project-graphs-${change.fullDocument.projectId}`;
-            } else if (change.operationType === 'delete') {
-                console.log('Deleted document:', change.documentKey);
             }
 
             if (cacheKey) {
