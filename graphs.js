@@ -165,15 +165,22 @@ router.delete('/:id', param('id').isMongoId(),
         try {
             console.log("Deleting graph", req.params.id);
             const db = await getDB('data');
+            const removeDoc = await db.collection('graphs').findOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
+            if (!removeDoc) {
+                return res.status(404).json({ success: false, message: 'Graph not found' });
+            }
+            // Retrieve project information
+            const projectId = removeDoc.projectId;
+
             const result = await db.collection('graphs').deleteOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
             if (result.deletedCount === 0) {
                 console.log("Graph not found");
-                return res.status(404).json({ success: false, message: 'Graph not found' });
+                return res.status(404).json({ success: false, message: 'Error deleting graph' });
             }
 
-            console.log("deleting cache entry", `project-graphs-${req.params.id}`);
+            console.log("deleting cache entry", `project-graphs-${projectId}`);
             // Delete all cache entries
-            cache.del(`project-graphs-${req.params.id}`);
+            cache.del(`project-graphs-${projectId}`);
             console.log("All cache entries deleted");
 
             res.json({ success: true, message: 'Graph deleted'});
