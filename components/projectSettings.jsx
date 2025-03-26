@@ -18,6 +18,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CircleAlert } from "lucide-react";
 import nextConfig from '@/next.config.mjs';
 import { useUser } from '@/lib/UserContext';
+import { useRouter } from "next/navigation"; // Import useRouter
 
 export function ProjectSettings({ initialProjectData }) {
   const [project, setProject] = useState(initialProjectData);
@@ -29,6 +30,7 @@ export function ProjectSettings({ initialProjectData }) {
   const [usersInProject, setUsersInProject] = useState([]);
   const id = useId();
   const { token } = useUser();
+  const router = useRouter(); // Initialize the router
 
   const fetchUsersInProject = async () => {
     try {
@@ -103,6 +105,7 @@ export function ProjectSettings({ initialProjectData }) {
     if (newCollection) {
       try {
         const response = await axios.post(nextConfig.env.API_URL + `/projects/${project._id}/collections/${newCollection}`,
+          {},
           {
             headers: {
               "Authorization": `Bearer ${token}`
@@ -189,7 +192,14 @@ export function ProjectSettings({ initialProjectData }) {
         )}
 
         <div className="container mx-auto">
-          <h1 className="text-3xl font-bold mb-6 dark:text-white">Project Settings</h1>
+          <div className="flex justify-between items-center mb-6 overflow-auto w-full">
+            <h1 className="text-3xl font-bold mb-6 dark:text-white">Project Settings</h1>
+            <Button
+              variant="outline"
+              onClick={() => router.push(`/projects/${project._id}`)} // Navigate to the project page
+              className="mr-2 px-4 py-2 border border-gray-300 text-gray-700 rounded dark:border-gray-600 dark:text-gray-300"
+            >Back to Project</Button>
+          </div>
           <Tabs defaultValue="general" className="space-y-4">
             <TabsList className="dark:bg-gray-800 dark:text-white">
               <TabsTrigger value="general"
