@@ -163,7 +163,6 @@ router.put('/:id',
 router.delete('/:id', param('id').isMongoId(),
     handleValidationErrors, async (req, res) => {
         try {
-            console.log("Deleting graph", req.params.id);
             const db = await getDB('data');
             const removeDoc = await db.collection('graphs').findOne({ _id: new mongoose.Types.ObjectId(req.params.id) });
             if (!removeDoc) {
@@ -177,11 +176,9 @@ router.delete('/:id', param('id').isMongoId(),
                 console.log("Graph not found");
                 return res.status(404).json({ success: false, message: 'Error deleting graph' });
             }
-
-            console.log("deleting cache entry", `project-graphs-${projectId}`);
-            // Delete all cache entries
+            // Delete cache entry of this project
             cache.del(`project-graphs-${projectId}`);
-            console.log("All cache entries deleted");
+            console.log("Deleted cache entry", `project-graphs-${projectId}`);
 
             res.json({ success: true, message: 'Graph deleted'});
         } catch (error) {
@@ -210,8 +207,7 @@ const setupChangeStreams = async () => {
 
             if (cacheKey) {
                 cache.del(cacheKey);
-            } else {
-                console.log('No cache key found for this operation');
+                console.log("Deleted cache entry", cacheKey);
             }
         });
     });
