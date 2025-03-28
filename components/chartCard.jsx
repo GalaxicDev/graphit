@@ -83,7 +83,7 @@ const ChartCard = ({ graph, onDelete, onEdit, token }) => {
                             <Maximize2 className="h-4 w-4 text-white" />
                         </Button>
 
-                        <Button variant="ghost" size="icon" className="drag-handle">
+                        <Button variant="ghost" size="icon" className="drag-handle hidden">
                             <Move className="h-4 w-4 text-white" />
                         </Button>
 
