@@ -19,7 +19,7 @@ import { renderChart } from "@/lib/renderChart";
 import { renderOther } from "@/lib/renderOther";
 import { fetchGraphData } from '@/lib/api';
 
-const generalChartTypes = ["Line", "Bar", "Area", "Scatter", "Pie", "Radar"];
+const generalChartTypes = ["Line", "Bar", "Area", "Scatter", "Pie"];
 
 const ChartCard = ({ graph, onDelete, onEdit, token }) => {
     const [isFullScreen, setIsFullScreen] = useState(false);
