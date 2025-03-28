@@ -109,9 +109,9 @@ export default function MongoDBViewer() {
                     // Convert JSON data to CSV format
                     if (Array.isArray(docs) && docs.length > 0) {
                         const allKeys = new Set(docs.flatMap(doc => Object.keys(doc))); // Get all keys from all documents, not just the first one
-                        const headers = Array.from(allKeys).join(',');
+                        const headers = Array.from(allKeys).join(':');
                         const rows = docs.map(row => 
-                            Array.from(allKeys).map(key => row[key] !== undefined ? row[key] : '').join(',') // Fill in empty values with an empty string
+                            Array.from(allKeys).map(key => row[key] !== undefined ? row[key] : '').join(':') // Fill in empty values with an empty string
                         ).join('\n');
                         const csvContent = `${headers}\n${rows}`; // Combine headers and rows
                         const blob = new Blob([csvContent], { type: 'text/csv' }); // Convert to blob
