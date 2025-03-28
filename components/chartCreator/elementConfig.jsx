@@ -10,7 +10,7 @@ import { Minus, Plus } from 'lucide-react';
 import nextConfig from '@/next.config.mjs';
 import { useUser } from '@/lib/UserContext';
 
-const generalChartTypes = ["Line", "Bar", "Area", "Scatter", "Pie", "Radar"];
+const generalChartTypes = ["Line", "Bar", "Area", "Scatter", "Pie"];
 
 export function ElementConfig({ el, collections, handleElementChange, removeElement, chartType }) {
     const [availableKeys, setAvailableKeys] = useState([]);
@@ -119,7 +119,7 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
                             </SelectContent>
                         </Select>
                     </div>
-                    <div>
+                    { <div>
                         <Label htmlFor={`name-${el.id}`}>Name</Label>
                         <Input
                             id={`name-${el.id}`}
@@ -127,7 +127,7 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
                             onChange={(e) => handleElementChange(el.id, "name", e.target.value)}
                             className="dark:bg-gray-700"
                         />
-                    </div>
+                    </div>  }
                     <div>
                         <Label htmlFor={`fetchMethod-${el.id}`}>Fetch Method</Label>
                         <Select
@@ -390,6 +390,69 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
                             )}
                         </div>
                     )}
+                </>
+            )}
+
+
+            {chartType === "Pie" && (
+                <>
+                    <div>
+                        <Label className="font-bold" htmlFor={`collection-${el.id}`}>Collection</Label>
+                        <Select
+                            value={el.collection}
+                            onValueChange={(value) => handleElementChange(el.id, "collection", value)}
+                            className={"dark:bg-gray-700"}
+                        >
+                            <SelectTrigger id={`collection-${el.id}`} className={"dark:bg-gray-700"}>
+                                <SelectValue placeholder="Select collection"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                {collections.map((col) => (
+                                    <SelectItem key={col.name} value={col.name}>
+                                        {col.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div>
+                        <Label className="font-bold" htmlFor={`xAxisKey-${el.id}`}>Name Key</Label>
+                        <Select
+                            value={el.xAxisKey}
+                            onValueChange={(value) => handleElementChange(el.id, "xAxisKey", value)}
+                            className={"dark:bg-gray-700"}
+                        >
+                            <SelectTrigger id={`xAxisKey-${el.id}`} className={"dark:bg-gray-700"}>
+                                <SelectValue placeholder="Select Name Key"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                {availableKeys.map((key) => (
+                                    <SelectItem key={key} value={key}>
+                                        {key}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div>
+                        <Label className="font-bold" htmlFor={`yAxisKey-${el.id}`}>Value Key</Label>
+                        <Select
+                            value={el.yAxisKey}
+                            onValueChange={(value) => handleElementChange(el.id, "yAxisKey", value)}
+                            className={"dark:bg-gray-700"}
+                        >
+                            <SelectTrigger id={`yAxisKey-${el.id}`} className={"dark:bg-gray-700"}>
+                                <SelectValue placeholder="Select Value Key"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                {availableKeys.map((key) => (
+                                    <SelectItem key={key} value={key}>
+                                        {key}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </>
             )}
 
