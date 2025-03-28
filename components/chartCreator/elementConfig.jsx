@@ -10,7 +10,7 @@ import { Minus, Plus } from 'lucide-react';
 import nextConfig from '@/next.config.mjs';
 import { useUser } from '@/lib/UserContext';
 
-const generalChartTypes = ["Line", "Bar", "Area", "Scatter", "Pie"];
+const generalChartTypes = ["Line", "Bar", "Area", "Scatter"];
 
 export function ElementConfig({ el, collections, handleElementChange, removeElement, chartType }) {
     const [availableKeys, setAvailableKeys] = useState([]);
@@ -394,36 +394,54 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
             )}
 
 
-            {chartType === "Pie" && (
-                <>
-                    <div>
-                        <Label className="font-bold" htmlFor={`collection-${el.id}`}>Collection</Label>
+{chartType === "Pie" && (
+    <>
+        <div>
+            <Label className="font-bold" htmlFor={`collection-${el.id}`}>Collection</Label>
+            <Select
+                value={el.collection}
+                onValueChange={(value) => handleElementChange(el.id, "collection", value)}
+                className={"dark:bg-gray-700"}
+            >
+                <SelectTrigger id={`collection-${el.id}`} className={"dark:bg-gray-700"}>
+                    <SelectValue placeholder="Select collection" />
+                </SelectTrigger>
+                <SelectContent>
+                    {collections.map((col) => (
+                        <SelectItem key={col.name} value={col.name}>
+                            {col.name}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </div>
+        <div>
+            <Label className="font-bold">Pie Chart Items</Label>
+            <div className="space-y-4">
+                {(el.pieItems || []).map((item, index) => (
+                    <div key={index} className="space-y-2 p-2 border rounded-md">
+                        <Label>Item {index + 1}</Label>
+                        <Input
+                            placeholder="Name"
+                            value={item.name}
+                            onChange={(e) => {
+                                const updatedItems = [...el.pieItems];
+                                updatedItems[index].name = e.target.value;
+                                handleElementChange(el.id, "pieItems", updatedItems);
+                            }}
+                            className="dark:bg-gray-700"
+                        />
                         <Select
-                            value={el.collection}
-                            onValueChange={(value) => handleElementChange(el.id, "collection", value)}
-                            className={"dark:bg-gray-700"}
+                            value={item.value}
+                            onValueChange={(value) => {
+                                const updatedItems = [...el.pieItems];
+                                updatedItems[index].value = value;
+                                handleElementChange(el.id, "pieItems", updatedItems);
+                            }}
+                            className="dark:bg-gray-700"
                         >
-                            <SelectTrigger id={`collection-${el.id}`} className={"dark:bg-gray-700"}>
-                                <SelectValue placeholder="Select collection"/>
-                            </SelectTrigger>
-                            <SelectContent>
-                                {collections.map((col) => (
-                                    <SelectItem key={col.name} value={col.name}>
-                                        {col.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div>
-                        <Label className="font-bold" htmlFor={`xAxisKey-${el.id}`}>Name Key</Label>
-                        <Select
-                            value={el.xAxisKey}
-                            onValueChange={(value) => handleElementChange(el.id, "xAxisKey", value)}
-                            className={"dark:bg-gray-700"}
-                        >
-                            <SelectTrigger id={`xAxisKey-${el.id}`} className={"dark:bg-gray-700"}>
-                                <SelectValue placeholder="Select Name Key"/>
+                            <SelectTrigger className="dark:bg-gray-700">
+                                <SelectValue placeholder="Select Value Key" />
                             </SelectTrigger>
                             <SelectContent>
                                 {availableKeys.map((key) => (
@@ -433,28 +451,45 @@ export function ElementConfig({ el, collections, handleElementChange, removeElem
                                 ))}
                             </SelectContent>
                         </Select>
-                    </div>
-                    <div>
-                        <Label className="font-bold" htmlFor={`yAxisKey-${el.id}`}>Value Key</Label>
-                        <Select
-                            value={el.yAxisKey}
-                            onValueChange={(value) => handleElementChange(el.id, "yAxisKey", value)}
-                            className={"dark:bg-gray-700"}
+                        <div>
+                            <Label className="font-bold" htmlFor={`color-${el.id}-${index}`}>Color</Label>
+                            <Input
+                                id={`color-${el.id}-${index}`}
+                                type="color"
+                                value={item.color || "#000000"} // Default to black if no color is set
+                                onChange={(e) => {
+                                    const updatedItems = [...el.pieItems];
+                                    updatedItems[index].color = e.target.value;
+                                    handleElementChange(el.id, "pieItems", updatedItems);
+                                }}
+                                className="w-24 h-10 rounded-md shadow-sm focus:ring focus:ring-blue-300 border border-gray-300 dark:bg-gray-700 dark:border-gray-800"
+                            />
+                        </div>
+                        <Button
+                            variant="destructive"
+                            onClick={() => {
+                                const updatedItems = el.pieItems.filter((_, i) => i !== index);
+                                handleElementChange(el.id, "pieItems", updatedItems);
+                            }}
+                            className="mt-2"
                         >
-                            <SelectTrigger id={`yAxisKey-${el.id}`} className={"dark:bg-gray-700"}>
-                                <SelectValue placeholder="Select Value Key"/>
-                            </SelectTrigger>
-                            <SelectContent>
-                                {availableKeys.map((key) => (
-                                    <SelectItem key={key} value={key}>
-                                        {key}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                            <Minus className="mr-2 h-4 w-4" /> Remove Item
+                        </Button>
                     </div>
-                </>
-            )}
+                ))}
+            </div>
+            <Button
+                onClick={() => {
+                    const updatedItems = [...(el.pieItems || []), { name: "", value: "", color: "#000000" }];
+                    handleElementChange(el.id, "pieItems", updatedItems);
+                }}
+                className="mt-4"
+            >
+                <Plus className="mr-2 h-4 w-4" /> Add Item
+            </Button>
+        </div>
+    </>
+)}
 
             {generalChartTypes.includes(chartType) && (
                 <>
