@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils"
 import TimePicker from 'react-time-picker'
 import 'react-time-picker/dist/TimePicker.css'
 
-const chartTypes = ["Line", "Bar", "Area", "Scatter", "Pie", "Radar", "Info", "Map", "Map Trajectory"];
+const chartTypes = ["Line", "Bar", "Area", "Scatter", "Pie", "Info", "Map", "Map Trajectory"];
 
 export function ChartOptions({ chartType, setChartType, options, handleOptionChange, elements }) {
     return (

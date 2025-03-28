@@ -23,7 +23,7 @@ import nextConfig from '@/next.config.mjs';
 import { renderChart } from "@/lib/renderChart";
 import { renderOther } from "@/lib/renderOther";
 
-const generalChartTypes = ["Line", "Bar", "Area", "Scatter", "Pie", "Radar"];
+const generalChartTypes = ["Line", "Bar", "Area", "Scatter", "Pie"];
 
 export function ChartCreator({ token, projectData, chartData }) {
   const [chartType, setChartType] = useState("Line");
@@ -173,7 +173,7 @@ export function ChartCreator({ token, projectData, chartData }) {
         );
         return updatedElements;
       });
-    }, 300),
+    }, 50),
     [setElements]
   );
 
