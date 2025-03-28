@@ -46,9 +46,10 @@ router.get('/data',
         query('timeframe').optional().isString(),
         query('from').optional().isISO8601(),
         query('to').optional().isISO8601(),
+        query('fetchMethods').optional().isString(),
         handleValidationErrors
     ], async (req, res) => {
-    const { collections, fields, timeframe, from, to } = req.query;
+    const { collections, fields, timeframe, from, to, fetchMethods } = req.query;
     const conditionalParams = req.query.conditionalParams;
 
     console.log("starting to fetch data", req.query);
@@ -171,7 +172,33 @@ router.get('/data',
 
             console.log("query", query);
 
-            const collectionData = await db.collection(collection).find(query, { projection }).toArray();
+            let collectionData;
+            switch (fetchMethods) {
+                case 'latest entry':
+                    collectionData = await db.collection(collection).find(query, { projection }).sort({ createdAt: -1 }).limit(1).toArray();
+                    break;
+                case 'last known value':
+                    // Assume we check for the first field in the fields list.
+                    const fieldToCheck = fieldList[0];
+                    // Modify the query to only include documents where the field exists and is not null.
+                    const modifiedQuery = {
+                        ...query,
+                        [fieldToCheck]: { $ne: null }
+                    };
+                    collectionData = await db.collection(collection)
+                        .find(modifiedQuery, { projection })
+                        .sort({ createdAt: -1 })
+                        .limit(1)
+                        .toArray();
+                    break;
+                case 'first entry':
+                    collectionData = await db.collection(collection).find(query, { projection }).sort({ createdAt: 1 }).limit(1).toArray();
+                    break;
+                default:
+                    collectionData = await db.collection(collection).find(query, { projection }).toArray();
+                    break;
+            }
+
             data = data.concat(collectionData);
         }
 
