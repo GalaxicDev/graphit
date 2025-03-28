@@ -72,7 +72,7 @@ export function ProjectView({ project, token, userRole, hasAccess, }) {
                             <Button
                                 variant="outline"
                                 onClick={() => router.push('/')}
-                                className="mr-2 px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 transition duration-300">
+                                className="mr-2 px-4 py-2 border border-gray-300 text-gray-700 rounded dark:border-gray-600 dark:text-gray-300">
                                 Back to projects
                             </Button>
                         </div>
