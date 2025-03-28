@@ -115,52 +115,62 @@ export function ChartCreator({ token, projectData, chartData }) {
 
   useEffect(() => {
     const fetchGraphData = async () => {
-      if (elements.length === 0) return;
+        if (elements.length === 0) return;
 
-      try {
-        setIsLoading(true);
-        const params = {
-          collections: elements.map(el => el.collection).join(','),
-          ...(chartType === "Info"
-              ? { fields: elements.map(el => el.dataKey).join(','), fetchMethods: elements.map(el => el.fetchMethod).join(',') }
-              : { fields: elements.map(el => `${el.xAxisKey},${el.yAxisKey}`).join(',') }),
-          ...(chartType === "Map" || chartType === "Map Trajectory" && {
-            fields: elements.map(el => `${el.longitudeKey},${el.latitudeKey},${el.timestampKey}`).join(','),
-          })
-        };
+        try {
+            setIsLoading(true);
+            const params = {
+                collections: elements.map(el => el.collection).join(','),
+                ...(chartType === "Info"
+                    ? { 
+                        fields: elements.map(el => el.dataKey).join(','), 
+                        fetchMethods: elements.map(el => el.fetchMethod).join(',') 
+                    }
+                    : chartType === "Pie"
+                    ? { 
+                        fields: elements
+                            .flatMap(el => el.pieItems?.map(item => item.value) || [])
+                            .join(',') 
+                    }
+                    : { 
+                        fields: elements.map(el => `${el.xAxisKey},${el.yAxisKey}`).join(',') 
+                    }),
+                ...(chartType === "Map" || chartType === "Map Trajectory" && {
+                    fields: elements.map(el => `${el.longitudeKey},${el.latitudeKey},${el.timestampKey}`).join(','),
+                })
+            };
 
-        if (options.dynamicTime) {
-          params.timeframe = selectedTimeframe;
-        } else {
-          params.from = new Date(options.xRange.from).toISOString();
-          params.to = new Date(options.xRange.to).toISOString();
+            if (options.dynamicTime) {
+                params.timeframe = selectedTimeframe;
+            } else {
+                params.from = new Date(options.xRange.from).toISOString();
+                params.to = new Date(options.xRange.to).toISOString();
+            }
+
+            elements.forEach((el, index) => {
+                el.conditionalParams.forEach((param, paramIndex) => {
+                    params[`conditionalParams[${index}][${paramIndex}][field]`] = param.field;
+                    params[`conditionalParams[${index}][${paramIndex}][operator]`] = param.operator;
+                    params[`conditionalParams[${index}][${paramIndex}][value]`] = param.value;
+                });
+            });
+
+            const dataResponse = await axios.get(`${nextConfig.env.API_URL}/mqtt/data`, {
+                params,
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            setGraphData(dataResponse.data.data);
+        } catch (error) {
+            console.error('Failed to fetch graph data:', error);
+        } finally {
+            setIsLoading(false);
         }
-
-        elements.forEach((el, index) => {
-          el.conditionalParams.forEach((param, paramIndex) => {
-            params[`conditionalParams[${index}][${paramIndex}][field]`] = param.field;
-            params[`conditionalParams[${index}][${paramIndex}][operator]`] = param.operator;
-            params[`conditionalParams[${index}][${paramIndex}][value]`] = param.value;
-          });
-        });
-
-        const dataResponse = await axios.get(`${nextConfig.env.API_URL}/mqtt/data`, {
-          params,
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        setGraphData(dataResponse.data.data);
-      } catch (error) {
-        console.error('Failed to fetch graph data:', error);
-      } finally {
-        setIsLoading(false);
-      }
     };
 
     const debounceTimeout = setTimeout(fetchGraphData, 500);
     return () => clearTimeout(debounceTimeout);
-  }, [elements, selectedTimeframe, options.dynamicTime, options.xRange, options.yRange, token, chartType]);
-
+}, [elements, selectedTimeframe, options.dynamicTime, options.xRange, options.yRange, token, chartType]);
   const handleOptionChange = (key, value) => {
     setOptions(prev => ({ ...prev, [key]: value }));
   };

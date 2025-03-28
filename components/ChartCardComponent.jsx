@@ -152,8 +152,8 @@ const ChartCardComponent = ({ projectId, token }) => {
             cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
             rowHeight={255}
             onLayoutChange={onLayoutChange} // Capture layout changes
-            isDraggable={true}
-            isResizable={true}
+            isDraggable={false}
+            isResizable={false}
             draggableHandle=".drag-handle"
             compactType="vertical" // Force vertical alignment of items
         >
