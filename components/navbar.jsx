@@ -23,9 +23,9 @@ export function Navbar({ sidebarOpen, toggleSidebar, darkMode, toggleDarkMode })
     const router = useRouter();
 
     const handleLogout = () => {
-      Cookies.remove('token');
-      Cookies.remove('user');
-      router.push('/login');
+      Cookies.remove('token', { path: '/' });
+      Cookies.remove('user', { path: '/' });
+      await router.push('/login');
     }
 
     const handleAccountRedirect = () => {
